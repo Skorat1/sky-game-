@@ -9,7 +9,10 @@ export const socket = io(SOCKET_URL, {
   reconnection: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 1000,
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  query: {
+    clientType: 'admin'
+  }
 });
 
 export default socket;

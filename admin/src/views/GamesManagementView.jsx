@@ -25,19 +25,7 @@ export default function GamesManagementView({
 
   return (
     <div className="glass-panel">
-      <div className="panel-header">
-        <div>
-          <h2 className="panel-title">🎮 Games Inventory ({games.length} Total)</h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>
-            Control catalog listings, featured carousels, game status, and external embeds.
-          </p>
-        </div>
-        <button className="header-btn primary" onClick={onOpenAddModal}>
-          ➕ Add New Game
-        </button>
-      </div>
-
-      {/* Filter Bar */}
+      
       <div className="filter-bar">
         <div className="search-input-wrapper">
           <span className="search-icon-pos">🔍</span>

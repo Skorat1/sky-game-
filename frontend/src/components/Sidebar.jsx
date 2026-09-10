@@ -15,7 +15,11 @@ import {
   Trophy,
   Gamepad2,
   Code2,
-  ChevronRight
+  ChevronRight,
+  Info,
+  Shield,
+  Mail,
+  Rocket
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -45,7 +49,6 @@ export default function Sidebar({
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home, color: '#00f2fe' },
-    { id: 'recently-played', label: 'Recently played', icon: Clock, color: '#a78bfa', badge: recentlyPlayedCount > 0 ? recentlyPlayedCount : null },
     { id: 'most-played', label: 'Most played', icon: Trophy, color: '#ffd200' },
     { id: 'trending', label: 'Trending', icon: Flame, color: '#f52d7e', badge: 'HOT' },
     { id: 'new', label: 'New', icon: Sparkles, color: '#00f5a0' },
@@ -94,6 +97,14 @@ export default function Sidebar({
     }
   };
 
+  const handleFooterLinkClick = (pageId) => {
+    sounds.playClick();
+    if (onNavigate) onNavigate(pageId);
+    if (window.innerWidth < 1024) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Mobile Overlay Backdrop */}
@@ -107,7 +118,7 @@ export default function Sidebar({
         />
       )}
 
-      {/* GamePix Sticky Left Sidebar (Mini Icon-rail, expands to full menu on Hover) */}
+      {/* GamePix Sticky Left Sidebar */}
       <aside className={`gamepix-sidebar ${isOpen ? 'open' : 'closed'}`}>
         <div className="gamepix-sidebar-inner custom-scrollbar">
           
@@ -171,22 +182,43 @@ export default function Sidebar({
           {/* Divider */}
           <div className="gamepix-side-divider" />
 
-          {/* Developer Portal Section */}
-          <div className="gamepix-side-section">
+          {/* Integrated Sidebar Footer Section (Developer + Legal + Live Status) */}
+          <div className="sidebar-footer-block">
+            {/* Developer Button */}
             <button
-              className={`gamepix-side-item dev-item ${activePage === 'developers' ? 'active' : ''}`}
-              onClick={() => {
-                sounds.playClick();
-                onNavigate('developers');
-                if (window.innerWidth < 1024) setIsOpen(false);
-              }}
+              className={`sidebar-dev-action-btn ${activePage === 'developers' ? 'active' : ''}`}
+              onClick={() => handleFooterLinkClick('developers')}
               title="Publish Your Game"
             >
-              <div className="gamepix-side-icon-box" style={{ color: '#00f2fe' }}>
-                <Code2 size={20} />
-              </div>
-              <span className="gamepix-side-label">Publish Game</span>
+              <Rocket size={17} className="text-cyan" />
+              <span>Submit Game</span>
             </button>
+
+            {/* Quick Links Row */}
+            <div className="sidebar-links-group">
+              <button onClick={() => handleFooterLinkClick('about')} className="sidebar-mini-link">
+                <Info size={13} /> <span>About</span>
+              </button>
+              <span className="sidebar-link-dot">•</span>
+              <button onClick={() => handleFooterLinkClick('privacy')} className="sidebar-mini-link">
+                <Shield size={13} /> <span>Privacy</span>
+              </button>
+              <span className="sidebar-link-dot">•</span>
+              <button onClick={() => handleFooterLinkClick('contact')} className="sidebar-mini-link">
+                <Mail size={13} /> <span>Contact</span>
+              </button>
+            </div>
+
+            {/* Server Status Indicator */}
+            <div className="sidebar-status-indicator">
+              <span className="status-live-ping"></span>
+              <span>60 FPS • Operational</span>
+            </div>
+
+            {/* Mini Copyright */}
+            <div className="sidebar-copyright-text">
+              © {new Date().getFullYear()} SKYGAMES Platform
+            </div>
           </div>
 
         </div>

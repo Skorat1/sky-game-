@@ -10,12 +10,12 @@ export default function DashboardView({
   onNavigate, 
   onEditGame 
 }) {
-  const [onlineCount, setOnlineCount] = useState(24);
+  const [onlineCount, setOnlineCount] = useState(0);
   const [activities, setActivities] = useState([]);
 
   useEffect(() => {
     socket.on('online:count', (data) => {
-      if (data?.count) setOnlineCount(data.count);
+      if (typeof data?.count === 'number') setOnlineCount(data.count);
     });
 
     socket.on('activities:init', (initList) => {

@@ -21,47 +21,7 @@ export default function Footer({ onNavigate }) {
   return (
     <footer className="sky-footer">
       {/* Footer Top Highlights Feature Row */}
-      <div className="footer-highlights-bar">
-        <div className="footer-highlight-item">
-          <div className="highlight-icon-box">
-            <Gamepad2 size={20} className="text-cyan" />
-          </div>
-          <div className="highlight-text">
-            <strong>100+ Free HTML5 Games</strong>
-            <span>Instant Play • No Downloads</span>
-          </div>
-        </div>
-
-        <div className="footer-highlight-item">
-          <div className="highlight-icon-box">
-            <Zap size={20} className="text-yellow" />
-          </div>
-          <div className="highlight-text">
-            <strong>Ultra-Fast 60 FPS</strong>
-            <span>Optimized WebGL Gaming Engine</span>
-          </div>
-        </div>
-
-        <div className="footer-highlight-item">
-          <div className="highlight-icon-box">
-            <Smartphone size={20} className="text-green" />
-          </div>
-          <div className="highlight-text">
-            <strong>Mobile & Desktop Ready</strong>
-            <span>Touch Controls & Keyboard Support</span>
-          </div>
-        </div>
-
-        <div className="footer-highlight-item">
-          <div className="highlight-icon-box">
-            <Shield size={20} className="text-purple" />
-          </div>
-          <div className="highlight-text">
-            <strong>100% Safe & Free</strong>
-            <span>No Signup Required to Play</span>
-          </div>
-        </div>
-      </div>
+     
 
       <div className="footer-top-grid footer-two-col">
         {/* Brand Col */}

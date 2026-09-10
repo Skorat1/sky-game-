@@ -40,11 +40,10 @@ const io = new Server(httpServer, {
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/skygames';
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// API Rate Limiter
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
@@ -54,10 +53,14 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// ---------------- REAL-TIME WEBSOCKET TRACKING ----------------
-let onlineUsersCount = 0;
-const gameActivePlayers = new Map(); // gameId -> count
-const recentActivities = []; // live stream log for admin & frontend
+const activeVisitors = new Set();
+const gameActivePlayers = new Map(); 
+const recentActivities = []; 
+
+function broadcastOnlineCount() {
+  const count = activeVisitors.size;
+  io.emit('online:count', { count });
+}
 
 function recordActivity(type, title, detail) {
   const activity = {
@@ -73,26 +76,43 @@ function recordActivity(type, title, detail) {
 }
 
 io.on('connection', (socket) => {
-  onlineUsersCount++;
-  io.emit('online:count', { count: Math.max(1, onlineUsersCount) });
+  const clientType = socket.handshake.query?.clientType;
+  const isAdmin = clientType === 'admin';
+
+  if (!isAdmin) {
+    // Only count frontend website visitors
+    activeVisitors.add(socket.id);
+    broadcastOnlineCount();
+  } else {
+    // Admin connected: Join admin room and send current visitor count immediately
+    socket.join('admin-room');
+    socket.emit('online:count', { count: activeVisitors.size });
+  }
 
   socket.emit('activities:init', recentActivities.slice(0, 20));
 
   // Player joins a game room
   socket.on('game:join', (gameId) => {
+    if (!gameId) return;
     socket.join(gameId);
-    const count = (gameActivePlayers.get(gameId) || 0) + 1;
-    gameActivePlayers.set(gameId, count);
+    if (!gameActivePlayers.has(gameId)) {
+      gameActivePlayers.set(gameId, new Set());
+    }
+    gameActivePlayers.get(gameId).add(socket.id);
+    const count = gameActivePlayers.get(gameId).size;
     io.to(gameId).emit('game:players:count', { gameId, count });
     recordActivity('game_join', 'Player Joined', `Someone started playing "${gameId}"`);
   });
 
   // Player leaves a game room
   socket.on('game:leave', (gameId) => {
+    if (!gameId) return;
     socket.leave(gameId);
-    const count = Math.max(0, (gameActivePlayers.get(gameId) || 1) - 1);
-    gameActivePlayers.set(gameId, count);
-    io.to(gameId).emit('game:players:count', { gameId, count });
+    if (gameActivePlayers.has(gameId)) {
+      gameActivePlayers.get(gameId).delete(socket.id);
+      const count = gameActivePlayers.get(gameId).size;
+      io.to(gameId).emit('game:players:count', { gameId, count });
+    }
   });
 
   // Player sends real-time emoji reaction (🔥, 🎮, ⚡, 👏)
@@ -112,154 +132,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    onlineUsersCount = Math.max(0, onlineUsersCount - 1);
-    io.emit('online:count', { count: Math.max(1, onlineUsersCount) });
+    if (activeVisitors.has(socket.id)) {
+      activeVisitors.delete(socket.id);
+      broadcastOnlineCount();
+    }
+    // Remove from active game rooms
+    for (const [gameId, playersSet] of gameActivePlayers.entries()) {
+      if (playersSet.has(socket.id)) {
+        playersSet.delete(socket.id);
+        io.to(gameId).emit('game:players:count', { gameId, count: playersSet.size });
+      }
+    }
   });
 });
 
-// Seed Initial Data
-const SEED_GAMES = [
-  {
-    id: 'space-shooter',
-    title: 'Neon Void Runner',
-    category: 'action',
-    description: 'Pilot your quantum starship through a hazardous neon asteroid field with upgrades and boss battles.',
-    thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Space', 'Action', 'Shooter', 'Laser', 'Sci-Fi'],
-    rating: 4.8,
-    plays: 14230,
-    featured: true,
-    status: 'active',
-    createdAt: '2026-03-01'
-  },
-  {
-    id: 'cyber-runner',
-    title: 'Cyber Runner 2077',
-    category: 'arcade',
-    description: 'Fast-paced endless runner across futuristic skyscrapers with parkour mechanics and synthwave music.',
-    thumbnail: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Runner', 'Cyberpunk', 'Parkour', 'Endless'],
-    rating: 4.9,
-    plays: 28940,
-    featured: true,
-    status: 'active',
-    createdAt: '2026-03-02'
-  },
-  {
-    id: 'knife-clash',
-    title: 'Knife Clash Deluxe',
-    category: 'arcade',
-    description: 'Throw spinning blades with precision timing to shatter the targets and defeat spinning wheel bosses.',
-    thumbnail: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Knives', 'Precision', 'Arcade', 'Hit'],
-    rating: 4.7,
-    plays: 19410,
-    featured: true,
-    status: 'active',
-    createdAt: '2026-03-03'
-  },
-  {
-    id: 'neon-snake',
-    title: 'Neon Snake GX',
-    category: 'classic',
-    description: 'Classic snake reinvented with glowing particles, warp portals, power-up speed bursts and sound design.',
-    thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Retro', 'Snake', 'Classic', 'Neon'],
-    rating: 4.6,
-    plays: 35120,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-04'
-  },
-  {
-    id: 'brick-breaker',
-    title: 'Quantum Brick Breaker',
-    category: 'arcade',
-    description: 'Destroy neon bricks with multi-ball laser powerups, explosive plasma rounds and shields.',
-    thumbnail: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Breakout', 'Bricks', 'Physics', 'Laser'],
-    rating: 4.7,
-    plays: 11840,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-05'
-  },
-  {
-    id: 'cyber-2048',
-    title: 'Cyber 2048 Hex',
-    category: 'puzzle',
-    description: 'Strategic cyberpunk puzzle combining numbered holographic tiles with energy combos.',
-    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Puzzle', 'Math', 'Cyber', 'Strategy'],
-    rating: 4.5,
-    plays: 9320,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-06'
-  },
-  {
-    id: 'neon-pong',
-    title: 'Neon Hyper Pong',
-    category: 'sports',
-    description: 'High velocity paddle battle against intelligent AI with curve shots and gravity anomalies.',
-    thumbnail: 'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Pong', 'Retro', '2-Player', 'AI Battle'],
-    rating: 4.4,
-    plays: 8750,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-07'
-  },
-  {
-    id: 'cyber-flap',
-    title: 'Cyber Drone Flap',
-    category: 'arcade',
-    description: 'Navigate an anti-gravity drone through pulsating laser gates and electric traps.',
-    thumbnail: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Flappy', 'Precision', 'Drone', 'Laser'],
-    rating: 4.3,
-    plays: 16400,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-08'
-  },
-  {
-    id: 'memory-matrix',
-    title: 'Memory Matrix Protocol',
-    category: 'puzzle',
-    description: 'Test and enhance your cognitive memory by repeating glowing cyber grid sequences.',
-    thumbnail: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Memory', 'Brain', 'Matrix', 'Sequence'],
-    rating: 4.6,
-    plays: 7100,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-09'
-  },
-  {
-    id: 'cyber-minesweeper',
-    title: 'Cyber Grid Sweeper',
-    category: 'puzzle',
-    description: 'Hack through encrypted node sectors while identifying malicious anomaly nodes.',
-    thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&auto=format&fit=crop&q=80',
-    tags: ['Minesweeper', 'Hacking', 'Logic', 'Cyber'],
-    rating: 4.5,
-    plays: 6890,
-    featured: false,
-    status: 'active',
-    createdAt: '2026-03-09'
-  }
-];
+// Seed Initial Data (Empty by default so ONLY games added via Admin show up)
+const SEED_GAMES = [];
 
 const SEED_CATEGORIES = [
   { id: 'all', name: 'All Games', icon: '🎮', color: '#00ffcc' },
@@ -272,7 +160,7 @@ const SEED_CATEGORIES = [
 ];
 
 let localStore = {
-  games: [...SEED_GAMES],
+  games: [],
   categories: [...SEED_CATEGORIES],
   banner: {
     active: true,
@@ -327,18 +215,11 @@ async function seedDatabase() {
     if (bannerCount === 0) {
       await Banner.create(localStore.banner);
     }
-
-    const gameCount = await Game.countDocuments();
-    if (gameCount === 0) {
-      await Game.insertMany(SEED_GAMES);
-    }
   } catch (err) {
     console.error('⚠️ Seeding error:', err.message);
   }
 }
 
-// ---------------- GAME PROXY ROUTES ----------------
-// Reverse proxy for Google Gadgets & unblocked game frames (/game-proxy/gadgets/ifr?url=...)
 app.all('/game-proxy/*', async (req, res) => {
   try {
     const subPath = req.path.replace(/^\/game-proxy/, '');
@@ -433,7 +314,7 @@ app.get('/api/health', (req, res) => {
     dbConnected: mongoose.connection.readyState === 1,
     storageMode: mongoose.connection.readyState === 1 ? 'mongodb' : 'json_store',
     totalGames: localStore.games.length,
-    onlinePlayers: Math.max(1, onlineUsersCount)
+    onlinePlayers: activeVisitors.size
   });
 });
 
@@ -443,11 +324,11 @@ app.get('/api/games', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
       const games = await Game.find().sort({ createdAt: -1 });
-      if (games && games.length > 0) return res.json(games);
+      return res.json(games || []);
     }
-    res.json(localStore.games);
+    res.json(localStore.games || []);
   } catch (err) {
-    res.json(localStore.games);
+    res.json(localStore.games || []);
   }
 });
 
@@ -665,7 +546,7 @@ app.get('/api/analytics/live', async (req, res) => {
     });
 
     res.json({
-      onlineUsers: Math.max(1, onlineUsersCount),
+      onlineUsers: activeVisitors.size,
       activeRooms,
       recentActivities: recentActivities.slice(0, 15),
       totalGames: localStore.games.length,

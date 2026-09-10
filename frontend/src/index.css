@@ -101,19 +101,22 @@ body {
    2. શિમર લોડિંગ એનિમેશન (Skeleton Loader)
    ========================================================================== */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.03) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite linear;
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .iframe-skeleton-loader {
@@ -1395,9 +1398,9 @@ body {
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
-              box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
-              border-color 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s ease;
 }
 
 .game-card:hover,
@@ -1405,7 +1408,7 @@ body {
   transform: translateY(-6px) scale(1.02);
   border-color: rgba(99, 102, 241, 0.6);
   box-shadow: 0 14px 30px -10px rgba(99, 102, 241, 0.35),
-              0 0 15px rgba(168, 85, 247, 0.2);
+    0 0 15px rgba(168, 85, 247, 0.2);
 }
 
 .card-thumb-container {
@@ -3778,255 +3781,7 @@ body {
   box-shadow: 0 2px 8px rgba(245, 45, 126, 0.6);
 }
 
-/* --------------------------------------------------------------------------
-   GAMEPIX LEFT SIDEBAR (HOVER-TO-EXPAND MINI RAIL & COMPLETE CLOSE)
-   -------------------------------------------------------------------------- */
-.gamepix-sidebar {
-  position: sticky;
-  top: 76px;
-  height: calc(100vh - 76px);
-  z-index: 400;
-  background: rgba(12, 3, 26, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-right: 1.5px solid rgba(184, 93, 245, 0.28);
-  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.45);
-  transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, border-color 0.22s ease, box-shadow 0.26s ease;
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex-shrink: 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Scrollbar only visible on hover */
-.gamepix-sidebar::-webkit-scrollbar {
-  width: 5px;
-  background: transparent;
-}
-
-.gamepix-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.gamepix-sidebar::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 999px;
-  transition: background 0.2s ease;
-}
-
-.gamepix-sidebar:hover {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(184, 93, 245, 0.5) transparent;
-}
-
-.gamepix-sidebar:hover::-webkit-scrollbar-thumb {
-  background: rgba(184, 93, 245, 0.5);
-}
-
-.gamepix-sidebar:hover::-webkit-scrollbar-thumb:hover {
-  background: #00f2fe;
-}
-
-/* 1. Closed state -> completely closed & hidden */
-.gamepix-sidebar.closed {
-  width: 0 !important;
-  min-width: 0 !important;
-  opacity: 0;
-  pointer-events: none;
-  border-right: none !important;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-/* 2. Open state on Desktop -> Mini icon rail by default (68px) */
-.gamepix-sidebar.open {
-  width: 68px;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.gamepix-sidebar-inner {
-  padding: 12px 6px 30px 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.gamepix-side-section {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.gamepix-section-title {
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: #a78bfa;
-  padding: 6px 12px 4px 12px;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.gamepix-side-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 9px 10px;
-  border-radius: 14px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #e2d9f3;
-  font-family: var(--font-main);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  text-align: left;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.gamepix-side-item:hover {
-  background: rgba(184, 93, 245, 0.22);
-  border-color: rgba(184, 93, 245, 0.4);
-  color: #ffffff;
-  transform: perspective(400px) translateZ(8px) scale(1.04) translateX(3px);
-  box-shadow: 0 4px 18px rgba(184, 93, 245, 0.25);
-}
-
-.gamepix-side-item.active {
-  background: linear-gradient(135deg, rgba(245, 45, 126, 0.4), rgba(184, 93, 245, 0.4));
-  color: #ffffff;
-  border-color: rgba(245, 45, 126, 0.6);
-  box-shadow: 0 4px 16px rgba(245, 45, 126, 0.35), 0 0 12px rgba(184, 93, 245, 0.3);
-  transform: scale(1.02);
-}
-
-.gamepix-side-icon-box {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin: 0 auto;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.gamepix-side-item:hover .gamepix-side-icon-box {
-  transform: scale(1.15) rotate(3deg);
-  background: rgba(184, 93, 245, 0.3);
-  box-shadow: 0 0 12px rgba(184, 93, 245, 0.5);
-}
-
-.gamepix-side-icon-box .fill-fav {
-  fill: #f52d7e;
-  color: #f52d7e;
-}
-
-.gamepix-side-label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.88rem;
-}
-
-.gamepix-side-chevron {
-  color: #a78bfa;
-  opacity: 0.6;
-  flex-shrink: 0;
-}
-
-.gamepix-side-badge {
-  background: rgba(184, 93, 245, 0.3);
-  color: #00f2fe;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 999px;
-  border: 1px solid rgba(184, 93, 245, 0.4);
-  flex-shrink: 0;
-}
-
-.gamepix-side-badge.badge-hot {
-  background: #f52d7e;
-  color: #ffffff;
-  border-color: #f52d7e;
-  box-shadow: 0 0 8px rgba(245, 45, 126, 0.5);
-}
-
-.gamepix-side-divider {
-  width: 85%;
-  height: 1px;
-  background: rgba(184, 93, 245, 0.2);
-  margin: 8px auto;
-}
-
-/* Default Mini Open Rail on Desktop: Only Icons Visible */
-@media (min-width: 1025px) {
-
-  .gamepix-sidebar.open:not(:hover) .gamepix-side-label,
-  .gamepix-sidebar.open:not(:hover) .gamepix-section-title,
-  .gamepix-sidebar.open:not(:hover) .gamepix-side-chevron {
-    display: none !important;
-  }
-
-  .gamepix-sidebar.open:not(:hover) .gamepix-side-item {
-    justify-content: center;
-    padding: 10px 0;
-  }
-
-  .gamepix-sidebar.open:not(:hover) .gamepix-side-badge {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    font-size: 0.62rem;
-    padding: 1px 4px;
-    line-height: 1.2;
-  }
-
-  /* 3. Mouse Hover on Open Sidebar -> Smoothly expands to full sidebar with text */
-  .gamepix-sidebar.open:hover {
-    width: 240px;
-    box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(184, 93, 245, 0.25);
-  }
-
-  .gamepix-sidebar.open:hover .gamepix-sidebar-inner {
-    padding: 12px 10px 30px 10px;
-  }
-
-  .gamepix-sidebar.open:hover .gamepix-side-item {
-    justify-content: flex-start;
-    padding: 9px 12px;
-  }
-
-  .gamepix-sidebar.open:hover .gamepix-side-icon-box {
-    margin: 0;
-  }
-
-  .gamepix-sidebar.open:hover .gamepix-side-label,
-  .gamepix-sidebar.open:hover .gamepix-section-title,
-  .gamepix-sidebar.open:hover .gamepix-side-chevron {
-    display: block;
-    opacity: 1;
-  }
-
-  .gamepix-sidebar.open:hover .gamepix-side-badge {
-    position: static;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-  }
-}
+/* (Legacy sidebar rules removed in favor of consolidated modern GamePix sidebar at bottom of stylesheet) */
 
 /* --------------------------------------------------------------------------
    MAIN CONTENT & GAMEPIX CATEGORIZED HOME SHELVES
@@ -4197,60 +3952,7 @@ body {
   gap: 20px;
 }
 
-/* Mobile Responsive Adjustments */
-@media (max-width: 1024px) {
-  .gamepix-sidebar {
-    position: fixed;
-    top: 70px;
-    bottom: 0;
-    left: 0;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease-out;
-    width: 260px !important;
-  }
 
-  .gamepix-sidebar.open {
-    transform: translateX(0);
-    width: 260px !important;
-  }
-
-  .gamepix-sidebar.closed {
-    transform: translateX(-100%) !important;
-    width: 260px !important;
-  }
-
-  .gamepix-sidebar-inner {
-    padding: 14px 12px 40px 12px !important;
-  }
-
-  .gamepix-sidebar .gamepix-side-label,
-  .gamepix-sidebar .gamepix-section-title,
-  .gamepix-sidebar .gamepix-side-chevron {
-    display: block !important;
-    opacity: 1 !important;
-  }
-
-  .gamepix-sidebar .gamepix-side-item {
-    justify-content: flex-start !important;
-    padding: 10px 12px !important;
-  }
-
-  .gamepix-sidebar .gamepix-side-icon-box {
-    margin: 0 !important;
-  }
-
-  .gamepix-sidebar-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 390;
-  }
-
-  .gamepix-main-content {
-    padding: 14px 16px 40px 16px;
-  }
-}
 
 /* ==========================================================================
    PURPLE SYNTHWAVE AURORA FOOTER
@@ -4505,9 +4207,21 @@ body {
 }
 
 @keyframes live-pulse-anim {
-  0% { transform: scale(0.9); opacity: 0.7; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #00ff88; }
-  100% { transform: scale(0.9); opacity: 0.7; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 12px #00ff88;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
 }
 
 .live-room-player-tag {
@@ -4546,14 +4260,17 @@ body {
     transform: translateY(0) scale(0.6) rotate(0deg);
     opacity: 0;
   }
+
   15% {
     transform: translateY(-40px) scale(1.2) rotate(-5deg);
     opacity: 1;
   }
+
   80% {
     transform: translateY(-260px) scale(1.1) rotate(8deg);
     opacity: 0.9;
   }
+
   100% {
     transform: translateY(-380px) scale(0.8) rotate(15deg);
     opacity: 0;
@@ -4605,8 +4322,13 @@ body {
 }
 
 @keyframes pf-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .provably-fair-card {
@@ -4621,8 +4343,15 @@ body {
 }
 
 @keyframes pf-pop {
-  from { transform: scale(0.92); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .pf-header {
@@ -4757,8 +4486,13 @@ body {
 }
 
 @keyframes pf-spin-anim {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .pf-verify-btn {
@@ -4825,4 +4559,601 @@ body {
 .pf-outcome-badge strong {
   color: #ffd200;
   font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   MODERN GAMEPIX SIDEBAR & INTEGRATED FOOTER STYLES (PREMIUM UI)
+   ========================================================================== */
+.gamepix-app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.gamepix-body-layout {
+  display: flex;
+  flex: 1;
+  position: relative;
+  min-height: calc(100vh - 64px);
+}
+
+.gamepix-sidebar {
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  background: linear-gradient(180deg, rgba(14, 4, 30, 0.97) 0%, rgba(8, 2, 18, 0.99) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1.5px solid rgba(184, 93, 245, 0.22);
+  height: calc(100vh - 64px);
+  position: sticky;
+  top: 64px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.gamepix-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.gamepix-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(184, 93, 245, 0.35);
+  border-radius: 10px;
+}
+
+/* Hover expansion on Desktop */
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:hover {
+    width: 245px;
+    min-width: 245px;
+    max-width: 245px;
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.8), 2px 0 22px rgba(184, 93, 245, 0.3);
+    border-right-color: rgba(184, 93, 245, 0.45);
+  }
+}
+
+/* 1. Closed state -> completely closed */
+.gamepix-sidebar.closed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  border-right: none !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Mobile full drawer */
+@media (max-width: 1023px) {
+  .gamepix-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    z-index: 1000;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.9);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .gamepix-sidebar.closed {
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .gamepix-sidebar.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.gamepix-sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .gamepix-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 990;
+  }
+}
+
+.gamepix-sidebar-inner {
+  padding: 12px 6px 20px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  box-sizing: border-box;
+  transition: padding 0.28s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:hover .gamepix-sidebar-inner {
+    padding: 12px 10px 20px 10px;
+    gap: 10px;
+  }
+}
+
+.gamepix-side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gamepix-section-title {
+  padding: 8px 12px 4px 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #a78bfa;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+/* Hide section titles and labels in mini rail mode on Desktop */
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .gamepix-section-title {
+    display: none !important;
+    opacity: 0;
+  }
+}
+
+.gamepix-side-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  height: 42px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #cbd5e1;
+  font-family: var(--font-main, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Center icons in mini mode */
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .gamepix-side-item {
+    justify-content: center;
+    padding: 8px 0;
+    gap: 0;
+  }
+}
+
+/* Hover Accent Bar */
+.gamepix-side-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: #00f2fe;
+  box-shadow: 0 0 10px #00f2fe;
+  opacity: 0;
+  transform: scaleY(0.3);
+  transition: all 0.22s ease;
+}
+
+.gamepix-side-item:hover {
+  background: linear-gradient(90deg, rgba(184, 93, 245, 0.22) 0%, rgba(0, 242, 254, 0.14) 100%);
+  border-color: rgba(0, 242, 254, 0.4);
+  color: #ffffff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 12px rgba(0, 242, 254, 0.12);
+}
+
+.gamepix-side-item:hover::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.gamepix-side-item.active {
+  background: linear-gradient(135deg, rgba(245, 45, 126, 0.32), rgba(184, 93, 245, 0.36));
+  border-color: rgba(245, 45, 126, 0.65);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(245, 45, 126, 0.3), inset 0 0 12px rgba(184, 93, 245, 0.2);
+}
+
+.gamepix-side-item.active::after {
+  display: none;
+}
+
+.gamepix-side-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #00f2fe, #f52d7e);
+  box-shadow: 0 0 10px #00f2fe;
+}
+
+.gamepix-side-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gamepix-side-item:hover .gamepix-side-icon-box {
+  transform: scale(1.15) rotate(4deg);
+  background: rgba(0, 242, 254, 0.18);
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.45);
+}
+
+.gamepix-side-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+  text-align: left;
+  transition: opacity 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .gamepix-side-label {
+    display: none !important;
+    opacity: 0;
+  }
+
+  .gamepix-sidebar.open:hover .gamepix-side-label {
+    display: block !important;
+    opacity: 1;
+  }
+}
+
+.gamepix-side-item:hover .gamepix-side-label {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.gamepix-side-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: #00f2fe;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .gamepix-side-badge {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 0.58rem;
+    padding: 1px 4px;
+    line-height: 1.1;
+  }
+
+  .gamepix-sidebar.open:hover .gamepix-side-badge {
+    position: static;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+  }
+}
+
+.gamepix-side-badge.badge-hot {
+  background: linear-gradient(135deg, #ff0844, #ff758c);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 8, 68, 0.45);
+  font-weight: 900;
+}
+
+.gamepix-side-item:hover .gamepix-side-badge.badge-hot {
+  transform: scale(1.1);
+  box-shadow: 0 0 14px rgba(255, 8, 68, 0.8);
+}
+
+.gamepix-side-chevron {
+  opacity: 0.35;
+  transition: all 0.22s ease;
+  color: #a78bfa;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .gamepix-side-chevron {
+    display: none !important;
+    opacity: 0;
+  }
+
+  .gamepix-sidebar.open:hover .gamepix-side-chevron {
+    display: block !important;
+    opacity: 0.35;
+  }
+}
+
+.gamepix-side-item:hover .gamepix-side-chevron {
+  opacity: 1;
+  transform: translateX(4px);
+  color: #00f2fe;
+  filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.8));
+}
+
+.fill-fav {
+  fill: #f52d7e;
+  color: #f52d7e;
+}
+
+.gamepix-side-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184, 93, 245, 0.22), transparent);
+  margin: 4px 4px;
+}
+
+/* ==========================================================================
+   SIDEBAR INTEGRATED FOOTER BLOCK (HOVER-EXPANDABLE CARD)
+   ========================================================================== */
+.sidebar-footer-block {
+  margin-top: auto;
+  padding: 12px 10px 8px 10px;
+  background: rgba(18, 4, 38, 0.7);
+  border: 1px solid rgba(184, 93, 245, 0.22);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+  transition: all 0.28s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .sidebar-footer-block {
+    padding: 6px 2px;
+    background: transparent;
+    border: none;
+    align-items: center;
+    gap: 0;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-footer-block {
+    padding: 12px 10px 8px 10px;
+    background: rgba(18, 4, 38, 0.7);
+    border: 1px solid rgba(184, 93, 245, 0.22);
+    gap: 10px;
+  }
+}
+
+/* Submit Game CTA Button */
+.sidebar-dev-action-btn {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(184, 93, 245, 0.25));
+  border: 1.5px solid rgba(0, 242, 254, 0.4);
+  color: #ffffff;
+  font-family: var(--font-main, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15);
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .sidebar-dev-action-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .gamepix-sidebar.open:not(:hover) .sidebar-dev-action-btn span {
+    display: none !important;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-dev-action-btn {
+    width: 100%;
+    height: auto;
+    padding: 9px 12px;
+    border-radius: 12px;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-dev-action-btn span {
+    display: inline !important;
+  }
+}
+
+.sidebar-dev-action-btn:hover {
+  background: linear-gradient(135deg, #00f2fe, #4facfe);
+  color: #040711;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+}
+
+.sidebar-dev-action-btn:hover .text-cyan {
+  color: #040711;
+}
+
+.sidebar-dev-action-btn.active {
+  background: linear-gradient(135deg, #00f2fe, #4facfe);
+  color: #040711;
+}
+
+/* Sidebar Quick Links Row */
+.sidebar-links-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  transition: opacity 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .sidebar-links-group {
+    display: none !important;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-links-group {
+    display: flex !important;
+  }
+}
+
+.sidebar-mini-link {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.sidebar-mini-link:hover {
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.1);
+}
+
+.sidebar-link-dot {
+  color: #475569;
+  font-size: 0.65rem;
+}
+
+/* Server Status Indicator */
+.sidebar-status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #4ade80;
+  transition: opacity 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .sidebar-status-indicator {
+    display: none !important;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-status-indicator {
+    display: flex !important;
+  }
+}
+
+.status-live-ping {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pingPulse 2s infinite cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes pingPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+
+/* Sidebar Copyright */
+.sidebar-copyright-text {
+  font-size: 0.64rem;
+  color: #64748b;
+  text-align: center;
+  letter-spacing: 0.2px;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .gamepix-sidebar.open:not(:hover) .sidebar-copyright-text {
+    display: none !important;
+  }
+
+  .gamepix-sidebar.open:hover .sidebar-copyright-text {
+    display: block !important;
+  }
+}
+
+/* Main Content Wrapper */
+.gamepix-main-wrapper {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gamepix-main-content {
+  flex: 1;
+  padding: 24px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .gamepix-main-content {
+    padding: 16px;
+  }
 }

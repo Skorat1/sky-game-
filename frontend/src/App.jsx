@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import PokiNavbar from './components/PokiNavbar';
+import SkyNavbar from './components/SkyNavbar';
 import Sidebar from './components/Sidebar';
 import GameGrid from './components/GameGrid';
 import GamePlayerView from './components/GamePlayerView';
@@ -9,7 +9,6 @@ import DeveloperPortal from './components/DeveloperPortal';
 import AboutModal from './components/AboutModal';
 import ContactModal from './components/ContactModal';
 import PrivacyModal from './components/PrivacyModal';
-import Footer from './components/Footer';
 
 import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
 import { sounds } from './utils/audio';
@@ -86,7 +85,7 @@ export default function App() {
     }
   });
 
-  
+
   const [favorites, setFavorites] = useState(() => {
     try {
       const saved = localStorage.getItem('sky_favorites') || localStorage.getItem('thop_favorites');
@@ -100,7 +99,7 @@ export default function App() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  
+
   const fetchLivePlatformData = useCallback(async () => {
     try {
       const [gamesRes, bannerRes] = await Promise.all([
@@ -200,7 +199,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  
+
   useEffect(() => {
     localStorage.setItem('sky_favorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -212,6 +211,19 @@ export default function App() {
       localStorage.removeItem('sky_user');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (games.length > 0) {
+      setRecentlyPlayed(prev => {
+        const filtered = prev.filter(r => games.some(g => g.id === r.id));
+        localStorage.setItem('sky_recent', JSON.stringify(filtered));
+        return filtered;
+      });
+    } else {
+      setRecentlyPlayed([]);
+      localStorage.removeItem('sky_recent');
+    }
+  }, [games]);
 
   useEffect(() => {
     localStorage.setItem('sky_recent', JSON.stringify(recentlyPlayed));
@@ -276,6 +288,8 @@ export default function App() {
   };
 
   const handleCategorySelect = (catId) => {
+    setSelectedGame(null);
+    setPendingGameId(null);
     setActiveCategory(catId);
     setActivePage('home');
     setSearchQuery('');
@@ -299,6 +313,8 @@ export default function App() {
     } else if (pageId === 'privacy') {
       setPrivacyOpen(true);
     } else {
+      setSelectedGame(null);
+      setPendingGameId(null);
       setActivePage(pageId);
       setActiveCategory('');
       setSearchQuery('');
@@ -360,8 +376,8 @@ export default function App() {
         </div>
       )}
 
-      {/* GamePix Modern Sticky Navbar */}
-      <PokiNavbar
+      {/* SkyGames Modern Sticky Navbar */}
+      <SkyNavbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         activeCategory={activeCategory}
@@ -378,7 +394,7 @@ export default function App() {
       />
 
       <div className="gamepix-body-layout">
-        
+
         <Sidebar
           isOpen={isSidebarOpen}
           setIsOpen={setIsSidebarOpen}
@@ -411,12 +427,12 @@ export default function App() {
               <GameGrid
                 title={
                   activePage === 'trending' ? '🔥 Trending Now' :
-                  activePage === 'most-played' ? '🏆 Most Played Games' :
-                  activePage === 'top-rated' ? '⭐ Top Rated Games' :
-                  activePage === 'new' ? '✨ New Game Releases' :
-                  activePage === 'recently-played' ? '🕒 Recently Played' :
-                  activeCategory ? `${activeCategory.toUpperCase()} GAMES` :
-                  'Home Arcade'
+                    activePage === 'most-played' ? '🏆 Most Played Games' :
+                      activePage === 'top-rated' ? '⭐ Top Rated Games' :
+                        activePage === 'new' ? '✨ New Game Releases' :
+                          activePage === 'recently-played' ? '🕒 Recently Played' :
+                            activeCategory ? `${activeCategory.toUpperCase()} GAMES` :
+                              'Home Arcade'
                 }
                 games={displayedGames}
                 onPlayGame={handlePlayGame}
@@ -430,9 +446,6 @@ export default function App() {
               />
             )}
           </main>
-
-          
-          <Footer onNavigate={handleNavigation} />
         </div>
 
       </div>
