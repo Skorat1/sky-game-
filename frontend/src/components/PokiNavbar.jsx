@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Search, X, User, Gamepad2, Menu, Heart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, X, User, Gamepad2, Menu, Heart, ShieldCheck, Activity } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import { socket } from '../utils/socket';
+import ProvablyFairModal from './ProvablyFairModal';
 
 export default function PokiNavbar({
   searchQuery,
@@ -18,6 +20,17 @@ export default function PokiNavbar({
   onOpenFavorites
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(24);
+  const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
+
+  useEffect(() => {
+    socket.on('online:count', (data) => {
+      if (data?.count) setOnlineCount(data.count);
+    });
+    return () => {
+      socket.off('online:count');
+    };
+  }, []);
 
   const searchResults = searchQuery.trim() === ''
     ? []
@@ -131,8 +144,26 @@ export default function PokiNavbar({
             )}
           </div>
 
-          {/* 4. Action Buttons (Favorites + Login/Profile) */}
+          {/* 4. Action Buttons (Live Players + Provably Fair + Favorites + Login/Profile) */}
           <div className="poki-navbar-right-group">
+            {/* Live Online Pulse Badge */}
+            <div className="live-online-pill" title={`${onlineCount} Players Online Right Now`}>
+              <span className="live-pulse-dot" />
+              <span className="live-online-text">{onlineCount.toLocaleString()} Live</span>
+            </div>
+
+            {/* Provably Fair Quick Launcher */}
+            <button
+              className="gamepix-fav-header-btn pf-header-btn"
+              onClick={() => {
+                sounds.playClick();
+                setIsProvablyFairOpen(true);
+              }}
+              title="Provably Fair Verifier"
+            >
+              <ShieldCheck size={18} color="#00ffcc" />
+            </button>
+
             {/* Quick Favorites Button */}
             <button
               className="gamepix-fav-header-btn"
@@ -178,6 +209,11 @@ export default function PokiNavbar({
 
         </div>
       </div>
+
+      <ProvablyFairModal
+        isOpen={isProvablyFairOpen}
+        onClose={() => setIsProvablyFairOpen(false)}
+      />
     </header>
   );
 }

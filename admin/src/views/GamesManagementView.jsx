@@ -158,11 +158,23 @@ export default function GamesManagementView({
                   </td>
                   <td>
                     <span className={`status-badge ${game.status || 'active'}`}>
-                      {game.status || 'active'}
+                      {game.status === 'maintenance' ? '🔧 Maintenance' : (game.status || 'active')}
                     </span>
                   </td>
                   <td>
                     <div className="action-btn-group">
+                      {game.gameUrl && (
+                        <a
+                          href={game.gameUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="icon-action-btn"
+                          title="Test / Preview URL"
+                          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          🔗
+                        </a>
+                      )}
                       <button
                         className="icon-action-btn edit"
                         title="Edit Game"

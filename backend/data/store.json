@@ -1,0 +1,237 @@
+{
+  "games": [
+    {
+      "id": "space-shooter",
+      "title": "Neon Void Runner",
+      "category": "action",
+      "description": "Pilot your quantum starship through a hazardous neon asteroid field with upgrades and boss battles.",
+      "thumbnail": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Space",
+        "Action",
+        "Shooter",
+        "Laser",
+        "Sci-Fi"
+      ],
+      "rating": 4.8,
+      "plays": 14230,
+      "featured": true,
+      "status": "active",
+      "createdAt": "2026-03-01"
+    },
+    {
+      "id": "cyber-runner",
+      "title": "Cyber Runner 2077",
+      "category": "arcade",
+      "description": "Fast-paced endless runner across futuristic skyscrapers with parkour mechanics and synthwave music.",
+      "thumbnail": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Runner",
+        "Cyberpunk",
+        "Parkour",
+        "Endless"
+      ],
+      "rating": 4.9,
+      "plays": 28940,
+      "featured": true,
+      "status": "active",
+      "createdAt": "2026-03-02"
+    },
+    {
+      "id": "knife-clash",
+      "title": "Knife Clash Deluxe",
+      "category": "arcade",
+      "description": "Throw spinning blades with precision timing to shatter the targets and defeat spinning wheel bosses.",
+      "thumbnail": "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Knives",
+        "Precision",
+        "Arcade",
+        "Hit"
+      ],
+      "rating": 4.7,
+      "plays": 19410,
+      "featured": true,
+      "status": "active",
+      "createdAt": "2026-03-03"
+    },
+    {
+      "id": "neon-snake",
+      "title": "Neon Snake GX",
+      "category": "classic",
+      "description": "Classic snake reinvented with glowing particles, warp portals, power-up speed bursts and sound design.",
+      "thumbnail": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Retro",
+        "Snake",
+        "Classic",
+        "Neon"
+      ],
+      "rating": 4.6,
+      "plays": 35120,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-04"
+    },
+    {
+      "id": "brick-breaker",
+      "title": "Quantum Brick Breaker",
+      "category": "arcade",
+      "description": "Destroy neon bricks with multi-ball laser powerups, explosive plasma rounds and shields.",
+      "thumbnail": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Breakout",
+        "Bricks",
+        "Physics",
+        "Laser"
+      ],
+      "rating": 4.7,
+      "plays": 11840,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-05"
+    },
+    {
+      "id": "cyber-2048",
+      "title": "Cyber 2048 Hex",
+      "category": "puzzle",
+      "description": "Strategic cyberpunk puzzle combining numbered holographic tiles with energy combos.",
+      "thumbnail": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Puzzle",
+        "Math",
+        "Cyber",
+        "Strategy"
+      ],
+      "rating": 4.5,
+      "plays": 9320,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-06"
+    },
+    {
+      "id": "neon-pong",
+      "title": "Neon Hyper Pong",
+      "category": "sports",
+      "description": "High velocity paddle battle against intelligent AI with curve shots and gravity anomalies.",
+      "thumbnail": "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Pong",
+        "Retro",
+        "2-Player",
+        "AI Battle"
+      ],
+      "rating": 4.4,
+      "plays": 8750,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-07"
+    },
+    {
+      "id": "cyber-flap",
+      "title": "Cyber Drone Flap",
+      "category": "arcade",
+      "description": "Navigate an anti-gravity drone through pulsating laser gates and electric traps.",
+      "thumbnail": "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Flappy",
+        "Precision",
+        "Drone",
+        "Laser"
+      ],
+      "rating": 4.3,
+      "plays": 16400,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-08"
+    },
+    {
+      "id": "cyber-minesweeper",
+      "title": "Cyber Grid Sweeper",
+      "category": "puzzle",
+      "description": "Hack through encrypted node sectors while identifying malicious anomaly nodes.",
+      "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&auto=format&fit=crop&q=80",
+      "tags": [
+        "Minesweeper",
+        "Hacking",
+        "Logic",
+        "Cyber"
+      ],
+      "rating": 4.5,
+      "plays": 6890,
+      "featured": false,
+      "status": "active",
+      "createdAt": "2026-03-09"
+    }
+  ],
+  "categories": [
+    {
+      "id": "all",
+      "name": "All Games",
+      "icon": "🎮",
+      "color": "#00ffcc"
+    },
+    {
+      "id": "arcade",
+      "name": "Arcade",
+      "icon": "🕹️",
+      "color": "#ff0055"
+    },
+    {
+      "id": "action",
+      "name": "Action",
+      "icon": "⚔️",
+      "color": "#ffaa00"
+    },
+    {
+      "id": "puzzle",
+      "name": "Puzzle",
+      "icon": "🧩",
+      "color": "#9d00ff"
+    },
+    {
+      "id": "classic",
+      "name": "Classic",
+      "icon": "👾",
+      "color": "#00e5ff"
+    },
+    {
+      "id": "sports",
+      "name": "Sports",
+      "icon": "⚽",
+      "color": "#00ff88"
+    },
+    {
+      "id": "cyber",
+      "name": "Cyberpunk",
+      "icon": "⚡",
+      "color": "#ff00aa"
+    }
+  ],
+  "banner": {
+    "active": true,
+    "badge": "🔥 SPOTLIGHT",
+    "message": "Flash Tournament Alert!",
+    "ctaText": "Play Now",
+    "ctaLink": "#arcade",
+    "bgColor": "rgba(255, 0, 85, 0.15)",
+    "borderColor": "#ff0055"
+  },
+  "submissions": [],
+  "messages": [],
+  "settings": {
+    "siteName": "SKYGAMES Arcade",
+    "maintenanceMode": false,
+    "allowSubmissions": true,
+    "platformName": "SKYGAMES ENTERPRISE"
+  }
+}

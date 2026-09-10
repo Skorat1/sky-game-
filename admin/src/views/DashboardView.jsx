@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import { WEEKLY_ANALYTICS } from '../data/defaultData';
+import { socket } from '../utils/socket';
 
 export default function DashboardView({ 
   games, 
@@ -9,6 +10,29 @@ export default function DashboardView({
   onNavigate, 
   onEditGame 
 }) {
+  const [onlineCount, setOnlineCount] = useState(24);
+  const [activities, setActivities] = useState([]);
+
+  useEffect(() => {
+    socket.on('online:count', (data) => {
+      if (data?.count) setOnlineCount(data.count);
+    });
+
+    socket.on('activities:init', (initList) => {
+      setActivities(initList || []);
+    });
+
+    socket.on('activity:new', (newAct) => {
+      setActivities(prev => [newAct, ...prev.slice(0, 19)]);
+    });
+
+    return () => {
+      socket.off('online:count');
+      socket.off('activities:init');
+      socket.off('activity:new');
+    };
+  }, []);
+
   const totalPlays = games.reduce((acc, g) => acc + (g.plays || 0), 0);
   const featuredGames = games.filter(g => g.featured);
   const pendingSubmissions = submissions.filter(s => s.status === 'pending');
@@ -18,6 +42,14 @@ export default function DashboardView({
     <div>
       {/* Stats Grid */}
       <div className="stats-grid">
+        <StatCard
+          label="Live Active Players"
+          value={onlineCount.toLocaleString()}
+          trend="Real-time WebSockets"
+          trendUp={true}
+          icon="🟢"
+          color="emerald"
+        />
         <StatCard
           label="Total Catalog Games"
           value={games.length}
@@ -43,9 +75,9 @@ export default function DashboardView({
           color="amber"
         />
         <StatCard
-          label="User Inquiries / Reports"
+          label="User Inquiries"
           value={messages.length}
-          trend="3 new today"
+          trend="Inbox active"
           trendUp={true}
           icon="📩"
           color="purple"
@@ -81,30 +113,33 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* Quick Platform Status */}
+        {/* Live Activity Stream Panel */}
         <div className="glass-panel">
           <div className="panel-header">
-            <h2 className="panel-title">🛡️ System Health</h2>
-            <span className="status-badge active">Operational</span>
+            <h2 className="panel-title">⚡ Live Activity Stream</h2>
+            <span className="status-badge active" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00ff88', display: 'inline-block' }} /> Live WebSocket
+            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--border-glass)' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Game Engines Status</span>
-              <span style={{ color: 'var(--accent-emerald)', fontWeight: 700, fontSize: '0.85rem' }}>10/10 Online</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--border-glass)' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Audio Synthesis API</span>
-              <span style={{ color: 'var(--accent-cyan)', fontWeight: 700, fontSize: '0.85rem' }}>WebAudio OK</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--border-glass)' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Storage Persistence</span>
-              <span style={{ color: 'var(--accent-purple)', fontWeight: 700, fontSize: '0.85rem' }}>LocalStorage OK</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--border-glass)' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Response Latency</span>
-              <span style={{ color: 'var(--accent-emerald)', fontWeight: 700, fontSize: '0.85rem' }}>14ms</span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 220, overflowY: 'auto' }}>
+            {activities.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                Waiting for player actions & telemetry...
+              </div>
+            ) : (
+              activities.map((act) => (
+                <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--border-glass)' }}>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>{act.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{act.detail}</div>
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontFamily: 'monospace' }}>
+                    {new Date(act.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -21,6 +21,8 @@ import {
   DEFAULT_SETTINGS 
 } from './data/defaultData';
 
+import { socket } from './utils/socket';
+
 const API_BASE = 'http://localhost:5000/api';
 
 export default function App() {
@@ -48,12 +50,13 @@ export default function App() {
   // Fetch all data from MongoDB Backend
   const fetchAllData = useCallback(async () => {
     try {
-      const [gamesRes, bannerRes, catRes, subRes, msgRes] = await Promise.all([
+      const [gamesRes, bannerRes, catRes, subRes, msgRes, setRes] = await Promise.all([
         fetch(`${API_BASE}/games`),
         fetch(`${API_BASE}/banner`),
         fetch(`${API_BASE}/categories`),
         fetch(`${API_BASE}/submissions`),
-        fetch(`${API_BASE}/messages`)
+        fetch(`${API_BASE}/messages`),
+        fetch(`${API_BASE}/settings`)
       ]);
 
       if (gamesRes.ok) {
@@ -81,6 +84,11 @@ export default function App() {
         const msgData = await msgRes.json();
         if (Array.isArray(msgData)) setMessages(msgData);
       }
+
+      if (setRes && setRes.ok) {
+        const setData = await setRes.json();
+        if (setData) setSettings(setData);
+      }
     } catch (err) {
       console.warn('Backend API connection pending or offline, using fallback:', err.message);
       setDbStatus({ connected: false, checked: true });
@@ -89,9 +97,31 @@ export default function App() {
 
   useEffect(() => {
     fetchAllData();
-    // Poll every 10 seconds for real-time updates
-    const interval = setInterval(fetchAllData, 10000);
-    return () => clearInterval(interval);
+
+    // Instant real-time Socket.io updates
+    const handleGamePlay = (data) => {
+      setGames(prev => prev.map(g => g.id === data.id ? { ...g, plays: data.plays } : g));
+    };
+
+    const handleNewSubmission = (sub) => {
+      setSubmissions(prev => [sub, ...prev]);
+      showToast(`🚀 New Game Submitted: "${sub.gameTitle}"`);
+    };
+
+    const handleNewMessage = (msg) => {
+      setMessages(prev => [msg, ...prev]);
+      showToast(`📩 New Inquiry from "${msg.name}"`);
+    };
+
+    socket.on('game:play:increment', handleGamePlay);
+    socket.on('submission:new', handleNewSubmission);
+    socket.on('message:new', handleNewMessage);
+
+    return () => {
+      socket.off('game:play:increment', handleGamePlay);
+      socket.off('submission:new', handleNewSubmission);
+      socket.off('message:new', handleNewMessage);
+    };
   }, [fetchAllData]);
 
   // Game Handlers
@@ -296,9 +326,24 @@ export default function App() {
   };
 
   // Settings Handlers
-  const handleSaveSettings = (newSettings) => {
-    setSettings(newSettings);
-    showToast('Platform settings saved!');
+  const handleSaveSettings = async (newSettings) => {
+    try {
+      setSettings(newSettings);
+      const res = await fetch(`${API_BASE}/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings)
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        setSettings(saved);
+        showToast('Platform settings saved to database & broadcasted!');
+      } else {
+        showToast('Settings saved locally.');
+      }
+    } catch (err) {
+      showToast('Settings saved.');
+    }
   };
 
   const handleExportData = () => {
@@ -348,13 +393,29 @@ export default function App() {
   };
 
   const handleResetData = async () => {
-    setGames(DEFAULT_GAMES);
-    setCategories(DEFAULT_CATEGORIES);
-    setSubmissions(DEFAULT_SUBMISSIONS);
-    setMessages(DEFAULT_MESSAGES);
-    setBanner(DEFAULT_BANNER);
-    setSettings(DEFAULT_SETTINGS);
-    showToast('Platform database reset to defaults!');
+    try {
+      const res = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+      if (res.ok) {
+        await fetchAllData();
+        showToast('Platform database reset to defaults in MongoDB!');
+      } else {
+        setGames(DEFAULT_GAMES);
+        setCategories(DEFAULT_CATEGORIES);
+        setSubmissions(DEFAULT_SUBMISSIONS);
+        setMessages(DEFAULT_MESSAGES);
+        setBanner(DEFAULT_BANNER);
+        setSettings(DEFAULT_SETTINGS);
+        showToast('Platform database reset to defaults!');
+      }
+    } catch (err) {
+      setGames(DEFAULT_GAMES);
+      setCategories(DEFAULT_CATEGORIES);
+      setSubmissions(DEFAULT_SUBMISSIONS);
+      setMessages(DEFAULT_MESSAGES);
+      setBanner(DEFAULT_BANNER);
+      setSettings(DEFAULT_SETTINGS);
+      showToast('Platform reset.');
+    }
   };
 
   const unreadMessagesCount = messages.filter(m => !m.read).length;

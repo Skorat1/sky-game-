@@ -14,6 +14,8 @@ import Footer from './components/Footer';
 import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
 import { sounds } from './utils/audio';
 
+import { socket } from './utils/socket';
+
 const API_BASE = 'http://localhost:5000/api';
 
 function buildNavUrl(gameId, category, page, search) {
@@ -124,8 +126,47 @@ export default function App() {
 
   useEffect(() => {
     fetchLivePlatformData();
-    const interval = setInterval(fetchLivePlatformData, 5000);
-    return () => clearInterval(interval);
+
+    // Instant real-time updates via WebSockets
+    const handleBannerUpdate = (newBanner) => setBanner(newBanner);
+    const handleGameIncrement = (data) => {
+      setGames(prev => prev.map(g => g.id === data.id ? { ...g, plays: data.plays } : g));
+    };
+
+    const handleGameCreated = (newGame) => {
+      setGames(prev => [newGame, ...prev.filter(g => g.id !== newGame.id)]);
+    };
+
+    const handleGameUpdated = (updatedGame) => {
+      setGames(prev => prev.map(g => (g.id === updatedGame.id || (g._id && g._id === updatedGame._id)) ? updatedGame : g));
+      setSelectedGame(prev => (prev && (prev.id === updatedGame.id || prev._id === updatedGame._id)) ? updatedGame : prev);
+    };
+
+    const handleGameDeleted = (data) => {
+      setGames(prev => prev.filter(g => g.id !== data.id && g._id !== data.id));
+      setSelectedGame(prev => (prev && (prev.id === data.id || prev._id === data.id)) ? null : prev);
+    };
+
+    const handleAllGamesDeleted = () => {
+      setGames([]);
+      setSelectedGame(null);
+    };
+
+    socket.on('banner:update', handleBannerUpdate);
+    socket.on('game:play:increment', handleGameIncrement);
+    socket.on('game:created', handleGameCreated);
+    socket.on('game:updated', handleGameUpdated);
+    socket.on('game:deleted', handleGameDeleted);
+    socket.on('game:all_deleted', handleAllGamesDeleted);
+
+    return () => {
+      socket.off('banner:update', handleBannerUpdate);
+      socket.off('game:play:increment', handleGameIncrement);
+      socket.off('game:created', handleGameCreated);
+      socket.off('game:updated', handleGameUpdated);
+      socket.off('game:deleted', handleGameDeleted);
+      socket.off('game:all_deleted', handleAllGamesDeleted);
+    };
   }, [fetchLivePlatformData]);
 
 

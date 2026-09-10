@@ -9,6 +9,7 @@ export default function GameCard({
   onToggleFavorite
 }) {
   const [imgSrc, setImgSrc] = useState(game.thumbnail);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const badgeColors = {
     'HOT': 'linear-gradient(135deg, #ff0844, #ffb199)',
@@ -25,23 +26,26 @@ export default function GameCard({
   const handleImageError = () => {
     // Elegant fallback SVG thumbnail if the external image fails to load
     setImgSrc(`https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80`);
+    setImgLoaded(true);
   };
 
   return (
     <div
-      className="sky-game-card"
+      className="sky-game-card game-card"
       onClick={() => {
         sounds.playClick();
         onPlay(game);
       }}
     >
-      <div className="card-thumb-container">
+      <div className={`card-thumb-container ${!imgLoaded ? 'skeleton' : ''}`}>
         <img
           src={imgSrc}
           alt={game.title}
           className="card-thumb-img"
           loading="lazy"
+          onLoad={() => setImgLoaded(true)}
           onError={handleImageError}
+          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
         />
         <div className="card-overlay-gradient"></div>
 

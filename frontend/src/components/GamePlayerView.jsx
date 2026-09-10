@@ -27,11 +27,16 @@ import {
   Sun,
   RefreshCw,
   Eye,
-  EyeOff
+  EyeOff,
+  ShieldCheck,
+  Zap,
+  SmilePlus
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
+import { socket } from '../utils/socket';
 import GameCard from './GameCard';
+import ProvablyFairModal from './ProvablyFairModal';
 
 // Auto-detect best aspect ratio and dimensions from embed code or game metadata
 function parseEmbedDimensions(rawEmbed) {
@@ -108,6 +113,10 @@ export default function GamePlayerView({
   });
   const [gameOver, setGameOver] = useState(false);
   const [gameMuted, setGameMuted] = useState(false);
+  const [roomPlayersCount, setRoomPlayersCount] = useState(1);
+  const [floatingReactions, setFloatingReactions] = useState([]);
+  const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -128,6 +137,49 @@ export default function GamePlayerView({
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  // Real-time socket room join, leave, play increment, and live reactions
+  useEffect(() => {
+    if (!game?.id) return;
+
+    // Join room
+    socket.emit('game:join', game.id);
+
+    // Increment play count via API
+    fetch(`http://localhost:5000/api/games/${game.id}/play`, { method: 'POST' }).catch(() => {});
+
+    // Listen for room player counts
+    const handlePlayerCount = (data) => {
+      if (data?.gameId === game.id) {
+        setRoomPlayersCount(data.count);
+      }
+    };
+    socket.on('game:players:count', handlePlayerCount);
+
+    // Listen for real-time live reactions from other players
+    const handleReactionBroadcast = (data) => {
+      if (data?.gameId === game.id) {
+        const id = 'reac-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+        const left = Math.floor(Math.random() * 70) + 15; // 15% to 85%
+        setFloatingReactions(prev => [...prev.slice(-15), { id, emoji: data.emoji, left }]);
+        setTimeout(() => {
+          setFloatingReactions(prev => prev.filter(r => r.id !== id));
+        }, 2200);
+      }
+    };
+    socket.on('game:reaction:broadcast', handleReactionBroadcast);
+
+    return () => {
+      socket.emit('game:leave', game.id);
+      socket.off('game:players:count', handlePlayerCount);
+      socket.off('game:reaction:broadcast', handleReactionBroadcast);
+    };
+  }, [game?.id]);
+
+  const sendReaction = (emoji) => {
+    sounds.playPowerup();
+    socket.emit('game:reaction', { gameId: game.id, emoji });
+  };
 
   // Reset states on game change
   useEffect(() => {
@@ -631,8 +683,23 @@ export default function GamePlayerView({
           {/* Game Frame Viewport with Glass Glow Ambient Lighting */}
           <div
             ref={screenWrapperRef}
-            className={`crazy-screen-viewport ${isFullscreen ? 'is-fullscreen' : ''} ${isTheaterMode ? 'is-theater' : ''}`}
+            className={`crazy-screen-viewport game-screen-wrapper ${isFullscreen ? 'is-fullscreen' : ''} ${isTheaterMode ? 'is-theater' : ''}`}
           >
+            {/* Real-time Floating Reactions Overlay */}
+            {floatingReactions.length > 0 && (
+              <div className="live-reactions-floating-overlay">
+                {floatingReactions.map((r) => (
+                  <div
+                    key={r.id}
+                    className="floating-emoji-bubble"
+                    style={{ left: `${r.left}%` }}
+                  >
+                    <span>{r.emoji}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {useBuiltInEngine || !cleanUrl ? (
               /* Built-in Arcade Engine */
               <div className="sky-arcade-theater">
@@ -684,7 +751,15 @@ export default function GamePlayerView({
               </div>
             ) : (
               /* External Playable Iframe - Full 100% Width & Height */
-              <div className="crazy-iframe-container">
+              <div className="crazy-iframe-container" style={{ position: 'relative' }}>
+                {!iframeLoaded && (
+                  <div className="skeleton iframe-skeleton-loader">
+                    <div className="skeleton-loader-content">
+                      <div className="skeleton-spinner"></div>
+                      <span className="skeleton-text">Loading Game Environment...</span>
+                    </div>
+                  </div>
+                )}
                 <iframe
                   key={iframeKey}
                   src={cleanUrl}
@@ -696,6 +771,8 @@ export default function GamePlayerView({
                   allowFullScreen={true}
                   loading="eager"
                   referrerPolicy="no-referrer-when-downgrade"
+                  onLoad={() => setIframeLoaded(true)}
+                  style={{ opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
                 />
               </div>
             )}
@@ -704,7 +781,7 @@ export default function GamePlayerView({
           {/* Under-Game Bottom Control Bar (Exact Poki.com Style) */}
           <div className="poki-under-ctrl-bar">
             
-            {/* Left: Game Thumbnail + Title + Developer */}
+            {/* Left: Game Thumbnail + Title + Developer + Live Room Count */}
             <div className="poki-ctrl-left">
               <img
                 src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&q=80'}
@@ -712,15 +789,40 @@ export default function GamePlayerView({
                 className="poki-ctrl-thumb"
               />
               <div className="poki-ctrl-meta">
-                <h2 className="poki-ctrl-title">{game.title}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <h2 className="poki-ctrl-title">{game.title}</h2>
+                  <span className="live-room-player-tag" title="Concurrent active players in this game">
+                    <span className="live-pulse-dot small" /> {roomPlayersCount} playing
+                  </span>
+                </div>
                 <span className="poki-ctrl-subtitle">
                   by {game.developer || game.author || (game.category ? game.category.toUpperCase() : 'SYBO')}
                 </span>
               </div>
             </div>
 
-            {/* Right: Poki Actions (Like, Dislike, Bookmark, Fullscreen) */}
+            {/* Right: Poki Actions + Real-time Reaction Picker + Provably Fair + Fullscreen */}
             <div className="poki-ctrl-right">
+              {/* Live Emoji Quick Reactions */}
+              <div className="live-reaction-picker" title="Send live reaction to all players">
+                <button className="emoji-react-btn" onClick={() => sendReaction('🔥')} title="Fire">🔥</button>
+                <button className="emoji-react-btn" onClick={() => sendReaction('⚡')} title="Lightning">⚡</button>
+                <button className="emoji-react-btn" onClick={() => sendReaction('👏')} title="Clap">👏</button>
+                <button className="emoji-react-btn" onClick={() => sendReaction('🏆')} title="Trophy">🏆</button>
+              </div>
+
+              {/* Provably Fair Verifier */}
+              <button
+                className="poki-action-btn"
+                onClick={() => {
+                  sounds.playClick();
+                  setIsProvablyFairOpen(true);
+                }}
+                title="Verify Provably Fair Hash"
+              >
+                <ShieldCheck size={18} color="#00ffcc" />
+              </button>
+
               {/* Thumbs Up */}
               <button
                 className={`poki-action-btn ${userVote === 'like' ? 'voted-like' : ''}`}
@@ -855,6 +957,11 @@ export default function GamePlayerView({
           </div>
         </div>
       )}
+
+      <ProvablyFairModal
+        isOpen={isProvablyFairOpen}
+        onClose={() => setIsProvablyFairOpen(false)}
+      />
 
     </div>
   );
