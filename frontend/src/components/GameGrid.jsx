@@ -1,20 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import {
-  Flame,
-  Zap,
-  Crosshair,
-  Car,
-  Users,
-  Swords,
-  Puzzle,
   Gamepad2,
-  Clock,
-  Trophy,
   SlidersHorizontal,
   ArrowLeft,
-  Sparkles,
-  Star,
-  Play
+  Play,
+  ChevronDown
 } from 'lucide-react';
 import GameCard from './GameCard';
 import { sounds } from '../utils/audio';
@@ -30,7 +20,10 @@ const QUICK_CATEGORIES = [
   { id: 'multiplayer', name: '2-Player', icon: '👥' },
 ];
 
-export default function GameGrid({
+const INITIAL_BATCH_SIZE = 28;
+const BATCH_INCREMENT = 24;
+
+const GameGrid = memo(function GameGrid({
   title,
   games = [],
   onPlayGame,
@@ -42,23 +35,30 @@ export default function GameGrid({
   searchQuery = ''
 }) {
   const [sortBy, setSortBy] = useState('popular');
+  const [visibleLimit, setVisibleLimit] = useState(INITIAL_BATCH_SIZE);
 
-  const getSortedGames = (list) => {
-    let result = [...list];
+  const sortedList = useMemo(() => {
+    if (!games || games.length === 0) return [];
+    const list = [...games];
     if (sortBy === 'popular') {
-      return result.sort((a, b) => parseFloat(b.plays || 0) - parseFloat(a.plays || 0));
+      return list.sort((a, b) => parseFloat(b.plays || 0) - parseFloat(a.plays || 0));
     } else if (sortBy === 'rating') {
-      return result.sort((a, b) => (b.rating || 4.8) - (a.rating || 4.8));
+      return list.sort((a, b) => (b.rating || 4.8) - (a.rating || 4.8));
     } else if (sortBy === 'newest') {
-      return result.sort((a, b) => new Date(b.createdAt || '2026-01-01') - new Date(a.createdAt || '2026-01-01'));
+      return list.sort((a, b) => new Date(b.createdAt || '2026-01-01') - new Date(a.createdAt || '2026-01-01'));
     } else if (sortBy === 'az') {
-      return result.sort((a, b) => a.title.localeCompare(b.title));
+      return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     }
-    return result;
-  };
+    return list;
+  }, [games, sortBy]);
 
   const isHomeView = activePage === 'home' && !activeCategory && !searchQuery;
-  const sortedList = getSortedGames(games);
+
+  // Find featured spotlight game if available
+  const featuredGame = useMemo(() => {
+    if (!isHomeView || !games || games.length === 0) return null;
+    return games.find(g => g.featured) || (games.length >= 4 ? games[0] : null);
+  }, [isHomeView, games]);
 
   // If no games exist on the platform
   if (!games || games.length === 0) {
@@ -75,8 +75,13 @@ export default function GameGrid({
     );
   }
 
-  // Find featured spotlight game if available
-  const featuredGame = isHomeView ? (games.find(g => g.featured) || (games.length >= 4 ? games[0] : null)) : null;
+  const displayedGames = sortedList.slice(0, visibleLimit);
+  const hasMore = visibleLimit < sortedList.length;
+
+  const handleLoadMore = () => {
+    sounds.playClick();
+    setVisibleLimit(prev => prev + BATCH_INCREMENT);
+  };
 
   return (
     <section className="gamepix-category-grid-section">
@@ -90,58 +95,58 @@ export default function GameGrid({
           }}
           style={{
             position: 'relative',
-            borderRadius: '20px',
+            borderRadius: '16px',
             overflow: 'hidden',
-            marginBottom: '28px',
+            marginBottom: '24px',
             cursor: 'pointer',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            background: `linear-gradient(to right, rgba(10, 12, 20, 0.95) 0%, rgba(10, 12, 20, 0.6) 50%, rgba(10, 12, 20, 0.3) 100%), url(${featuredGame.banner || featuredGame.thumbnail}) center/cover no-repeat`,
-            minHeight: '220px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: `linear-gradient(to right, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.7) 60%, rgba(15, 23, 42, 0.4) 100%), url(${featuredGame.banner || featuredGame.thumbnail}) center/cover no-repeat`,
+            minHeight: '200px',
             display: 'flex',
             alignItems: 'center',
-            padding: '30px',
-            boxShadow: '0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 45, 126, 0.15)'
+            padding: '28px',
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)'
           }}
         >
           <div style={{ maxWidth: '520px', zIndex: 2 }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              <span style={{ background: 'linear-gradient(135deg, #f52d7e, #ff6b00)', color: '#fff', fontSize: '0.75rem', fontWeight: '800', padding: '4px 10px', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                ⭐ Spotlight Game
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              <span style={{ background: '#3b82f6', color: '#fff', fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>
+                ⭐ Featured Game
               </span>
-              <span style={{ background: 'rgba(255, 255, 255, 0.15)', color: '#fff', fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '12px', textTransform: 'uppercase' }}>
+              <span style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: '600', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>
                 {featuredGame.category}
               </span>
             </div>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', margin: '0 0 8px 0', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#fff', margin: '0 0 8px 0' }}>
               {featuredGame.title}
             </h2>
-            <p style={{ color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5', margin: '0 0 18px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-              {featuredGame.description || 'Play this thrilling game now on SKYGAMES Arcade!'}
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5', margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              {featuredGame.description || 'Play this exciting game now on SKYGAMES!'}
             </p>
             <button
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                background: 'linear-gradient(135deg, #00f2fe, #4facfe)',
-                color: '#040711',
-                fontWeight: '800',
+                background: '#3b82f6',
+                color: '#ffffff',
+                fontWeight: '700',
                 fontSize: '0.9rem',
-                padding: '10px 22px',
-                borderRadius: '50px',
+                padding: '9px 20px',
+                borderRadius: '10px',
                 border: 'none',
                 cursor: 'pointer',
-                boxShadow: '0 6px 20px rgba(0, 242, 254, 0.4)'
+                boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)'
               }}
             >
-              <Play size={16} fill="#040711" /> Play Now
+              <Play size={16} fill="#ffffff" /> Play Now
             </button>
           </div>
         </div>
       )}
 
       {/* Quick Category Chips Bar */}
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '16px', marginBottom: '12px', scrollbarWidth: 'none' }}>
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '14px', marginBottom: '10px', scrollbarWidth: 'none' }}>
         {QUICK_CATEGORIES.map(cat => {
           const isActive = (activeCategory === cat.id) || (!activeCategory && cat.id === '' && isHomeView);
           return (
@@ -155,17 +160,16 @@ export default function GameGrid({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '7px 14px',
-                borderRadius: '30px',
+                padding: '6px 14px',
+                borderRadius: '10px',
                 fontSize: '0.82rem',
-                fontWeight: '700',
+                fontWeight: '600',
                 whiteSpace: 'nowrap',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                background: isActive ? 'linear-gradient(135deg, #f52d7e, #ff6b00)' : 'rgba(255, 255, 255, 0.06)',
-                color: isActive ? '#fff' : 'var(--text-muted, #94a3b8)',
-                border: isActive ? '1px solid rgba(245, 45, 126, 0.6)' : '1px solid rgba(255, 255, 255, 0.08)',
-                boxShadow: isActive ? '0 4px 15px rgba(245, 45, 126, 0.35)' : 'none'
+                transition: 'all 0.15s ease',
+                background: isActive ? '#3b82f6' : '#1e293b',
+                color: isActive ? '#ffffff' : '#94a3b8',
+                border: isActive ? '1px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.08)'
               }}
             >
               <span>{cat.icon}</span>
@@ -225,7 +229,7 @@ export default function GameGrid({
 
       {/* Main Game Cards Grid */}
       <div className="game-cards-masonry-grid">
-        {sortedList.map((game) => (
+        {displayedGames.map((game) => (
           <GameCard
             key={game.id}
             game={game}
@@ -235,6 +239,34 @@ export default function GameGrid({
           />
         ))}
       </div>
+
+      {/* Load More Button if there are more games */}
+      {hasMore && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', marginBottom: '20px' }}>
+          <button
+            onClick={handleLoadMore}
+            className="gamepix-load-more-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 32px',
+              background: 'linear-gradient(135deg, rgba(245, 45, 126, 0.2), rgba(0, 242, 254, 0.2))',
+              border: '1.5px solid rgba(0, 242, 254, 0.4)',
+              borderRadius: '50px',
+              color: '#fff',
+              fontSize: '0.95rem',
+              fontWeight: '800',
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            <span>Show More Games ({sortedList.length - visibleLimit} Remaining)</span>
+            <ChevronDown size={18} />
+          </button>
+        </div>
+      )}
 
       {/* Search / Filter Empty State */}
       {sortedList.length === 0 && (
@@ -254,4 +286,6 @@ export default function GameGrid({
       )}
     </section>
   );
-}
+});
+
+export default GameGrid;

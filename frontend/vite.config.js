@@ -16,5 +16,21 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          icons: ['lucide-react'],
+          socket: ['socket.io-client'],
+          effects: ['canvas-confetti']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 800
   }
 })

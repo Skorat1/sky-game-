@@ -16,6 +16,7 @@ import { Banner } from './models/Banner.js';
 import { Submission } from './models/Submission.js';
 import { Message } from './models/Message.js';
 import { Setting } from './models/Setting.js';
+import { User } from './models/User.js';
 
 dotenv.config();
 
@@ -146,6 +147,31 @@ io.on('connection', (socket) => {
   });
 });
 
+// ---------------- AUTH & USER HELPERS ----------------
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedPassword) {
+  if (!storedPassword) return false;
+  if (!storedPassword.includes(':')) {
+    return password === storedPassword;
+  }
+  const [salt, originalHash] = storedPassword.split(':');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === originalHash;
+}
+
+function sanitizeUser(u) {
+  if (!u) return null;
+  const obj = u.toObject ? u.toObject() : { ...u };
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+}
+
 // Seed Initial Data (Empty by default so ONLY games added via Admin show up)
 const SEED_GAMES = [];
 
@@ -159,7 +185,47 @@ const SEED_CATEGORIES = [
   { id: 'cyber', name: 'Cyberpunk', icon: '⚡', color: '#ff00aa' }
 ];
 
+const SEED_USERS = [
+  {
+    id: 'usr-admin-1',
+    username: 'SuperAdmin',
+    email: 'admin@skygames.io',
+    password: hashPassword('Admin@123'),
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=SuperAdmin',
+    provider: 'email',
+    role: 'admin',
+    status: 'active',
+    createdAt: '2026-09-01T10:00:00.000Z',
+    lastLogin: new Date().toISOString()
+  },
+  {
+    id: 'usr-gamer-2',
+    username: 'CyberNinja',
+    email: 'ninja@cyberpunk.io',
+    password: hashPassword('Gamer@123'),
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=CyberNinja',
+    provider: 'google',
+    role: 'moderator',
+    status: 'active',
+    createdAt: '2026-09-05T14:20:00.000Z',
+    lastLogin: new Date().toISOString()
+  },
+  {
+    id: 'usr-gamer-3',
+    username: 'PixelWarrior',
+    email: 'pixel.warrior@gmail.com',
+    password: hashPassword('Player@123'),
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=PixelWarrior',
+    provider: 'email',
+    role: 'user',
+    status: 'active',
+    createdAt: '2026-09-08T09:45:00.000Z',
+    lastLogin: new Date().toISOString()
+  }
+];
+
 let localStore = {
+  users: [],
   games: [],
   categories: [...SEED_CATEGORIES],
   banner: {
@@ -185,7 +251,9 @@ function initStore() {
     if (fs.existsSync(STORE_FILE)) {
       const data = fs.readFileSync(STORE_FILE, 'utf-8');
       localStore = { ...localStore, ...JSON.parse(data) };
+      if (!Array.isArray(localStore.users)) localStore.users = [];
     } else {
+      localStore.users = [...SEED_USERS];
       fs.writeFileSync(STORE_FILE, JSON.stringify(localStore, null, 2));
     }
   } catch (err) {
@@ -214,6 +282,12 @@ async function seedDatabase() {
     const bannerCount = await Banner.countDocuments();
     if (bannerCount === 0) {
       await Banner.create(localStore.banner);
+    }
+
+    const userCount = await User.countDocuments();
+    if (userCount === 0 && Array.isArray(localStore.users) && localStore.users.length > 0) {
+      await User.insertMany(localStore.users);
+      console.log('✅ Seeded Users collection in MongoDB with persistent accounts');
     }
   } catch (err) {
     console.error('⚠️ Seeding error:', err.message);
@@ -314,13 +388,367 @@ app.get('/api/health', (req, res) => {
     dbConnected: mongoose.connection.readyState === 1,
     storageMode: mongoose.connection.readyState === 1 ? 'mongodb' : 'json_store',
     totalGames: localStore.games.length,
+    totalUsers: (localStore.users || []).length,
     onlinePlayers: activeVisitors.size
   });
+});
+
+// ---------------- AUTH API ROUTES ----------------
+
+// Register new user
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email and password are required' });
+    }
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.trim();
+
+    if (cleanUsername.length < 2) {
+      return res.status(400).json({ error: 'Username must be at least 2 characters long' });
+    }
+    if (password.length < 3) {
+      return res.status(400).json({ error: 'Password must be at least 3 characters long' });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ error: 'Please enter a valid email address' });
+    }
+
+    // Check if user already exists
+    let existingUser = null;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        existingUser = await User.findOne({
+          $or: [{ email: cleanEmail }, { username: cleanUsername }]
+        }).maxTimeMS(1500);
+      } catch (err) {
+        existingUser = null;
+      }
+    }
+    if (!existingUser) {
+      existingUser = (localStore.users || []).find(
+        u => u.email.toLowerCase() === cleanEmail || u.username.toLowerCase() === cleanUsername.toLowerCase()
+      );
+    }
+
+    if (existingUser) {
+      if (existingUser.email.toLowerCase() === cleanEmail) {
+        return res.status(409).json({ error: 'An account with this email already exists' });
+      }
+      return res.status(409).json({ error: 'This username is already taken' });
+    }
+
+    const userId = 'usr-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5);
+    const hashedPassword = hashPassword(password);
+    const avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanUsername)}`;
+
+    const newUser = {
+      id: userId,
+      username: cleanUsername,
+      email: cleanEmail,
+      password: hashedPassword,
+      avatar,
+      provider: 'email',
+      role: 'user',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString()
+    };
+
+    if (!localStore.users) localStore.users = [];
+    localStore.users.unshift(newUser);
+    persistStore();
+
+    if (mongoose.connection.readyState === 1) {
+      User.create(newUser).catch(() => {});
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    recordActivity('user_register', 'New Gamer Joined', `${cleanUsername} registered an account`);
+    io.emit('user:registered', sanitizeUser(newUser));
+
+    res.status(201).json({
+      success: true,
+      message: 'Account created successfully!',
+      user: sanitizeUser(newUser),
+      token
+    });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ error: err.message || 'Server error during registration' });
+  }
+});
+
+// Login existing user
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email/username and password are required' });
+    }
+    const cleanIdent = email.toLowerCase().trim();
+
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        user = await User.findOne({
+          $or: [{ email: cleanIdent }, { username: { $regex: new RegExp(`^${cleanIdent}$`, 'i') } }]
+        }).maxTimeMS(1500);
+      } catch (err) {
+        user = null;
+      }
+    }
+    if (!user) {
+      user = (localStore.users || []).find(
+        u => u.email.toLowerCase() === cleanIdent || u.username.toLowerCase() === cleanIdent
+      );
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: 'Account not found with this email or username' });
+    }
+
+    if (user.status === 'banned') {
+      return res.status(403).json({ error: 'This account has been suspended' });
+    }
+
+    const isMatch = verifyPassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid password. Please check your credentials.' });
+    }
+
+    const nowIso = new Date().toISOString();
+    const idx = (localStore.users || []).findIndex(u => u.id === user.id);
+    if (idx !== -1) {
+      localStore.users[idx].lastLogin = nowIso;
+      persistStore();
+    }
+    if (mongoose.connection.readyState === 1) {
+      await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => {});
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    recordActivity('user_login', 'Player Logged In', `${user.username} signed in`);
+
+    res.json({
+      success: true,
+      message: 'Logged in successfully!',
+      user: sanitizeUser(user),
+      token
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: err.message || 'Server error during login' });
+  }
+});
+
+// Forgot / Reset Password endpoint
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { identifier } = req.body;
+    if (!identifier) {
+      return res.status(400).json({ error: 'Please enter your email or username' });
+    }
+    const cleanIdent = identifier.toLowerCase().trim();
+
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({
+        $or: [{ email: cleanIdent }, { username: { $regex: new RegExp(`^${cleanIdent}$`, 'i') } }]
+      });
+    }
+    if (!user) {
+      user = (localStore.users || []).find(
+        u => u.email.toLowerCase() === cleanIdent || u.username.toLowerCase() === cleanIdent
+      );
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'No gamer account found with that email or username' });
+    }
+
+    // Password reset simulation / reset instructions
+    recordActivity('user_activity', 'Password Reset Requested', `Password reset requested for ${user.username}`);
+    res.json({
+      success: true,
+      message: `Password reset link sent to ${user.email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '***')}`
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: err.message || 'Error processing password reset' });
+  }
+});
+
+// Social Login / SSO (Google, Apple, Microsoft, Passkey)
+app.post('/api/auth/social', async (req, res) => {
+  try {
+    const { provider = 'Social', name, email, avatar } = req.body;
+    const cleanName = (name || `${provider} Gamer`).trim();
+    const cleanEmail = (email || `${provider.toLowerCase()}_${Date.now()}@skygames.io`).toLowerCase().trim();
+
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({ email: cleanEmail });
+    }
+    if (!user) {
+      user = (localStore.users || []).find(u => u.email.toLowerCase() === cleanEmail);
+    }
+
+    if (!user) {
+      const userId = 'usr-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5);
+      const userAvatar = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`;
+      user = {
+        id: userId,
+        username: cleanName,
+        email: cleanEmail,
+        avatar: userAvatar,
+        provider: provider.toLowerCase(),
+        role: 'user',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+
+      if (!localStore.users) localStore.users = [];
+      localStore.users.unshift(user);
+      persistStore();
+
+      if (mongoose.connection.readyState === 1) {
+        await User.create(user).catch(() => {});
+      }
+
+      recordActivity('user_register', 'New Gamer Joined', `${cleanName} joined via ${provider}!`);
+      io.emit('user:registered', sanitizeUser(user));
+    } else {
+      const nowIso = new Date().toISOString();
+      const idx = (localStore.users || []).findIndex(u => u.id === user.id);
+      if (idx !== -1) {
+        localStore.users[idx].lastLogin = nowIso;
+        persistStore();
+      }
+      if (mongoose.connection.readyState === 1) {
+        await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => {});
+      }
+      recordActivity('user_login', 'Player Logged In', `${user.username} signed in via ${provider}`);
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    res.json({
+      success: true,
+      message: `Signed in with ${provider}`,
+      user: sanitizeUser(user),
+      token
+    });
+  } catch (err) {
+    console.error('Social login error:', err);
+    res.status(500).json({ error: err.message || 'Server error during social login' });
+  }
+});
+
+// Get current user profile
+app.get('/api/auth/me', async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'] || req.query.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({ id: userId });
+    }
+    if (!user) {
+      user = (localStore.users || []).find(u => u.id === userId);
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user: sanitizeUser(user) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- USERS MANAGEMENT API ---
+app.get('/api/users', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const users = await User.find().sort({ createdAt: -1 });
+      return res.json((users || []).map(sanitizeUser));
+    }
+    res.json((localStore.users || []).map(sanitizeUser));
+  } catch (err) {
+    res.json((localStore.users || []).map(sanitizeUser));
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const rawId = req.params.id;
+    localStore.users = (localStore.users || []).filter(
+      u => u.id !== rawId && u._id !== rawId && String(u._id) !== rawId
+    );
+    persistStore();
+
+    if (mongoose.connection.readyState === 1) {
+      await User.deleteMany({
+        $or: [
+          { id: rawId },
+          { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
+        ]
+      }).catch(() => {});
+    }
+
+    io.emit('user:deleted', { id: rawId });
+    recordActivity('user_delete', 'User Removed', `User ID "${rawId}" was permanently deleted`);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/users/:id', async (req, res) => {
+  try {
+    const updates = { ...req.body };
+    if (updates.password && updates.password.trim()) {
+      updates.password = hashPassword(updates.password.trim());
+    } else {
+      delete updates.password;
+    }
+
+    const idx = (localStore.users || []).findIndex(u => u.id === req.params.id);
+    let updated = null;
+    if (idx !== -1) {
+      localStore.users[idx] = { ...localStore.users[idx], ...updates };
+      updated = localStore.users[idx];
+      persistStore();
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      updated = await User.findOneAndUpdate(
+        { $or: [{ id: req.params.id }, { _id: mongoose.isValidObjectId(req.params.id) ? req.params.id : null }] },
+        { $set: updates },
+        { new: true }
+      ).catch(() => {});
+    }
+
+    const sanitized = sanitizeUser(updated);
+    io.emit('user:updated', sanitized);
+    recordActivity('user_update', 'User Profile Updated', `User "${sanitized?.username || req.params.id}" was updated by Admin`);
+    res.json({ success: true, user: sanitized });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // --- GAMES API ---
 // Get all games
 app.get('/api/games', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
   try {
     if (mongoose.connection.readyState === 1) {
       const games = await Game.find().sort({ createdAt: -1 });
@@ -547,6 +975,7 @@ app.get('/api/analytics/live', async (req, res) => {
 
     res.json({
       onlineUsers: activeVisitors.size,
+      totalRegisteredUsers: (localStore.users || []).length,
       activeRooms,
       recentActivities: recentActivities.slice(0, 15),
       totalGames: localStore.games.length,

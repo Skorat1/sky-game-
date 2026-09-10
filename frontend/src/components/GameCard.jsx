@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
-import { Play, Star, Heart, Flame, Sparkles } from 'lucide-react';
+import React, { useState, memo } from 'react';
+import { Play, Star, Heart, Flame } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
-export default function GameCard({
+const BADGE_COLORS = {
+  'HOT': '#ef4444',
+  'POPULAR': '#3b82f6',
+  'TRENDING': '#06b6d4',
+  'NEW': '#10b981',
+  'TOP RATED': '#f59e0b',
+  '2 PLAYER': '#8b5cf6',
+  'CASUAL': '#ec4899',
+  'STRATEGY': '#14b8a6',
+  'FEATURED': '#6366f1'
+};
+
+const GameCard = memo(function GameCard({
   game,
   onPlay,
   isFavorite = false,
@@ -11,21 +23,8 @@ export default function GameCard({
   const [imgSrc, setImgSrc] = useState(game.thumbnail);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const badgeColors = {
-    'HOT': 'linear-gradient(135deg, #ff0844, #ffb199)',
-    'POPULAR': 'linear-gradient(135deg, #b85df5, #f52d3a)',
-    'TRENDING': 'linear-gradient(135deg, #00f2fe, #4facfe)',
-    'NEW': 'linear-gradient(135deg, #00f5a0, #00d9f5)',
-    'TOP RATED': 'linear-gradient(135deg, #ffd200, #ff6b00)',
-    '2 PLAYER': 'linear-gradient(135deg, #b85df5, #8a2be2)',
-    'CASUAL': 'linear-gradient(135deg, #ff758c, #ff7eb3)',
-    'STRATEGY': 'linear-gradient(135deg, #43e97b, #38f9d7)',
-    'FEATURED': 'linear-gradient(135deg, #00f2fe, #b85df5)'
-  };
-
   const handleImageError = () => {
-    // Elegant fallback SVG thumbnail if the external image fails to load
-    setImgSrc(`https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80`);
+    setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80');
     setImgLoaded(true);
   };
 
@@ -43,9 +42,12 @@ export default function GameCard({
           alt={game.title}
           className="card-thumb-img"
           loading="lazy"
+          decoding="async"
+          width="260"
+          height="180"
           onLoad={() => setImgLoaded(true)}
           onError={handleImageError}
-          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
+          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.25s ease' }}
         />
         <div className="card-overlay-gradient"></div>
 
@@ -54,13 +56,13 @@ export default function GameCard({
           {game.badge ? (
             <span
               className="card-badge-pill"
-              style={{ background: badgeColors[game.badge.toUpperCase()] || '#f52d3a' }}
+              style={{ background: BADGE_COLORS[game.badge.toUpperCase()] || '#f52d3a' }}
             >
               {game.badge}
             </span>
           ) : (
             <span className="card-badge-pill" style={{ background: 'rgba(255, 255, 255, 0.15)' }}>
-              {game.category.toUpperCase()}
+              {game.category?.toUpperCase() || 'ARCADE'}
             </span>
           )}
 
@@ -94,10 +96,12 @@ export default function GameCard({
             </span>
           </div>
           <h3 className="card-game-title">{game.title}</h3>
-          <span className="card-category-tag">{game.category.toUpperCase()}</span>
+          <span className="card-category-tag">{game.category?.toUpperCase()}</span>
         </div>
       </div>
     </div>
   );
-}
+});
+
+export default GameCard;
 

@@ -28,7 +28,6 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
-  ShieldCheck,
   Zap,
   SmilePlus
 } from 'lucide-react';
@@ -36,7 +35,6 @@ import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
 import GameCard from './GameCard';
-import ProvablyFairModal from './ProvablyFairModal';
 
 // Auto-detect best aspect ratio and dimensions from embed code or game metadata
 function parseEmbedDimensions(rawEmbed) {
@@ -115,7 +113,6 @@ export default function GamePlayerView({
   const [gameMuted, setGameMuted] = useState(false);
   const [roomPlayersCount, setRoomPlayersCount] = useState(1);
   const [floatingReactions, setFloatingReactions] = useState([]);
-  const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
   const canvasRef = useRef(null);
@@ -801,7 +798,7 @@ export default function GamePlayerView({
               </div>
             </div>
 
-            {/* Right: Poki Actions + Real-time Reaction Picker + Provably Fair + Fullscreen */}
+            {/* Right: Poki Actions + Real-time Reaction Picker + Engine Switcher + Reload + Fullscreen */}
             <div className="poki-ctrl-right">
               {/* Live Emoji Quick Reactions */}
               <div className="live-reaction-picker" title="Send live reaction to all players">
@@ -811,25 +808,13 @@ export default function GamePlayerView({
                 <button className="emoji-react-btn" onClick={() => sendReaction('🏆')} title="Trophy">🏆</button>
               </div>
 
-              {/* Provably Fair Verifier */}
-              <button
-                className="poki-action-btn"
-                onClick={() => {
-                  sounds.playClick();
-                  setIsProvablyFairOpen(true);
-                }}
-                title="Verify Provably Fair Hash"
-              >
-                <ShieldCheck size={18} color="#00ffcc" />
-              </button>
-
               {/* Thumbs Up */}
               <button
                 className={`poki-action-btn ${userVote === 'like' ? 'voted-like' : ''}`}
                 onClick={handleLike}
                 title="I like this"
               >
-                <ThumbsUp size={20} className="poki-action-icon" />
+                <ThumbsUp size={19} className="poki-action-icon" />
                 <span className="poki-action-count">{likes >= 1000 ? `${(likes / 1000).toFixed(1)}K` : likes}</span>
               </button>
 
@@ -839,7 +824,7 @@ export default function GamePlayerView({
                 onClick={handleDislike}
                 title="I dislike this"
               >
-                <ThumbsDown size={20} className="poki-action-icon" />
+                <ThumbsDown size={19} className="poki-action-icon" />
                 <span className="poki-action-count">{dislikes >= 1000 ? `${(dislikes / 1000).toFixed(1)}K` : dislikes}</span>
               </button>
 
@@ -852,7 +837,28 @@ export default function GamePlayerView({
                 }}
                 title={isFavorite ? "Saved to Favorites" : "Add to Favorites"}
               >
-                <Heart size={20} className="poki-action-icon" fill={isFavorite ? "#f52d7e" : "none"} color={isFavorite ? "#f52d7e" : "currentColor"} />
+                <Heart size={19} className="poki-action-icon" fill={isFavorite ? "#f52d7e" : "none"} color={isFavorite ? "#f52d7e" : "currentColor"} />
+              </button>
+
+              {/* Switch Engine (Built-in Arcade vs Web URL) */}
+              <button
+                className={`poki-action-btn ${useBuiltInEngine ? 'active-engine' : ''}`}
+                onClick={() => {
+                  sounds.playClick();
+                  setUseBuiltInEngine(!useBuiltInEngine);
+                }}
+                title={useBuiltInEngine ? "Switch to Web Embed" : "Play Built-in Arcade Engine"}
+              >
+                <Gamepad2 size={19} className="poki-action-icon" />
+              </button>
+
+              {/* Reload / Restart */}
+              <button
+                className="poki-action-btn"
+                onClick={handleRestartGame}
+                title="Reload Game"
+              >
+                <RefreshCw size={19} className="poki-action-icon" />
               </button>
 
               {/* Fullscreen Trigger */}
@@ -861,7 +867,7 @@ export default function GamePlayerView({
                 onClick={toggleFullscreen}
                 title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               >
-                {isFullscreen ? <Minimize2 size={21} className="poki-action-icon" /> : <Maximize2 size={21} className="poki-action-icon" />}
+                {isFullscreen ? <Minimize2 size={20} className="poki-action-icon" /> : <Maximize2 size={20} className="poki-action-icon" />}
               </button>
             </div>
 
@@ -957,11 +963,6 @@ export default function GamePlayerView({
           </div>
         </div>
       )}
-
-      <ProvablyFairModal
-        isOpen={isProvablyFairOpen}
-        onClose={() => setIsProvablyFairOpen(false)}
-      />
 
     </div>
   );

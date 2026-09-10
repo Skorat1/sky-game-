@@ -87,6 +87,26 @@ export default function Footer({ onNavigate }) {
                 📬 Contact & Support
               </button>
             </li>
+            <li>
+              <a
+                href="http://localhost:5174"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#00f2fe',
+                  fontWeight: '700',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'none'
+                }}
+              >
+                ⚡ Admin Panel
+              </a>
+            </li>
           </ul>
         </div>
       </div>

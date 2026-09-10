@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-export default function GamesManagementView({ 
-  games, 
-  categories, 
-  onEditGame, 
-  onDeleteGame, 
+export default function GamesManagementView({
+  games,
+  categories,
+  onEditGame,
+  onDeleteGame,
   onToggleFeatured,
-  onOpenAddModal 
+  onOpenAddModal,
+  onRefresh
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -16,7 +17,7 @@ export default function GamesManagementView({
     const matchesSearch = game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (game.description && game.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (game.tags && game.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
-    
+
     const matchesCategory = selectedCategory === 'all' || game.category === selectedCategory;
     const matchesStatus = selectedStatus === 'all' || (game.status || 'active') === selectedStatus;
 
@@ -25,7 +26,7 @@ export default function GamesManagementView({
 
   return (
     <div className="glass-panel">
-      
+
       <div className="filter-bar">
         <div className="search-input-wrapper">
           <span className="search-icon-pos">🔍</span>
@@ -62,6 +63,19 @@ export default function GamesManagementView({
             <option value="maintenance">Maintenance</option>
             <option value="draft">Draft</option>
           </select>
+
+          {onRefresh && (
+            <button
+              className="admin-btn secondary"
+              onClick={onRefresh}
+              title="Refresh games from database"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              <span>Refresh</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -101,3 +101,5 @@ export const WEEKLY_ANALYTICS = [
   { day: 'Sat', players: 9400, plays: 34100, time: 45 },
   { day: 'Sun', players: 8900, plays: 31200, time: 40 }
 ];
+
+export const DEFAULT_USERS = [];

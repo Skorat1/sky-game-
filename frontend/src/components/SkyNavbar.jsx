@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Search, X, User, Gamepad2, Menu, Heart, ShieldCheck, Activity } from 'lucide-react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import { Search, X, User, Gamepad2, Menu, Heart, Activity } from 'lucide-react';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
-import ProvablyFairModal from './ProvablyFairModal';
 
-export default function SkyNavbar({
+const SkyNavbar = memo(function SkyNavbar({
   searchQuery,
   setSearchQuery,
   activeCategory,
@@ -21,7 +20,6 @@ export default function SkyNavbar({
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
-  const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
 
   useEffect(() => {
     socket.on('online:count', (data) => {
@@ -32,13 +30,15 @@ export default function SkyNavbar({
     };
   }, []);
 
-  const searchResults = searchQuery.trim() === ''
-    ? []
-    : games.filter(g =>
-      g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (g.category && g.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (g.tags && g.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())))
+  const searchResults = useMemo(() => {
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return [];
+    return games.filter(g =>
+      (g.title || '').toLowerCase().includes(q) ||
+      (g.category && g.category.toLowerCase().includes(q)) ||
+      (g.tags && g.tags.some(t => t.toLowerCase().includes(q)))
     ).slice(0, 6);
+  }, [searchQuery, games]);
 
   return (
     <header className="poki-advanced-navbar">
@@ -144,25 +144,8 @@ export default function SkyNavbar({
             )}
           </div>
 
-          {/* 4. Action Buttons (Live Players + Provably Fair + Favorites + Login/Profile) */}
+          {/* 4. Action Buttons (Favorites + Login/Profile) */}
           <div className="poki-navbar-right-group">
-            {/* Live Online Pulse Badge */}
-            <div className="live-online-pill" title={`${onlineCount} Players Online Right Now`}>
-              <span className="live-pulse-dot" />
-              <span className="live-online-text">{onlineCount.toLocaleString()} Live</span>
-            </div>
-
-            {/* Provably Fair Quick Launcher */}
-            <button
-              className="gamepix-fav-header-btn pf-header-btn"
-              onClick={() => {
-                sounds.playClick();
-                setIsProvablyFairOpen(true);
-              }}
-              title="Provably Fair Verifier"
-            >
-              <ShieldCheck size={18} color="#00ffcc" />
-            </button>
 
             {/* Quick Favorites Button */}
             <button
@@ -190,10 +173,12 @@ export default function SkyNavbar({
             >
               {user ? (
                 <>
-                  <img src={user.avatar} alt={user.name} className="poki-user-auth-avatar" />
+                  <img src={user.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.username || user.name || 'gamer'}`} alt={user.username || user.name} className="poki-user-auth-avatar" />
                   <div className="poki-user-auth-meta">
-                    <span className="poki-user-auth-name">{user.name.split(' ')[0]}</span>
-                    <span className="poki-user-auth-status">● Active</span>
+                    <span className="poki-user-auth-name" title={user.username || user.name}>
+                      {user.username || user.name || (user.email ? user.email.split('@')[0] : 'Player')}
+                    </span>
+                    <span className="poki-user-auth-status">● {user.role === 'admin' ? 'Admin' : 'Active'}</span>
                   </div>
                 </>
               ) : (
@@ -209,11 +194,8 @@ export default function SkyNavbar({
 
         </div>
       </div>
-
-      <ProvablyFairModal
-        isOpen={isProvablyFairOpen}
-        onClose={() => setIsProvablyFairOpen(false)}
-      />
     </header>
   );
-}
+});
+
+export default SkyNavbar;

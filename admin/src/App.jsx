@@ -1,43 +1,81 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import AdminSidebar from './components/AdminSidebar';
 import AdminNavbar from './components/AdminNavbar';
-import GameModal from './components/GameModal';
 import Toast from './components/Toast';
 
-import DashboardView from './views/DashboardView';
-import GamesManagementView from './views/GamesManagementView';
-import CategoriesView from './views/CategoriesView';
-import BannerView from './views/BannerView';
-import SubmissionsView from './views/SubmissionsView';
-import MessagesView from './views/MessagesView';
-import SettingsView from './views/SettingsView';
+// Code-split all admin views on demand
+const DashboardView = lazy(() => import('./views/DashboardView'));
+const GamesManagementView = lazy(() => import('./views/GamesManagementView'));
+const UsersView = lazy(() => import('./views/UsersView'));
+const CategoriesView = lazy(() => import('./views/CategoriesView'));
+const BannerView = lazy(() => import('./views/BannerView'));
+const SubmissionsView = lazy(() => import('./views/SubmissionsView'));
+const MessagesView = lazy(() => import('./views/MessagesView'));
+const SettingsView = lazy(() => import('./views/SettingsView'));
+const GameModal = lazy(() => import('./components/GameModal'));
 
-import { 
-  DEFAULT_GAMES, 
-  DEFAULT_CATEGORIES, 
-  DEFAULT_SUBMISSIONS, 
-  DEFAULT_MESSAGES, 
-  DEFAULT_BANNER, 
-  DEFAULT_SETTINGS 
+import {
+  DEFAULT_GAMES,
+  DEFAULT_CATEGORIES,
+  DEFAULT_SUBMISSIONS,
+  DEFAULT_MESSAGES,
+  DEFAULT_BANNER,
+  DEFAULT_SETTINGS,
+  DEFAULT_USERS
 } from './data/defaultData';
 
 import { socket } from './utils/socket';
 
 const API_BASE = 'http://localhost:5000/api';
 
+const VALID_TABS = ['dashboard', 'games', 'users', 'categories', 'banner', 'submissions', 'messages', 'settings'];
+
+function getInitialTab() {
+  try {
+    const hash = window.location.hash.replace('#', '').trim().toLowerCase();
+    if (VALID_TABS.includes(hash)) return hash;
+
+    const saved = localStorage.getItem('sky_admin_tab');
+    if (saved && VALID_TABS.includes(saved)) return saved;
+  } catch (e) {}
+  return 'dashboard';
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
   const [dbStatus, setDbStatus] = useState({ connected: false, checked: false });
 
   // State
   const [games, setGames] = useState(DEFAULT_GAMES);
+  const [users, setUsers] = useState(DEFAULT_USERS);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [submissions, setSubmissions] = useState(DEFAULT_SUBMISSIONS);
   const [messages, setMessages] = useState(DEFAULT_MESSAGES);
   const [banner, setBanner] = useState(DEFAULT_BANNER);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+
+  // Sync activeTab with URL hash and localStorage
+  useEffect(() => {
+    try {
+      window.location.hash = activeTab;
+      localStorage.setItem('sky_admin_tab', activeTab);
+    } catch (e) {}
+  }, [activeTab]);
+
+  // Listen for browser back / forward buttons
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').trim().toLowerCase();
+      if (VALID_TABS.includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Modal State
   const [editingGame, setEditingGame] = useState(null);
@@ -50,8 +88,9 @@ export default function App() {
   // Fetch all data from MongoDB Backend
   const fetchAllData = useCallback(async () => {
     try {
-      const [gamesRes, bannerRes, catRes, subRes, msgRes, setRes] = await Promise.all([
+      const [gamesRes, usersRes, bannerRes, catRes, subRes, msgRes, setRes] = await Promise.all([
         fetch(`${API_BASE}/games`),
+        fetch(`${API_BASE}/users`),
         fetch(`${API_BASE}/banner`),
         fetch(`${API_BASE}/categories`),
         fetch(`${API_BASE}/submissions`),
@@ -63,6 +102,11 @@ export default function App() {
         const gamesData = await gamesRes.json();
         if (Array.isArray(gamesData)) setGames(gamesData);
         setDbStatus({ connected: true, checked: true });
+      }
+
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        if (Array.isArray(usersData)) setUsers(usersData);
       }
 
       if (bannerRes.ok) {
@@ -113,14 +157,34 @@ export default function App() {
       showToast(`📩 New Inquiry from "${msg.name}"`);
     };
 
+    const handleNewUser = (newUser) => {
+      setUsers(prev => [newUser, ...prev.filter(u => u.id !== newUser.id)]);
+      showToast(`👤 New Player Registered: "${newUser.username || newUser.name}"`);
+    };
+
+    const handleUserUpdated = (updatedUser) => {
+      if (!updatedUser) return;
+      setUsers(prev => prev.map(u => (u.id === updatedUser.id || (u._id && u._id === updatedUser._id)) ? { ...u, ...updatedUser } : u));
+    };
+
+    const handleUserDeleted = (data) => {
+      setUsers(prev => prev.filter(u => u.id !== data.id && u._id !== data.id));
+    };
+
     socket.on('game:play:increment', handleGamePlay);
     socket.on('submission:new', handleNewSubmission);
     socket.on('message:new', handleNewMessage);
+    socket.on('user:registered', handleNewUser);
+    socket.on('user:updated', handleUserUpdated);
+    socket.on('user:deleted', handleUserDeleted);
 
     return () => {
       socket.off('game:play:increment', handleGamePlay);
       socket.off('submission:new', handleNewSubmission);
       socket.off('message:new', handleNewMessage);
+      socket.off('user:registered', handleNewUser);
+      socket.off('user:updated', handleUserUpdated);
+      socket.off('user:deleted', handleUserDeleted);
     };
   }, [fetchAllData]);
 
@@ -162,8 +226,8 @@ export default function App() {
       }
     } catch (err) {
       // Offline fallback
-      setGames(games.some(g => g.id === savedGame.id) 
-        ? games.map(g => g.id === savedGame.id ? savedGame : g) 
+      setGames(games.some(g => g.id === savedGame.id)
+        ? games.map(g => g.id === savedGame.id ? savedGame : g)
         : [savedGame, ...games]);
       showToast(`Game saved (MongoDB sync pending)`);
     }
@@ -173,7 +237,7 @@ export default function App() {
     try {
       const game = games.find(g => g.id === gameId);
       const res = await fetch(`${API_BASE}/games/${gameId}`, { method: 'DELETE' });
-      
+
       setGames(games.filter(g => g.id !== gameId));
       if (res.ok) {
         showToast(`Game "${game?.title || gameId}" deleted from MongoDB & removed from SKYGAMES!`, 'error');
@@ -325,6 +389,69 @@ export default function App() {
     }
   };
 
+  // User Management Handlers
+  const handleAddUser = async (userData) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to create user');
+      }
+
+      if (result.user) {
+        setUsers(prev => [result.user, ...prev.filter(u => u.id !== result.user.id)]);
+        showToast(`User "${result.user.username}" created successfully!`);
+      }
+      return result;
+    } catch (err) {
+      const localUser = {
+        id: 'usr-' + Date.now().toString(36),
+        ...userData,
+        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${userData.username}`,
+        createdAt: new Date().toISOString()
+      };
+      setUsers(prev => [localUser, ...prev]);
+      showToast(`User "${userData.username}" created!`);
+      return { user: localUser };
+    }
+  };
+
+  const handleUpdateUser = async (userId, updates) => {
+    try {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+      const res = await fetch(`${API_BASE}/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.user) {
+          setUsers(prev => prev.map(u => u.id === userId ? result.user : u));
+        }
+        showToast(`User profile updated!`);
+      }
+    } catch (err) {
+      showToast(`User updated.`);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      await fetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
+      showToast('User account deleted from system.', 'error');
+    } catch (err) {
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      showToast('User deleted.');
+    }
+  };
+
   // Settings Handlers
   const handleSaveSettings = async (newSettings) => {
     try {
@@ -349,6 +476,7 @@ export default function App() {
   const handleExportData = () => {
     const exportBundle = {
       games,
+      users,
       categories,
       submissions,
       messages,
@@ -375,7 +503,7 @@ export default function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(g)
           });
-        } catch (e) {}
+        } catch (e) { }
       }
       setGames(data.games);
     }
@@ -387,7 +515,7 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data.banner)
         });
-      } catch (e) {}
+      } catch (e) { }
     }
     showToast('Backup restored into MongoDB successfully!');
   };
@@ -400,6 +528,7 @@ export default function App() {
         showToast('Platform database reset to defaults in MongoDB!');
       } else {
         setGames(DEFAULT_GAMES);
+        setUsers(DEFAULT_USERS);
         setCategories(DEFAULT_CATEGORIES);
         setSubmissions(DEFAULT_SUBMISSIONS);
         setMessages(DEFAULT_MESSAGES);
@@ -409,6 +538,7 @@ export default function App() {
       }
     } catch (err) {
       setGames(DEFAULT_GAMES);
+      setUsers(DEFAULT_USERS);
       setCategories(DEFAULT_CATEGORIES);
       setSubmissions(DEFAULT_SUBMISSIONS);
       setMessages(DEFAULT_MESSAGES);
@@ -427,6 +557,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         gamesCount={games.length}
+        usersCount={users.length}
         submissionsCount={pendingSubmissionsCount}
         unreadMessagesCount={unreadMessagesCount}
         bannerActive={banner.active}
@@ -440,79 +571,96 @@ export default function App() {
           livePlayerCount={2480}
         />
 
-        <main className="content-container">
-          {activeTab === 'dashboard' && (
-            <DashboardView
-              games={games}
-              submissions={submissions}
-              messages={messages}
-              onNavigate={setActiveTab}
-              onEditGame={handleOpenGameModal}
-            />
-          )}
+        <main className="admin-content-area">
+          <Suspense fallback={<div className="admin-loading-spinner" style={{ padding: '60px', textAlign: 'center', color: '#00f2fe' }}>Loading View...</div>}>
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                games={games}
+                users={users}
+                categories={categories}
+                submissions={submissions}
+                messages={messages}
+                onNavigateTab={(tab) => setActiveTab(tab)}
+                onEditGame={handleOpenGameModal}
+              />
+            )}
 
-          {activeTab === 'games' && (
-            <GamesManagementView
-              games={games}
-              categories={categories}
-              onEditGame={handleOpenGameModal}
-              onDeleteGame={handleDeleteGame}
-              onToggleFeatured={handleToggleFeatured}
-              onOpenAddModal={() => handleOpenGameModal(null)}
-            />
-          )}
+            {activeTab === 'games' && (
+              <GamesManagementView
+                games={games}
+                categories={categories}
+                onEditGame={handleOpenGameModal}
+                onDeleteGame={handleDeleteGame}
+                onToggleFeatured={handleToggleFeatured}
+                onOpenAddModal={() => handleOpenGameModal(null)}
+                onRefresh={fetchAllData}
+              />
+            )}
 
-          {activeTab === 'categories' && (
-            <CategoriesView
-              categories={categories}
-              onAddCategory={handleAddCategory}
-              onDeleteCategory={handleDeleteCategory}
-              games={games}
-            />
-          )}
+            {activeTab === 'users' && (
+              <UsersView
+                users={users}
+                onAddUser={handleAddUser}
+                onUpdateUser={handleUpdateUser}
+                onDeleteUser={handleDeleteUser}
+                onRefresh={fetchAllData}
+              />
+            )}
 
-          {activeTab === 'banner' && (
-            <BannerView
-              banner={banner}
-              onUpdateBanner={handleUpdateBanner}
-            />
-          )}
+            {activeTab === 'categories' && (
+              <CategoriesView
+                categories={categories}
+                onAddCategory={handleAddCategory}
+                onDeleteCategory={handleDeleteCategory}
+                games={games}
+              />
+            )}
 
-          {activeTab === 'submissions' && (
-            <SubmissionsView
-              submissions={submissions}
-              onApprove={handleApproveSubmission}
-              onReject={handleRejectSubmission}
-            />
-          )}
+            {activeTab === 'banner' && (
+              <BannerView
+                banner={banner}
+                onUpdateBanner={handleUpdateBanner}
+              />
+            )}
 
-          {activeTab === 'messages' && (
-            <MessagesView
-              messages={messages}
-              onRead={handleMarkRead}
-              onDeleteMessage={handleDeleteMessage}
-            />
-          )}
+            {activeTab === 'submissions' && (
+              <SubmissionsView
+                submissions={submissions}
+                onApprove={handleApproveSubmission}
+                onReject={handleRejectSubmission}
+              />
+            )}
 
-          {activeTab === 'settings' && (
-            <SettingsView
-              settings={settings}
-              onSaveSettings={handleSaveSettings}
-              onExportData={handleExportData}
-              onImportData={handleImportData}
-              onResetData={handleResetData}
-            />
-          )}
+            {activeTab === 'messages' && (
+              <MessagesView
+                messages={messages}
+                onRead={handleMarkRead}
+                onDeleteMessage={handleDeleteMessage}
+              />
+            )}
+
+            {activeTab === 'settings' && (
+              <SettingsView
+                settings={settings}
+                onSaveSettings={handleSaveSettings}
+                onExportData={handleExportData}
+                onImportData={handleImportData}
+                onResetData={handleResetData}
+              />
+            )}
+          </Suspense>
         </main>
       </div>
 
-      <GameModal
-        game={editingGame}
-        isOpen={isGameModalOpen}
-        onClose={() => setIsGameModalOpen(false)}
-        onSave={handleSaveGame}
-        categories={categories}
-      />
+      <Suspense fallback={null}>
+        <GameModal
+          game={editingGame}
+          isOpen={isGameModalOpen}
+          onClose={() => setIsGameModalOpen(false)}
+          onSave={handleSaveGame}
+          categories={categories}
+        />
+      </Suspense>
 
       <Toast
         message={toast.message}

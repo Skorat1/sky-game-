@@ -1,5 +1,60 @@
 {
-  "games": [],
+  "users": [
+    {
+      "id": "usr-mtvp5fmw-ifrn3",
+      "username": "Apple",
+      "email": "gamer@icloud.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Apple",
+      "provider": "apple",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-10T15:43:13.256Z",
+      "lastLogin": "2026-09-10T15:43:13.256Z"
+    },
+    {
+      "id": "usr-mtvp548g-7v4cd",
+      "username": "Alex Gamer",
+      "email": "alex.gamer@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Alex%20Gamer",
+      "provider": "google",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-10T15:42:58.480Z",
+      "lastLogin": "2026-09-10T15:42:58.480Z"
+    },
+    {
+      "id": "usr-mtvowmxr-3neqd",
+      "username": "Apple Gamer",
+      "email": "apple_gamer@skygames.io",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Apple",
+      "provider": "apple",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-10T15:36:22.815Z",
+      "lastLogin": "2026-09-10T15:36:22.815Z"
+    }
+  ],
+  "games": [
+    {
+      "id": "2048-8654",
+      "title": "2048",
+      "category": "puzzle",
+      "description": "",
+      "thumbnail": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "gameUrl": "https://www.youtube.com/playables/Ugkx2GiNdAfGS9yymTiSBptscRdcrQ_CTcrp",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "Cyber"
+      ],
+      "featured": false,
+      "status": "active",
+      "plays": 2,
+      "rating": 5,
+      "createdAt": "2026-09-10"
+    }
+  ],
   "categories": [
     {
       "id": "all",
@@ -45,13 +100,17 @@
     }
   ],
   "banner": {
-    "active": true,
+    "active": false,
     "badge": "🔥 SPOTLIGHT",
-    "message": "Welcome to SKYGAMES Enterprise Platform!",
+    "message": "",
     "ctaText": "Play Now",
     "ctaLink": "#arcade",
     "bgColor": "rgba(255, 0, 85, 0.15)",
-    "borderColor": "#ff0055"
+    "borderColor": "#ff0055",
+    "_id": "6aa294bf58feea324c577568",
+    "createdAt": "2026-09-10T11:30:07.918Z",
+    "updatedAt": "2026-09-10T11:30:07.918Z",
+    "__v": 0
   },
   "submissions": [],
   "messages": [],

@@ -4,6 +4,7 @@ export default function AdminNavbar({ activeTab, onOpenGameModal, onToggleSideba
   const titles = {
     dashboard: 'Platform Overview',
     games: 'Games Inventory & Management',
+    users: 'User Accounts & Player Management',
     categories: 'Game Categories & Tags',
     banner: 'Announcement & Alerts',
     submissions: 'Developer Submissions',
@@ -14,8 +15,8 @@ export default function AdminNavbar({ activeTab, onOpenGameModal, onToggleSideba
   return (
     <header className="admin-header">
       <div className="header-left">
-        <button 
-          className="header-btn" 
+        <button
+          className="header-btn"
           style={{ display: 'none' }}
           onClick={onToggleSidebar}
           aria-label="Toggle Sidebar"
@@ -32,10 +33,10 @@ export default function AdminNavbar({ activeTab, onOpenGameModal, onToggleSideba
       </div>
 
       <div className="header-right">
-        <a 
-          href="http://localhost:5173" 
-          target="_blank" 
-          rel="noreferrer" 
+        <a
+          href="http://localhost:5173"
+          target="_blank"
+          rel="noreferrer"
           className="header-btn"
           title="Open Player Website"
         >

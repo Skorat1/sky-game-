@@ -3,12 +3,13 @@ import StatCard from '../components/StatCard';
 import { WEEKLY_ANALYTICS } from '../data/defaultData';
 import { socket } from '../utils/socket';
 
-export default function DashboardView({ 
-  games, 
-  submissions, 
-  messages, 
-  onNavigate, 
-  onEditGame 
+export default function DashboardView({
+  games,
+  users = [],
+  submissions,
+  messages,
+  onNavigateTab,
+  onEditGame
 }) {
   const [onlineCount, setOnlineCount] = useState(0);
   const [activities, setActivities] = useState([]);
@@ -49,6 +50,14 @@ export default function DashboardView({
           trendUp={true}
           icon="🟢"
           color="emerald"
+        />
+        <StatCard
+          label="Registered Gamers"
+          value={users.length}
+          trend="Verified Accounts"
+          trendUp={true}
+          icon="👥"
+          color="cyan"
         />
         <StatCard
           label="Total Catalog Games"
@@ -173,9 +182,9 @@ export default function DashboardView({
                   <tr key={game.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <img 
-                          src={game.thumbnail} 
-                          alt={game.title} 
+                        <img
+                          src={game.thumbnail}
+                          alt={game.title}
                           style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }}
                         />
                         <div>
@@ -203,9 +212,9 @@ export default function DashboardView({
                       </span>
                     </td>
                     <td>
-                      <button 
-                        className="icon-action-btn edit" 
-                        title="Edit Game" 
+                      <button
+                        className="icon-action-btn edit"
+                        title="Edit Game"
                         onClick={() => onEditGame(game)}
                       >
                         ✏️

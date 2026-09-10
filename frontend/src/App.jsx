@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from 'react';
 import SkyNavbar from './components/SkyNavbar';
 import Sidebar from './components/Sidebar';
 import GameGrid from './components/GameGrid';
 import GamePlayerView from './components/GamePlayerView';
-import FavoritesDrawer from './components/FavoritesDrawer';
+
+// Critical auth modal imported directly for instant 0ms response
 import AuthModal from './components/AuthModal';
-import DeveloperPortal from './components/DeveloperPortal';
-import AboutModal from './components/AboutModal';
-import ContactModal from './components/ContactModal';
-import PrivacyModal from './components/PrivacyModal';
+
+// Code-split other non-critical modals
+const FavoritesDrawer = lazy(() => import('./components/FavoritesDrawer'));
+const DeveloperPortal = lazy(() => import('./components/DeveloperPortal'));
+const AboutModal = lazy(() => import('./components/AboutModal'));
+const ContactModal = lazy(() => import('./components/ContactModal'));
+const PrivacyModal = lazy(() => import('./components/PrivacyModal'));
 
 import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
 import { sounds } from './utils/audio';
@@ -50,7 +54,18 @@ function parseUrlNavState() {
 export default function App() {
   const initialNav = useMemo(() => parseUrlNavState(), []);
 
-  const [games, setGames] = useState([]);
+  // Instant 0ms cached games initialization
+  const [games, setGames] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sky_cached_games');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return DEFAULT_STATIC_GAMES;
+  });
+
   const [banner, setBanner] = useState(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 1024);
@@ -61,7 +76,6 @@ export default function App() {
 
   const searchInputRef = useRef(null);
 
-
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [user, setUser] = useState(() => {
     try {
@@ -71,7 +85,6 @@ export default function App() {
       return null;
     }
   });
-
 
   const [pendingGameId, setPendingGameId] = useState(initialNav.gameId);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -84,7 +97,6 @@ export default function App() {
       return [];
     }
   });
-
 
   const [favorites, setFavorites] = useState(() => {
     try {
@@ -109,8 +121,11 @@ export default function App() {
 
       if (gamesRes.ok) {
         const liveGames = await gamesRes.json();
-        if (Array.isArray(liveGames)) {
+        if (Array.isArray(liveGames) && liveGames.length > 0) {
           setGames(liveGames);
+          try {
+            localStorage.setItem('sky_cached_games', JSON.stringify(liveGames));
+          } catch {}
         }
       }
 
@@ -119,7 +134,7 @@ export default function App() {
         setBanner(liveBanner);
       }
     } catch (err) {
-
+      // Offline fallback already loaded via cache
     }
   }, []);
 
@@ -151,12 +166,42 @@ export default function App() {
       setSelectedGame(null);
     };
 
+    const handleLiveUserUpdated = (updatedUser) => {
+      if (!updatedUser) return;
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        if (prevUser.id === updatedUser.id || (prevUser._id && prevUser._id === updatedUser._id)) {
+          const merged = { ...prevUser, ...updatedUser };
+          try { localStorage.setItem('sky_user', JSON.stringify(merged)); } catch {}
+          return merged;
+        }
+        return prevUser;
+      });
+    };
+
+    const handleLiveUserDeleted = (data) => {
+      if (!data) return;
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        if (prevUser.id === data.id || (prevUser._id && prevUser._id === data.id)) {
+          try { 
+            localStorage.removeItem('sky_user'); 
+            localStorage.removeItem('sky_token');
+          } catch {}
+          return null;
+        }
+        return prevUser;
+      });
+    };
+
     socket.on('banner:update', handleBannerUpdate);
     socket.on('game:play:increment', handleGameIncrement);
     socket.on('game:created', handleGameCreated);
     socket.on('game:updated', handleGameUpdated);
     socket.on('game:deleted', handleGameDeleted);
     socket.on('game:all_deleted', handleAllGamesDeleted);
+    socket.on('user:updated', handleLiveUserUpdated);
+    socket.on('user:deleted', handleLiveUserDeleted);
 
     return () => {
       socket.off('banner:update', handleBannerUpdate);
@@ -165,6 +210,8 @@ export default function App() {
       socket.off('game:updated', handleGameUpdated);
       socket.off('game:deleted', handleGameDeleted);
       socket.off('game:all_deleted', handleAllGamesDeleted);
+      socket.off('user:updated', handleLiveUserUpdated);
+      socket.off('user:deleted', handleLiveUserDeleted);
     };
   }, [fetchLivePlatformData]);
 
@@ -252,7 +299,7 @@ export default function App() {
     }
   }, [initialNav]);
 
-  const handleToggleFavorite = (gameId) => {
+  const handleToggleFavorite = useCallback((gameId) => {
     setFavorites(prev => {
       if (prev.includes(gameId)) {
         return prev.filter(id => id !== gameId);
@@ -260,9 +307,9 @@ export default function App() {
         return [...prev, gameId];
       }
     });
-  };
+  }, []);
 
-  const handlePlayGame = (game) => {
+  const handlePlayGame = useCallback((game) => {
     const gKey = game.id || game._id || game.title;
     setSelectedGame(game);
     setPendingGameId(gKey);
@@ -274,9 +321,9 @@ export default function App() {
       const filtered = prev.filter(g => g.id !== game.id);
       return [game, ...filtered].slice(0, 10);
     });
-  };
+  }, [activeCategory, activePage, searchQuery]);
 
-  const handleCloseGame = () => {
+  const handleCloseGame = useCallback(() => {
     setSelectedGame(null);
     setPendingGameId(null);
     if (window.history.state && window.history.state.gameId) {
@@ -285,9 +332,9 @@ export default function App() {
       const targetUrl = buildNavUrl(null, activeCategory, activePage, searchQuery);
       window.history.pushState({ gameId: null, category: activeCategory, page: activePage }, '', targetUrl);
     }
-  };
+  }, [activeCategory, activePage, searchQuery]);
 
-  const handleCategorySelect = (catId) => {
+  const handleCategorySelect = useCallback((catId) => {
     setSelectedGame(null);
     setPendingGameId(null);
     setActiveCategory(catId);
@@ -296,16 +343,16 @@ export default function App() {
     const targetUrl = buildNavUrl(null, catId, 'home', '');
     window.history.pushState({ gameId: null, category: catId, page: 'home' }, '', targetUrl);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const handleRandomPlay = () => {
+  const handleRandomPlay = useCallback(() => {
     if (games.length > 0) {
       const randomIndex = Math.floor(Math.random() * games.length);
       handlePlayGame(games[randomIndex]);
     }
-  };
+  }, [games, handlePlayGame]);
 
-  const handleNavigation = (pageId) => {
+  const handleNavigation = useCallback((pageId) => {
     if (pageId === 'about') {
       setAboutOpen(true);
     } else if (pageId === 'contact') {
@@ -322,7 +369,7 @@ export default function App() {
       window.history.pushState({ gameId: null, category: '', page: pageId }, '', targetUrl);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, []);
 
   const displayedGames = useMemo(() => {
     let list = [...games];
@@ -422,7 +469,9 @@ export default function App() {
                 onSelectCategory={handleCategorySelect}
               />
             ) : activePage === 'developers' ? (
-              <DeveloperPortal onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+              <Suspense fallback={<div className="loading-spinner" />}>
+                <DeveloperPortal onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+              </Suspense>
             ) : (
               <GameGrid
                 title={
@@ -450,30 +499,31 @@ export default function App() {
 
       </div>
 
+      <Suspense fallback={null}>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          user={user}
+          onLogin={(loggedInUser) => setUser(loggedInUser)}
+          onLogout={() => setUser(null)}
+        />
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        user={user}
-        onLogin={(loggedInUser) => setUser(loggedInUser)}
-        onLogout={() => setUser(null)}
-      />
+        {/* Saved Favorites Sliding Drawer */}
+        <FavoritesDrawer
+          isOpen={favoritesDrawerOpen}
+          onClose={() => setFavoritesDrawerOpen(false)}
+          favorites={favorites}
+          games={games}
+          onPlayGame={handlePlayGame}
+          onRemoveFavorite={handleToggleFavorite}
+          onClearAll={() => setFavorites([])}
+        />
 
-      {/* Saved Favorites Sliding Drawer */}
-      <FavoritesDrawer
-        isOpen={favoritesDrawerOpen}
-        onClose={() => setFavoritesDrawerOpen(false)}
-        favorites={favorites}
-        games={games}
-        onPlayGame={handlePlayGame}
-        onRemoveFavorite={handleToggleFavorite}
-        onClearAll={() => setFavorites([])}
-      />
-
-      {/* Info Modals */}
-      <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
-      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
-      <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+        {/* Info Modals */}
+        <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
+        <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
+        <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      </Suspense>
     </div>
   );
 }

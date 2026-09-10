@@ -85,13 +85,6 @@ export default function Navbar({
               <span className="logo-tagline">ARCADE</span>
             </div>
           </a>
-
-          {/* Live Online Badge */}
-          <div className="live-online-pill" title="Active players in arcade">
-            <span className="live-dot-pulse"></span>
-            <Users size={12} className="live-users-icon" />
-            <span>{onlineCount.toLocaleString()} ONLINE</span>
-          </div>
         </div>
 
         {/* Center: Search Bar with Autocomplete */}
