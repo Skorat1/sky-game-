@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
-import { Search, X, User, Gamepad2, Menu, Heart, Activity } from 'lucide-react';
+import { Search, X, User, Gamepad2, Menu } from 'lucide-react';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
 
@@ -13,10 +13,7 @@ const SkyNavbar = memo(function SkyNavbar({
   onSelectGame,
   onOpenAuth,
   user,
-  isSidebarOpen,
-  onToggleSidebar,
-  favoritesCount = 0,
-  onOpenFavorites
+  onToggleSidebar
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
@@ -41,12 +38,12 @@ const SkyNavbar = memo(function SkyNavbar({
   }, [searchQuery, games]);
 
   return (
-    <header className="poki-advanced-navbar">
-      <div className="poki-navbar-wrapper">
-        {/* Main Row: Sidebar Toggle + Brand Logo + Search Bar + Favorites + Login */}
-        <div className="poki-navbar-main-row">
-          
-          <div className="poki-navbar-left-group">
+    <header className="sky-advanced-navbar">
+      <div className="sky-navbar-wrapper">
+        {/* Main Row: Sidebar Toggle + Brand Logo + Search Bar + Login/Profile */}
+        <div className="sky-navbar-main-row">
+
+          <div className="sky-navbar-left-group">
             {/* 1. GamePix Sidebar Menu Toggle Button */}
             <button
               className="gamepix-menu-toggle-btn"
@@ -62,7 +59,7 @@ const SkyNavbar = memo(function SkyNavbar({
 
             {/* 2. Standalone Advanced Brand Logo */}
             <div
-              className="poki-standalone-logo"
+              className="sky-standalone-logo"
               onClick={() => {
                 sounds.playClick();
                 onSelectCategory('');
@@ -70,123 +67,121 @@ const SkyNavbar = memo(function SkyNavbar({
               }}
               title="SkyGames Arcade - Home"
             >
-              <div className="poki-logo-badge">
-                <Gamepad2 size={24} className="poki-logo-badge-icon" />
-                <div className="poki-logo-badge-glow" />
+              <div className="sky-logo-badge">
+                <Gamepad2 size={24} className="sky-logo-badge-icon" />
+                <div className="sky-logo-badge-glow" />
               </div>
 
-              <div className="poki-logo-text-box">
-                <span className="poki-text-sky">SKY</span>
-                <span className="poki-text-games">GAMES</span>
-                <div className="poki-logo-smile-curve" />
+              <div className="sky-logo-text-box">
+                <span className="sky-text-sky">SKY</span>
+                <span className="sky-text-games">GAMES</span>
+                <div className="sky-logo-smile-curve" />
               </div>
             </div>
           </div>
 
           {/* 3. Advanced Search Input Bar */}
-          <div className={`poki-advanced-search-box ${isFocused ? 'focused' : ''}`}>
-            <div className="poki-search-lens-wrapper">
-              <Search size={20} className="poki-search-lens-icon" />
+          <div className={`sky-advanced-search-box ${isFocused ? 'focused' : ''}`}>
+            <div className="sky-search-lens-wrapper">
+              <Search size={20} className="sky-search-lens-icon" />
             </div>
 
             <input
               ref={searchInputRef}
               type="text"
-              className="poki-advanced-search-input"
+              className="sky-advanced-search-input"
               placeholder="Search 500+ games, action, racing, 2-player..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setTimeout(() => setIsFocused(false), 250)}
+              aria-label="Search games"
             />
 
             {searchQuery ? (
               <button
-                className="poki-search-clear-btn"
+                className="sky-search-clear-btn"
                 onClick={() => {
-                  sounds.playClick();
                   setSearchQuery('');
+                  if (searchInputRef?.current) searchInputRef.current.focus();
                 }}
                 title="Clear search"
               >
                 <X size={16} />
               </button>
             ) : (
-              <span className="poki-search-shortcut-tag">/</span>
+              <span className="sky-search-shortcut-tag" title="Search shortcut">/</span>
             )}
 
-            {/* Predictive Autocomplete Dropdown */}
+            {/* Predictive Autocomplete Search Dropdown */}
             {isFocused && searchResults.length > 0 && (
-              <div className="poki-search-dropdown">
-                <div className="poki-dropdown-header">
-                  <span>SUGGESTED GAMES ({searchResults.length})</span>
+              <div className="sky-search-dropdown">
+                <div className="sky-dropdown-header">
+                  <span>Quick Results ({searchResults.length})</span>
                 </div>
                 {searchResults.map((game) => (
                   <div
                     key={game.id}
-                    className="poki-dropdown-item"
+                    className="sky-dropdown-item"
                     onMouseDown={() => {
                       sounds.playClick();
-                      onSelectGame(game);
+                      if (onSelectGame) onSelectGame(game);
                       setSearchQuery('');
-                      setIsFocused(false);
                     }}
                   >
-                    <img src={game.thumbnail} alt={game.title} className="poki-dropdown-thumb" />
-                    <div className="poki-dropdown-info">
-                      <span className="poki-dropdown-title">{game.title}</span>
-                      <span className="poki-dropdown-cat">{game.category?.toUpperCase() || 'ARCADE'}</span>
+                    <img
+                      src={game.thumb || game.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80'}
+                      alt={game.title}
+                      className="sky-dropdown-thumb"
+                      loading="lazy"
+                    />
+                    <div className="sky-dropdown-info">
+                      <span className="sky-dropdown-title">{game.title}</span>
+                      <span className="sky-dropdown-cat">{game.category || 'Arcade'}</span>
                     </div>
-                    <span className="poki-dropdown-play">PLAY ▶</span>
+                    <span className="sky-dropdown-play">PLAY ▶</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* 4. Action Buttons (Favorites + Login/Profile) */}
-          <div className="poki-navbar-right-group">
-
-            {/* Quick Favorites Button */}
-            <button
-              className="gamepix-fav-header-btn"
-              onClick={() => {
-                sounds.playClick();
-                if (onOpenFavorites) onOpenFavorites();
-              }}
-              title="Saved Favorites"
-            >
-              <Heart size={18} className={favoritesCount > 0 ? 'fill-fav' : ''} />
-              {favoritesCount > 0 && (
-                <span className="gamepix-header-badge">{favoritesCount}</span>
-              )}
-            </button>
-
+          {/* 4. Action Buttons (Login / Profile) */}
+          <div className="sky-navbar-right-group">
             {/* Separate Advanced Login / Account Button */}
             <button
-              className={`poki-advanced-auth-btn ${user ? 'is-logged-in' : ''}`}
-              onClick={() => {
-                sounds.playClick();
-                onOpenAuth();
+              type="button"
+              className={`sky-advanced-auth-btn ${user ? 'is-logged-in' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try { sounds.playClick(); } catch (err) { }
+                if (typeof onOpenAuth === 'function') {
+                  onOpenAuth();
+                }
               }}
-              title={user ? `Profile: ${user.name}` : "Login or Create Account"}
+              title={user ? `Profile: ${user.username || user.name || 'Gamer'}` : "Login or Create Account"}
             >
               {user ? (
                 <>
-                  <img src={user.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.username || user.name || 'gamer'}`} alt={user.username || user.name} className="poki-user-auth-avatar" />
-                  <div className="poki-user-auth-meta">
-                    <span className="poki-user-auth-name" title={user.username || user.name}>
-                      {user.username || user.name || (user.email ? user.email.split('@')[0] : 'Player')}
+                  <img
+                    src={user.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.username || user.name || 'gamer')}`}
+                    alt={user.username || user.name}
+                    className="sky-user-auth-avatar"
+                  />
+                  <div className="sky-user-auth-meta">
+                    <span className="sky-user-auth-name" title={user.username || user.name}>
+                      {user.username || user.name || (typeof user.email === 'string' ? user.email.split('@')[0] : 'Player')}
                     </span>
-                    <span className="poki-user-auth-status">● {user.role === 'admin' ? 'Admin' : 'Active'}</span>
+                    <span className="sky-user-auth-status">● {user.role === 'admin' ? 'Admin' : 'Active'}</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="poki-auth-icon-circle">
+                  <div className="sky-auth-icon-circle">
                     <User size={18} />
                   </div>
-                  <span className="poki-auth-btn-text">Sign In</span>
+                  <span className="sky-auth-btn-text">Sign In</span>
                 </>
               )}
             </button>

@@ -196,7 +196,7 @@ const GameGrid = memo(function GameGrid({
             </button>
           )}
 
-          <h2 className="grid-main-title poki-brand-heading">
+          <h2 className="grid-main-title sky-brand-heading">
             {searchQuery ? (
               <>Search Results for: <span className="highlight-text">"{searchQuery}"</span></>
             ) : (

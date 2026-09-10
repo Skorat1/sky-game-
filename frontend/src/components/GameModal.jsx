@@ -27,10 +27,10 @@ import { sounds } from '../utils/audio';
 // Auto-detect best aspect ratio based on game metadata
 function parseEmbedDimensions(rawEmbed) {
   if (!rawEmbed) return { aspectRatio: '16 / 9', maxWidth: '1060px', height: 'auto' };
-  
+
   const widthMatch = rawEmbed.match(/width=["']?(\d+)/i);
   const heightMatch = rawEmbed.match(/height=["']?(\d+)/i);
-  
+
   if (widthMatch && heightMatch) {
     const w = parseInt(widthMatch[1], 10);
     const h = parseInt(heightMatch[1], 10);
@@ -42,7 +42,7 @@ function parseEmbedDimensions(rawEmbed) {
       };
     }
   }
-  
+
   if (heightMatch && !widthMatch) {
     const h = parseInt(heightMatch[1], 10);
     return {
@@ -450,7 +450,7 @@ export default function GameModal({
       setHighScore(score);
       try {
         localStorage.setItem(`sky_hs_${game?.id}`, score.toString());
-      } catch {}
+      } catch { }
     }
   }, [score, highScore, game?.id]);
 
@@ -501,14 +501,14 @@ export default function GameModal({
 
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
       if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(() => {});
+        elem.requestFullscreen().catch(() => { });
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
       }
       setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen();
       }
@@ -523,13 +523,13 @@ export default function GameModal({
   const getCleanGameUrl = (rawUrl) => {
     if (!rawUrl) return '';
     let finalUrl = rawUrl.trim();
-    
+
     // 1. Extract src from <iframe> snippet if present
     const iframeMatch = finalUrl.match(/src=["']([^"']+)["']/i);
     if (iframeMatch) {
       finalUrl = iframeMatch[1];
     }
-    
+
     // 2. Automatically wrap Google Gadget .xml files with proxy
     if (finalUrl.endsWith('.xml') || finalUrl.includes('.xml?')) {
       return `/game-proxy/gadgets/ifr?url=${encodeURIComponent(finalUrl)}`;
@@ -542,7 +542,7 @@ export default function GameModal({
         return `/game-proxy${finalUrl.slice(subIdx)}`;
       }
     }
-    
+
     // 4. Add protocol if missing
     if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('//') && !finalUrl.startsWith('/')) {
       finalUrl = 'https://' + finalUrl;
@@ -566,7 +566,7 @@ export default function GameModal({
           maxWidth: isFullscreen ? '100vw' : embedDimensions.maxWidth
         }}
       >
-        
+
         {/* Modern Top Header Bar */}
         <div className="sky-modal-top-bar">
           <div className="modal-bar-left">
@@ -779,7 +779,7 @@ export default function GameModal({
           )}
         </div>
 
-        {/* Recommended Games Rail (Poki Style Bottom Shelf) */}
+        {/* Recommended Games Rail (sky Style Bottom Shelf) */}
         <div className="sky-bottom-games-shelf">
           <div className="shelf-header">
             <Flame size={16} color="#f52d7e" />

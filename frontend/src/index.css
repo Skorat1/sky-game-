@@ -599,14 +599,14 @@ body {
 }
 
 /* ==========================================================================
-   POKI-STYLE FLOATING ICON DOCK SIDEBAR
+   sky-STYLE FLOATING ICON DOCK SIDEBAR
    ========================================================================== */
-.poki-sidebar-backdrop {
+.sky-sidebar-backdrop {
   display: none;
 }
 
 @media (max-width: 1199px) {
-  .poki-sidebar-backdrop {
+  .sky-sidebar-backdrop {
     display: block;
     position: fixed;
     inset: 0;
@@ -618,7 +618,7 @@ body {
   }
 }
 
-.poki-dock-sidebar {
+.sky-dock-sidebar {
   width: var(--sidebar-width);
   background: rgba(5, 9, 24, 0.95);
   backdrop-filter: blur(24px);
@@ -636,15 +636,15 @@ body {
   transform: translateX(-100%);
 }
 
-.poki-dock-sidebar.open {
+.sky-dock-sidebar.open {
   transform: translateX(0);
 }
 
-.poki-dock-sidebar.closed {
+.sky-dock-sidebar.closed {
   transform: translateX(-100%);
 }
 
-.poki-dock-inner {
+.sky-dock-inner {
   padding: 14px 8px;
   display: flex;
   flex-direction: column;
@@ -657,17 +657,17 @@ body {
   scrollbar-width: none;
 }
 
-.poki-dock-inner::-webkit-scrollbar {
+.sky-dock-inner::-webkit-scrollbar {
   display: none;
 }
 
-/* Poki Brand Mascot Top Tile */
-.poki-brand-tile {
+/* sky Brand Mascot Top Tile */
+.sky-brand-tile {
   cursor: pointer;
   margin-bottom: 6px;
 }
 
-.poki-mascot-box {
+.sky-mascot-box {
   width: 54px;
   height: 54px;
   border-radius: 18px;
@@ -681,7 +681,7 @@ body {
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.poki-brand-tile:hover .poki-mascot-box {
+.sky-brand-tile:hover .sky-mascot-box {
   transform: scale(1.1) rotate(6deg);
 }
 
@@ -698,8 +698,8 @@ body {
   opacity: 0.6;
 }
 
-/* Poki Main Tiles List */
-.poki-tiles-list {
+/* sky Main Tiles List */
+.sky-tiles-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -708,7 +708,7 @@ body {
   flex: 1;
 }
 
-.poki-tile-wrapper {
+.sky-tile-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -716,7 +716,7 @@ body {
   width: 100%;
 }
 
-.poki-squircle-btn {
+.sky-squircle-btn {
   width: 58px;
   height: 58px;
   border-radius: 18px;
@@ -733,7 +733,7 @@ body {
   position: relative;
 }
 
-.poki-squircle-btn:hover {
+.sky-squircle-btn:hover {
   transform: scale(1.1) translateY(-2px);
   background: var(--tile-bg, var(--grad-cyan));
   color: #ffffff;
@@ -741,7 +741,7 @@ body {
   box-shadow: 0 8px 22px var(--tile-glow, rgba(0, 242, 254, 0.4));
 }
 
-.poki-squircle-btn.active {
+.sky-squircle-btn.active {
   background: var(--tile-bg, var(--grad-cyan));
   color: #ffffff;
   border-color: transparent;
@@ -749,7 +749,7 @@ body {
   transform: scale(1.05);
 }
 
-.poki-squircle-btn.active::after {
+.sky-squircle-btn.active::after {
   content: '';
   position: absolute;
   left: -8px;
@@ -760,7 +760,7 @@ body {
   box-shadow: 0 0 10px var(--accent-cyan);
 }
 
-.poki-icon-container {
+.sky-icon-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -770,7 +770,7 @@ body {
   fill: #ffffff;
 }
 
-.poki-tile-label {
+.sky-tile-label {
   font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -778,7 +778,7 @@ body {
   line-height: 1;
 }
 
-.poki-tile-badge {
+.sky-tile-badge {
   position: absolute;
   top: -4px;
   right: -4px;
@@ -792,12 +792,12 @@ body {
   z-index: 3;
 }
 
-.poki-tile-badge.fav-badge {
+.sky-tile-badge.fav-badge {
   background: var(--accent-crimson);
 }
 
-/* Poki Floating Tooltip on Hover */
-.poki-floating-tooltip {
+/* sky Floating Tooltip on Hover */
+.sky-floating-tooltip {
   position: absolute;
   left: calc(100% + 14px);
   top: 50%;
@@ -818,13 +818,13 @@ body {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), var(--shadow-glow-cyan);
 }
 
-.poki-tile-wrapper:hover .poki-floating-tooltip {
+.sky-tile-wrapper:hover .sky-floating-tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
 
-/* Poki Dock Footer */
-.poki-dock-footer {
+/* sky Dock Footer */
+.sky-dock-footer {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -839,11 +839,11 @@ body {
 }
 
 @media (max-width: 1199px) {
-  .poki-dock-sidebar {
+  .sky-dock-sidebar {
     transform: translateX(-100%);
   }
 
-  .poki-dock-sidebar.open {
+  .sky-dock-sidebar.open {
     transform: translateX(0);
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
   }
@@ -2037,9 +2037,9 @@ body {
 }
 
 /* ==========================================================================
-   POKI.COM EXACT STYLE UNDER-GAME CONTROL BAR (DARK OBSIDIAN THEME)
+   sky.COM EXACT STYLE UNDER-GAME CONTROL BAR (DARK OBSIDIAN THEME)
    ========================================================================== */
-.poki-under-ctrl-bar {
+.sky-under-ctrl-bar {
   background: #1e293b;
   padding: 12px 20px;
   display: flex;
@@ -2051,14 +2051,14 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-.poki-ctrl-left {
+.sky-ctrl-left {
   display: flex;
   align-items: center;
   gap: 14px;
   min-width: 0;
 }
 
-.poki-ctrl-thumb {
+.sky-ctrl-thumb {
   width: 46px;
   height: 46px;
   border-radius: 10px;
@@ -2068,14 +2068,14 @@ body {
   flex-shrink: 0;
 }
 
-.poki-ctrl-meta {
+.sky-ctrl-meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.poki-ctrl-title {
+.sky-ctrl-title {
   font-family: var(--font-main, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   font-size: 1.15rem;
   font-weight: 800;
@@ -2088,20 +2088,20 @@ body {
   max-width: 320px;
 }
 
-.poki-ctrl-subtitle {
+.sky-ctrl-subtitle {
   font-size: 0.78rem;
   font-weight: 600;
   color: #94a3b8;
   white-space: nowrap;
 }
 
-.poki-ctrl-right {
+.sky-ctrl-right {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.poki-action-btn {
+.sky-action-btn {
   background: transparent;
   border: none;
   display: flex;
@@ -2117,46 +2117,46 @@ body {
   min-width: 44px;
 }
 
-.poki-action-btn:hover {
+.sky-action-btn:hover {
   transform: translateY(-2px);
   color: #60a5fa;
   background: rgba(255, 255, 255, 0.06);
 }
 
-.poki-action-icon {
+.sky-action-icon {
   stroke-width: 2.2;
 }
 
-.poki-action-count {
+.sky-action-count {
   font-size: 0.72rem;
   font-weight: 800;
   color: #cbd5e1;
   line-height: 1;
 }
 
-.poki-action-btn.voted-like {
+.sky-action-btn.voted-like {
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.15);
 }
 
-.poki-action-btn.voted-like .poki-action-icon {
+.sky-action-btn.voted-like .sky-action-icon {
   fill: #38bdf8;
 }
 
-.poki-action-btn.voted-dislike {
+.sky-action-btn.voted-dislike {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.15);
 }
 
-.poki-action-btn.voted-dislike .poki-action-count {
+.sky-action-btn.voted-dislike .sky-action-count {
   color: #ef4444;
 }
 
-.poki-action-btn.active-fav {
+.sky-action-btn.active-fav {
   color: #f43f5e;
 }
 
-.poki-action-btn.active-engine {
+.sky-action-btn.active-engine {
   color: #00f2fe;
   background: rgba(0, 242, 254, 0.15);
 }
@@ -2194,11 +2194,11 @@ body {
   transform: scale(0.95);
 }
 
-.poki-fullscreen-btn {
+.sky-fullscreen-btn {
   color: #38bdf8;
 }
 
-.poki-fullscreen-btn:hover {
+.sky-fullscreen-btn:hover {
   color: #60a5fa;
 }
 
@@ -3010,41 +3010,21 @@ body {
 
 
 /* --------------------------------------------------------------------------
-/* --------------------------------------------------------------------------
    CLEAN MINIMAL AUTH MODAL & DRAWERS
    -------------------------------------------------------------------------- */
-.poki-auth-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  animation: fadeIn 0.18s ease-out;
-}
-
-.poki-auth-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 420px;
-  padding: 28px 24px 22px 24px;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-  text-align: center;
-  animation: modalPop 0.22s ease-out;
-  color: #ffffff;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalPop {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: scale(0.95) translateY(12px);
   }
   to {
     opacity: 1;
@@ -3052,12 +3032,43 @@ body {
   }
 }
 
-.poki-auth-close-btn {
+.sky-auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 16, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.sky-auth-card {
+  background: #111827;
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 24px 24px 24px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(56, 189, 248, 0.15);
+  text-align: center;
+  animation: modalPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  color: #ffffff;
+  z-index: 100000;
+}
+
+.sky-auth-close-btn {
   position: absolute;
   top: 14px;
   right: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   width: 32px;
   height: 32px;
@@ -3067,26 +3078,27 @@ body {
   color: #94a3b8;
   cursor: pointer;
   transition: all 0.15s;
+  z-index: 10;
 }
 
-.poki-auth-close-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+.sky-auth-close-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
   color: #ffffff;
 }
 
-.poki-auth-logo-row {
+.sky-auth-logo-row {
   margin-bottom: 16px;
   display: flex;
   justify-content: center;
 }
 
-.poki-auth-logo {
+.sky-auth-logo {
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
-.poki-auth-logo .poki-logo-text {
+.sky-auth-logo .sky-logo-text {
   font-family: var(--font-main);
   font-size: 1.6rem;
   font-weight: 900;
@@ -3095,7 +3107,7 @@ body {
 }
 
 /* Tabs */
-.poki-auth-tabs {
+.sky-auth-tabs {
   display: flex;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -3104,7 +3116,7 @@ body {
   margin-bottom: 20px;
 }
 
-.poki-auth-tab {
+.sky-auth-tab {
   flex: 1;
   background: transparent;
   border: none;
@@ -3118,13 +3130,13 @@ body {
   transition: all 0.15s;
 }
 
-.poki-auth-tab.active {
+.sky-auth-tab.active {
   background: #3b82f6;
   color: #ffffff;
   font-weight: 700;
 }
 
-.poki-auth-title {
+.sky-auth-title {
   font-size: 1.25rem;
   font-weight: 800;
   color: #ffffff;
@@ -3132,21 +3144,21 @@ body {
 }
 
 /* Social Buttons */
-.poki-social-list {
+.sky-social-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 18px;
 }
 
-.poki-social-row {
+.sky-social-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin: 12px 0 16px;
 }
 
-.poki-social-mini-btn {
+.sky-social-mini-btn {
   height: 42px;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -3159,13 +3171,13 @@ body {
   color: #ffffff;
 }
 
-.poki-social-mini-btn:hover {
+.sky-social-mini-btn:hover {
   background: #334155;
   border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
-.poki-social-btn {
+.sky-social-btn {
   width: 100%;
   height: 46px;
   background: #1e293b;
@@ -3183,12 +3195,12 @@ body {
   transition: all 0.15s ease;
 }
 
-.poki-social-btn:hover {
+.sky-social-btn:hover {
   background: #334155;
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-.poki-divider-row {
+.sky-divider-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3196,7 +3208,7 @@ body {
   position: relative;
 }
 
-.poki-divider-row::before {
+.sky-divider-row::before {
   content: '';
   position: absolute;
   left: 0;
@@ -3206,7 +3218,7 @@ body {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.poki-divider-row span {
+.sky-divider-row span {
   background: #0f172a;
   padding: 0 10px;
   color: #64748b;
@@ -3215,7 +3227,7 @@ body {
   position: relative;
 }
 
-.poki-email-toggle-btn {
+.sky-email-toggle-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
@@ -3231,13 +3243,13 @@ body {
   transition: all 0.15s;
 }
 
-.poki-email-toggle-btn:hover {
+.sky-email-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
 }
 
 /* Custom Email Form */
-.poki-email-form {
+.sky-email-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -3245,7 +3257,7 @@ body {
   margin-bottom: 16px;
 }
 
-.poki-input-group label {
+.sky-input-group label {
   font-size: 0.8rem;
   font-weight: 700;
   color: #94a3b8;
@@ -3253,7 +3265,7 @@ body {
   display: block;
 }
 
-.poki-input-box {
+.sky-input-box {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -3265,17 +3277,17 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.poki-input-box:focus-within {
+.sky-input-box:focus-within {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.poki-input-box.error-border {
+.sky-input-box.error-border {
   border-color: #ef4444 !important;
   background: rgba(239, 68, 68, 0.05);
 }
 
-.poki-input-box input {
+.sky-input-box input {
   flex: 1;
   background: transparent;
   border: none;
@@ -3285,10 +3297,10 @@ body {
   color: #ffffff;
 }
 
-.poki-input-box input:-webkit-autofill,
-.poki-input-box input:-webkit-autofill:hover, 
-.poki-input-box input:-webkit-autofill:focus, 
-.poki-input-box input:-webkit-autofill:active {
+.sky-input-box input:-webkit-autofill,
+.sky-input-box input:-webkit-autofill:hover,
+.sky-input-box input:-webkit-autofill:focus,
+.sky-input-box input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
   -webkit-text-fill-color: #ffffff !important;
   box-shadow: 0 0 0 1000px #1e293b inset !important;
@@ -3296,7 +3308,7 @@ body {
   caret-color: #ffffff;
 }
 
-.poki-eye-toggle-btn {
+.sky-eye-toggle-btn {
   background: transparent;
   border: none;
   color: #64748b;
@@ -3309,20 +3321,20 @@ body {
   transition: color 0.15s, background 0.15s;
 }
 
-.poki-eye-toggle-btn:hover {
+.sky-eye-toggle-btn:hover {
   color: #38bdf8;
   background: rgba(255, 255, 255, 0.06);
 }
 
 /* Password Strength Indicator */
-.poki-strength-meter {
+.sky-strength-meter {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.poki-strength-bar-bg {
+.sky-strength-bar-bg {
   width: 100%;
   height: 4px;
   background: rgba(255, 255, 255, 0.08);
@@ -3330,13 +3342,13 @@ body {
   overflow: hidden;
 }
 
-.poki-strength-bar-fill {
+.sky-strength-bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
 
-.poki-strength-label {
+.sky-strength-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3346,7 +3358,7 @@ body {
 }
 
 /* Inline Field Errors */
-.poki-field-error {
+.sky-field-error {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3357,7 +3369,7 @@ body {
 }
 
 /* Forgot Password Link */
-.poki-forgot-link-btn {
+.sky-forgot-link-btn {
   background: transparent;
   border: none;
   color: #38bdf8;
@@ -3368,13 +3380,13 @@ body {
   transition: color 0.15s;
 }
 
-.poki-forgot-link-btn:hover {
+.sky-forgot-link-btn:hover {
   color: #60a5fa;
   text-decoration: underline;
 }
 
 /* Checkboxes (Remember Me & Terms) */
-.poki-checkbox-label {
+.sky-checkbox-label {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -3385,11 +3397,11 @@ body {
   margin: 2px 0;
 }
 
-.poki-checkbox-label input {
+.sky-checkbox-label input {
   display: none;
 }
 
-.poki-checkbox-custom {
+.sky-checkbox-custom {
   width: 18px;
   height: 18px;
   border-radius: 5px;
@@ -3403,18 +3415,18 @@ body {
   transition: all 0.15s ease;
 }
 
-.poki-checkbox-label input:checked + .poki-checkbox-custom {
+.sky-checkbox-label input:checked+.sky-checkbox-custom {
   background: #3b82f6;
   border-color: #3b82f6;
   color: #ffffff;
 }
 
-.poki-checkbox-custom.error-border {
+.sky-checkbox-custom.error-border {
   border-color: #ef4444;
 }
 
 /* Submit Button & Spinner */
-.poki-submit-auth-btn {
+.sky-submit-auth-btn {
   background: #3b82f6;
   color: #fff;
   border: none;
@@ -3431,27 +3443,32 @@ body {
   transition: background 0.15s, opacity 0.15s, transform 0.1s;
 }
 
-.poki-submit-auth-btn:hover:not(:disabled) {
+.sky-submit-auth-btn:hover:not(:disabled) {
   background: #2563eb;
   transform: translateY(-1px);
 }
 
-.poki-submit-auth-btn:disabled {
+.sky-submit-auth-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
-.poki-spinner-icon {
-  animation: pokiSpin 0.9s linear infinite;
+.sky-spinner-icon {
+  animation: skySpin 0.9s linear infinite;
 }
 
-@keyframes pokiSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes skySpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.poki-back-to-social {
+.sky-back-to-social {
   background: transparent;
   border: none;
   color: #38bdf8;
@@ -3463,19 +3480,19 @@ body {
   transition: color 0.15s;
 }
 
-.poki-back-to-social:hover {
+.sky-back-to-social:hover {
   color: #60a5fa;
   text-decoration: underline;
 }
 
 /* Social Tooltip Wrappers */
-.poki-social-tooltip-wrap {
+.sky-social-tooltip-wrap {
   position: relative;
   display: flex;
   justify-content: center;
 }
 
-.poki-social-tooltip {
+.sky-social-tooltip {
   position: absolute;
   bottom: calc(100% + 6px);
   background: #0f172a;
@@ -3493,12 +3510,12 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.poki-social-tooltip-wrap:hover .poki-social-tooltip {
+.sky-social-tooltip-wrap:hover .sky-social-tooltip {
   opacity: 1;
   transform: translateY(0);
 }
 
-.poki-auth-error-msg {
+.sky-auth-error-msg {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #f87171;
@@ -3506,11 +3523,85 @@ body {
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
   margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.poki-auth-success-msg {
+.sky-quick-switch-register-btn {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.sky-quick-switch-register-btn:hover {
+  background: #38bdf8;
+  color: #0f172a;
+}
+
+.sky-quick-demo-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sky-quick-demo-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sky-quick-demo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sky-demo-chip {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sky-demo-chip:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.sky-demo-chip.admin:hover {
+  background: rgba(234, 179, 8, 0.25);
+  border-color: #eab308;
+}
+
+.sky-auth-success-msg {
   background: rgba(34, 197, 94, 0.15);
   border: 1px solid rgba(34, 197, 94, 0.3);
   color: #4ade80;
@@ -3523,28 +3614,28 @@ body {
 }
 
 /* Logged In View */
-.poki-logged-in-view {
+.sky-logged-in-view {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
 }
 
-.poki-user-avatar-large {
+.sky-user-avatar-large {
   width: 72px;
   height: 72px;
   border-radius: 50%;
   border: 3px solid #3b82f6;
 }
 
-.poki-auth-subtitle {
+.sky-auth-subtitle {
   color: #94a3b8;
   font-size: 0.88rem;
   font-weight: 500;
   margin-top: -8px;
 }
 
-.poki-user-stats-card {
+.sky-user-stats-card {
   display: flex;
   width: 100%;
   background: #1e293b;
@@ -3555,7 +3646,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.poki-stat-item {
+.sky-stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3573,18 +3664,18 @@ body {
   color: #94a3b8;
 }
 
-.poki-auth-footer {
+.sky-auth-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 12px;
 }
 
-.poki-auth-footer p {
+.sky-auth-footer p {
   font-size: 0.7rem;
   color: #64748b;
   line-height: 1.4;
 }
 
-.poki-auth-footer a {
+.sky-auth-footer a {
   color: #38bdf8;
   text-decoration: none;
   font-weight: 600;
@@ -3870,14 +3961,21 @@ body {
 }
 
 @keyframes passkeyScanBeam {
-  0% { top: 0%; opacity: 0.8; }
-  100% { top: 96%; opacity: 1; }
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+
+  100% {
+    top: 96%;
+    opacity: 1;
+  }
 }
 
 /* ==========================================================================
-   ADVANCED POKI-STYLE NAVBAR & SEPARATE COMPONENTS (OBSIDIAN PURPLE)
+   ADVANCED sky-STYLE NAVBAR & SEPARATE COMPONENTS (OBSIDIAN PURPLE)
    ========================================================================== */
-.poki-advanced-navbar {
+.sky-advanced-navbar {
   position: sticky;
   top: 0;
   z-index: 500;
@@ -3890,7 +3988,7 @@ body {
   width: 100%;
 }
 
-.poki-navbar-wrapper {
+.sky-navbar-wrapper {
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -3899,7 +3997,7 @@ body {
   gap: 12px;
 }
 
-.poki-navbar-main-row {
+.sky-navbar-main-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3908,7 +4006,7 @@ body {
 }
 
 /* 1. Standalone Advanced Brand Logo */
-.poki-standalone-logo {
+.sky-standalone-logo {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3921,12 +4019,12 @@ body {
   flex-shrink: 0;
 }
 
-.poki-standalone-logo:hover {
+.sky-standalone-logo:hover {
   transform: translateY(-2px);
   border-color: #3b82f6;
 }
 
-.poki-logo-badge {
+.sky-logo-badge {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -3940,23 +4038,23 @@ body {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-.poki-logo-badge-icon {
+.sky-logo-badge-icon {
   position: relative;
   z-index: 2;
 }
 
-.poki-logo-badge-glow {
+.sky-logo-badge-glow {
   display: none;
 }
 
-.poki-logo-text-box {
+.sky-logo-text-box {
   display: flex;
   align-items: center;
   position: relative;
   line-height: 1;
 }
 
-.poki-text-sky {
+.sky-text-sky {
   font-family: var(--font-main);
   font-size: 1.4rem;
   font-weight: 900;
@@ -3964,7 +4062,7 @@ body {
   letter-spacing: -0.5px;
 }
 
-.poki-text-games {
+.sky-text-games {
   font-family: var(--font-main);
   font-size: 1.4rem;
   font-weight: 900;
@@ -3972,12 +4070,12 @@ body {
   letter-spacing: -0.5px;
 }
 
-.poki-logo-smile-curve {
+.sky-logo-smile-curve {
   display: none;
 }
 
 /* 2. Advanced Search Box */
-.poki-advanced-search-box {
+.sky-advanced-search-box {
   flex: 1;
   max-width: 760px;
   position: relative;
@@ -3991,13 +4089,13 @@ body {
   transition: all 0.2s ease;
 }
 
-.poki-advanced-search-box.focused {
+.sky-advanced-search-box.focused {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
   background: #1e293b;
 }
 
-.poki-search-lens-wrapper {
+.sky-search-lens-wrapper {
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4009,7 +4107,7 @@ body {
   margin-right: 8px;
 }
 
-.poki-advanced-search-input {
+.sky-advanced-search-input {
   flex: 1;
   background: transparent;
   border: none;
@@ -4020,12 +4118,12 @@ body {
   color: #ffffff;
 }
 
-.poki-advanced-search-input::placeholder {
+.sky-advanced-search-input::placeholder {
   color: #64748b;
   font-weight: 500;
 }
 
-.poki-search-shortcut-tag {
+.sky-search-shortcut-tag {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #94a3b8;
@@ -4039,7 +4137,7 @@ body {
   justify-content: center;
 }
 
-.poki-search-clear-btn {
+.sky-search-clear-btn {
   background: transparent;
   border: none;
   color: #94a3b8;
@@ -4051,12 +4149,12 @@ body {
   transition: color 0.15s;
 }
 
-.poki-search-clear-btn:hover {
+.sky-search-clear-btn:hover {
   color: #ef4444;
 }
 
 /* Predictive Autocomplete Search Dropdown */
-.poki-search-dropdown {
+.sky-search-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
@@ -4069,7 +4167,7 @@ body {
   z-index: 500;
 }
 
-.poki-dropdown-header {
+.sky-dropdown-header {
   padding: 8px 14px;
   font-size: 0.7rem;
   font-weight: 800;
@@ -4079,7 +4177,7 @@ body {
   background: #161b22;
 }
 
-.poki-dropdown-item {
+.sky-dropdown-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -4089,29 +4187,29 @@ body {
   transition: background 0.15s;
 }
 
-.poki-dropdown-item:last-child {
+.sky-dropdown-item:last-child {
   border-bottom: none;
 }
 
-.poki-dropdown-item:hover {
+.sky-dropdown-item:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.poki-dropdown-thumb {
+.sky-dropdown-thumb {
   width: 38px;
   height: 38px;
   border-radius: 8px;
   object-fit: cover;
 }
 
-.poki-dropdown-info {
+.sky-dropdown-info {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
 }
 
-.poki-dropdown-title {
+.sky-dropdown-title {
   font-weight: 700;
   font-size: 0.88rem;
   color: #ffffff;
@@ -4120,26 +4218,26 @@ body {
   text-overflow: ellipsis;
 }
 
-.poki-dropdown-cat {
+.sky-dropdown-cat {
   font-size: 0.7rem;
   font-weight: 600;
   color: #38bdf8;
 }
 
-.poki-dropdown-play {
+.sky-dropdown-play {
   font-size: 0.72rem;
   font-weight: 800;
   color: #3b82f6;
 }
 
 /* 3. Separate Advanced Login / Account Button */
-.poki-navbar-auth-section {
+.sky-navbar-auth-section {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-.poki-advanced-auth-btn {
+.sky-advanced-auth-btn {
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -4152,12 +4250,12 @@ body {
   transition: background 0.2s, border-color 0.2s;
 }
 
-.poki-advanced-auth-btn:hover {
+.sky-advanced-auth-btn:hover {
   background: #334155;
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-.poki-auth-icon-circle {
+.sky-auth-icon-circle {
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4168,14 +4266,14 @@ body {
   justify-content: center;
 }
 
-.poki-auth-btn-text {
+.sky-auth-btn-text {
   font-family: var(--font-main);
   font-size: 0.9rem;
   font-weight: 700;
   color: #ffffff;
 }
 
-.poki-user-auth-avatar {
+.sky-user-auth-avatar {
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4183,14 +4281,14 @@ body {
   border: 1px solid #3b82f6;
 }
 
-.poki-user-auth-meta {
+.sky-user-auth-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   line-height: 1.15;
 }
 
-.poki-user-auth-name {
+.sky-user-auth-name {
   font-weight: 800;
   font-size: 0.95rem;
   color: #ffffff;
@@ -4201,27 +4299,200 @@ body {
   text-align: left;
 }
 
-.poki-user-auth-status {
+.sky-user-auth-status {
   font-size: 0.72rem;
   font-weight: 800;
   color: #00f5a0;
 }
 
+/* ==========================================================================
+   INTERACTIVE GAMER PROFILE DROPDOWN MENU
+   ========================================================================== */
+.sky-profile-dropdown-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sky-dropdown-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sky-dropdown-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sky-dropdown-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #38bdf8;
+  background: #1e293b;
+  object-fit: cover;
+}
+
+.sky-dropdown-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #0f172a;
+}
+
+.sky-dropdown-user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.sky-dropdown-user-name {
+  font-family: var(--font-main);
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sky-dropdown-user-email {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.sky-dropdown-provider-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 6px;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.sky-dropdown-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.sky-dropdown-stat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sky-dropdown-stat-box .stat-val {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.sky-dropdown-stat-box .stat-key {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.sky-dropdown-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sky-dropdown-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: var(--font-main);
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.sky-dropdown-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.sky-dropdown-signout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.25));
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  font-family: var(--font-main);
+  font-size: 0.86rem;
+  font-weight: 700;
+  padding: 9px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 2px;
+}
+
+.sky-dropdown-signout-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
 @media (max-width: 992px) {
-  .poki-advanced-navbar {
+  .sky-advanced-navbar {
     padding: 10px 16px;
   }
 
-  .poki-navbar-main-row {
+  .sky-navbar-main-row {
     gap: 12px;
   }
 
-  .poki-text-sky,
-  .poki-text-games {
+  .sky-text-sky,
+  .sky-text-games {
     font-size: 1.3rem;
   }
 
-  .poki-advanced-auth-btn {
+  .sky-advanced-auth-btn {
     padding: 0 14px 0 8px;
   }
 }
@@ -4244,13 +4515,13 @@ body {
 }
 
 /* Navbar Groups */
-.poki-navbar-left-group {
+.sky-navbar-left-group {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.poki-navbar-right-group {
+.sky-navbar-right-group {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -4866,6 +5137,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -4902,6 +5174,7 @@ body {
     transform: scale(0.92);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -5060,6 +5333,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -5635,8 +5909,17 @@ body {
 }
 
 @keyframes pingPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.6; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
 }
 
 /* Sidebar Copyright */
@@ -5689,6 +5972,7 @@ body {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-80px) scale(1.4);
@@ -5697,4 +5981,1048 @@ body {
 
 .animate-float-reaction {
   animation: floatUp 1.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   SKY AUTH & PROFILE MODAL STYLING
+   ========================================================================== */
+.sky-auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 16, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 99999;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.sky-auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #0f172a;
+  background: linear-gradient(180deg, #131d38 0%, #0a0f20 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 20px;
+  padding: 26px 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.15);
+  color: #f8fafc;
+  animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.sky-auth-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  z-index: 10;
+}
+
+.sky-auth-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.sky-auth-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.sky-auth-logo .sky-logo-text {
+  font-family: var(--font-display, 'Arial Black', sans-serif);
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+/* Tabs: Register | Login */
+.sky-auth-tabs {
+  display: flex;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+
+.sky-auth-tab {
+  flex: 1;
+  padding: 9px 0;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.sky-auth-tab:hover {
+  color: #ffffff;
+}
+
+.sky-auth-tab.active {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.sky-auth-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.sky-auth-subtitle {
+  font-size: 0.84rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Quick 1-Click Fast Login Box */
+.sky-quick-demo-box {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.sky-quick-demo-label {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sky-quick-demo-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sky-demo-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sky-demo-chip:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.sky-demo-chip.admin {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}
+
+.sky-demo-chip.admin:hover {
+  background: rgba(234, 179, 8, 0.3);
+  border-color: #fde047;
+}
+
+/* Feedback Messages */
+.sky-auth-error-msg {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fca5a5;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.sky-quick-switch-register-btn {
+  display: block;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: #38bdf8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-align: left;
+}
+
+.sky-auth-success-msg {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #86efac;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Form Styles */
+.sky-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sky-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sky-input-group label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.sky-forgot-link-btn {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sky-forgot-link-btn:hover {
+  text-decoration: underline;
+}
+
+.sky-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 44px;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.sky-input-box:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+  background: rgba(15, 23, 42, 1);
+}
+
+.sky-input-box.error-border {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+}
+
+.sky-input-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.sky-input-box input::placeholder {
+  color: #64748b;
+}
+
+.sky-eye-toggle-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.15s ease;
+}
+
+.sky-eye-toggle-btn:hover {
+  color: #e2e8f0;
+}
+
+.sky-field-error {
+  font-size: 0.74rem;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* Strength Meter */
+.sky-strength-meter {
+  margin-top: 6px;
+}
+
+.sky-strength-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sky-strength-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.sky-strength-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* Checkbox */
+.sky-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  user-select: none;
+}
+
+.sky-checkbox-label input {
+  display: none;
+}
+
+.sky-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.sky-checkbox-label input:checked + .sky-checkbox-custom {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.sky-checkbox-custom.error-border {
+  border-color: #ef4444 !important;
+}
+
+/* Submit Button */
+.sky-submit-auth-btn {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+  margin-top: 4px;
+}
+
+.sky-submit-auth-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.6);
+  filter: brightness(1.1);
+}
+
+.sky-submit-auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sky-spinner-icon {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sky-back-to-social {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.sky-back-to-social:hover {
+  color: #ffffff;
+}
+
+/* Divider */
+.sky-divider-row {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 14px 0 10px 0;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.sky-divider-row::before,
+.sky-divider-row::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sky-divider-row span {
+  padding: 0 10px;
+}
+
+/* Social Mini Buttons Row */
+.sky-social-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sky-social-tooltip-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.sky-social-mini-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #ffffff;
+}
+
+.sky-social-mini-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #38bdf8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.sky-social-tooltip {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sky-social-tooltip-wrap:hover .sky-social-tooltip {
+  opacity: 1;
+}
+
+.sky-auth-footer {
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sky-auth-footer p {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* User Profile Logged-in View in Modal */
+.sky-logged-in-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.sky-user-avatar-large {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  object-fit: cover;
+  background: #1e293b;
+}
+
+.sky-user-stats-card {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.sky-stat-item {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sky-stat-item .stat-num {
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.sky-stat-item .stat-lbl {
+  font-size: 0.68rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* Social SSO Submodal Overlay & Cards */
+.social-sso-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 11, 22, 0.96);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 20;
+  animation: fadeIn 0.2s ease;
+}
+
+.social-sso-card {
+  width: 100%;
+  position: relative;
+}
+
+.social-sso-close-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #94a3b8;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.social-sso-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sso-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sso-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.sso-subtitle {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+}
+
+.sso-accounts-list {
+  margin-bottom: 12px;
+}
+
+.sso-account-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sso-account-item:hover,
+.sso-account-item.active {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: #38bdf8;
+}
+
+.sso-account-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1e293b;
+}
+
+.sso-account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sso-account-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sso-account-email {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.sso-account-check {
+  color: #38bdf8;
+}
+
+.sso-custom-edit-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.sso-field-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.sso-text-input {
+  width: 100%;
+  height: 38px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: #ffffff;
+  font-size: 0.84rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.sso-text-input:focus {
+  border-color: #38bdf8;
+}
+
+.sso-confirm-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sso-confirm-btn.google-btn {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.sso-confirm-btn.google-btn:hover {
+  background: #f1f5f9;
+}
+
+.sso-confirm-btn.apple-btn {
+  background: #000000;
+  border: 1px solid #334155;
+  color: #ffffff;
+}
+
+.sso-confirm-btn.apple-btn:hover {
+  background: #111827;
+}
+
+.sso-confirm-btn.microsoft-btn {
+  background: #00a4ef;
+  color: #ffffff;
+}
+
+.sso-confirm-btn.microsoft-btn:hover {
+  background: #0078d4;
+}
+
+.sso-confirm-btn.passkey-btn {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #ffffff;
+}
+
+.apple-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.passkey-scanner-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.passkey-glow-ring {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.1);
+  border: 2px solid rgba(6, 182, 212, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+  overflow: hidden;
+}
+
+.passkey-glow-ring.scanning {
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+  border-color: #06b6d4;
+}
+
+.passkey-laser-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #22d3ee;
+  box-shadow: 0 0 8px #22d3ee;
+  top: 0;
+  opacity: 0;
+}
+
+.passkey-glow-ring.scanning .passkey-laser-beam {
+  opacity: 1;
+  animation: scanLaser 1.2s ease-in-out infinite;
+}
+
+@keyframes scanLaser {
+  0% { top: 0; }
+  50% { top: 100%; }
+  100% { top: 0; }
+}
+
+/* ==========================================================================
+   INFO MODALS (ABOUT, CONTACT, PRIVACY) & FAVORITES DRAWER
+   ========================================================================== */
+.sky-modal-backdrop,
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 16, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 99990;
+  animation: fadeIn 0.2s ease;
+}
+
+.info-modal-card {
+  width: 100%;
+  max-width: 600px;
+  background: #0f172a;
+  background: linear-gradient(180deg, #131d38 0%, #0a0f20 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+  color: #f8fafc;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: modalPopIn 0.25s ease;
+}
+
+.info-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-title-group h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.info-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.info-lead {
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  color: #e2e8f0;
+}
+
+.about-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.about-stat-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+
+.about-stat-item h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin: 0 0 4px 0;
+}
+
+.about-stat-item p {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Favorites Drawer */
+.sky-favorites-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  background: #0f172a;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 99995;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  animation: slideDrawer 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDrawer {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-title-group h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.drawer-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.drawer-item-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.drawer-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-item-info h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-item-cat {
+  font-size: 0.72rem;
+  color: #94a3b8;
 }

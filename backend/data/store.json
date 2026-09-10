@@ -1,6 +1,18 @@
 {
   "users": [
     {
+      "id": "usr-mtvrvdn3-w7dwf",
+      "username": "shubham",
+      "name": "shubham",
+      "email": "shubham@example.com",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=shubham",
+      "provider": "apple",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-10T16:59:22.959Z",
+      "lastLogin": "2026-09-10T16:59:22.959Z"
+    },
+    {
       "id": "usr-mtvp5fmw-ifrn3",
       "username": "Apple",
       "email": "gamer@icloud.com",
@@ -31,7 +43,59 @@
       "role": "user",
       "status": "active",
       "createdAt": "2026-09-10T15:36:22.815Z",
-      "lastLogin": "2026-09-10T15:36:22.815Z"
+      "lastLogin": "2026-09-10T16:52:16.036Z"
+    },
+    {
+      "id": "usr-admin-1",
+      "username": "SuperAdmin",
+      "name": "SuperAdmin",
+      "email": "admin@skygames.io",
+      "password": "5a912f5fe0f3b85827ab50ff9e42a996:a9bf19516696fd9d1ddcbb9c3c2935453cd2bb98210a3e486b0353d94cbdc23a3cc09df3140df9c6c79c8b76496ecc11d65637424be5293cf112967ed0fdeb96",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=SuperAdmin",
+      "provider": "email",
+      "role": "admin",
+      "status": "active",
+      "createdAt": "2026-09-01T10:00:00.000Z",
+      "lastLogin": "2026-09-10T16:29:52.257Z"
+    },
+    {
+      "id": "usr-gamer-2",
+      "username": "CyberNinja",
+      "name": "CyberNinja",
+      "email": "ninja@cyberpunk.io",
+      "password": "a2687708c004ef0a1a8ce5c5f531ed8e:d1d651385a9361d33fca7af3261204767d7ffc104bc06d04ea7fe8044d9343fdb5dd06186024ac330539866efcfbf80f2df3cd0359efa66feb8b3091a2b38b35",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=CyberNinja",
+      "provider": "google",
+      "role": "moderator",
+      "status": "active",
+      "createdAt": "2026-09-05T14:20:00.000Z",
+      "lastLogin": "2026-09-10T16:29:52.261Z"
+    },
+    {
+      "id": "usr-gamer-3",
+      "username": "PixelWarrior",
+      "name": "PixelWarrior",
+      "email": "pixel.warrior@gmail.com",
+      "password": "bb49897733b05527e1199063153b98c6:46fcd268a894380756a50c435c9ee7477e6bf2851a5d799f4d0fb5557ac47c019baf4c4b932356ebc3669e8197cfafe2fd432908910ae338daba0906aa2dab41",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=PixelWarrior",
+      "provider": "email",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-08T09:45:00.000Z",
+      "lastLogin": "2026-09-10T16:29:52.264Z"
+    },
+    {
+      "id": "usr-gamer-4",
+      "username": "DemoPlayer",
+      "name": "DemoPlayer",
+      "email": "demo@skygames.io",
+      "password": "193dba3fa0f38ea0475247c31bfc1054:7c31e48ad2f7b3e081f891d0c85e68d97ea839b85be47d4c30eaf9a2b5dcf49de546bc818f398e2072b71ebda153db77294cdf2a084d694279818ca095f2f2cd",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=DemoPlayer",
+      "provider": "email",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2026-09-10T10:00:00.000Z",
+      "lastLogin": "2026-09-10T16:29:52.296Z"
     }
   ],
   "games": [

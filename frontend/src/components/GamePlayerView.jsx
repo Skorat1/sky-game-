@@ -39,10 +39,10 @@ import GameCard from './GameCard';
 // Auto-detect best aspect ratio and dimensions from embed code or game metadata
 function parseEmbedDimensions(rawEmbed) {
   if (!rawEmbed) return { aspectRatio: '16 / 9', maxWidth: '1060px', height: 'auto' };
-  
+
   const widthMatch = rawEmbed.match(/width=["']?(\d+)/i);
   const heightMatch = rawEmbed.match(/height=["']?(\d+)/i);
-  
+
   if (widthMatch && heightMatch) {
     const w = parseInt(widthMatch[1], 10);
     const h = parseInt(heightMatch[1], 10);
@@ -54,7 +54,7 @@ function parseEmbedDimensions(rawEmbed) {
       };
     }
   }
-  
+
   if (heightMatch && !widthMatch) {
     const h = parseInt(heightMatch[1], 10);
     return {
@@ -143,7 +143,7 @@ export default function GamePlayerView({
     socket.emit('game:join', game.id);
 
     // Increment play count via API
-    fetch(`http://localhost:5000/api/games/${game.id}/play`, { method: 'POST' }).catch(() => {});
+    fetch(`http://localhost:5000/api/games/${game.id}/play`, { method: 'POST' }).catch(() => { });
 
     // Listen for room player counts
     const handlePlayerCount = (data) => {
@@ -197,7 +197,7 @@ export default function GamePlayerView({
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         if (isFullscreen) {
-          if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+          if (document.exitFullscreen) document.exitFullscreen().catch(() => { });
         } else if (isLightsOff) {
           setIsLightsOff(false);
         } else if (isTheaterMode) {
@@ -515,7 +515,7 @@ export default function GamePlayerView({
       setHighScore(score);
       try {
         localStorage.setItem(`sky_hs_${game?.id}`, score.toString());
-      } catch {}
+      } catch { }
     }
   }, [score, highScore, game?.id]);
 
@@ -576,13 +576,13 @@ export default function GamePlayerView({
     const el = screenWrapperRef.current || document.documentElement;
     if (!document.fullscreenElement) {
       if (el.requestFullscreen) {
-        el.requestFullscreen().catch(() => {});
+        el.requestFullscreen().catch(() => { });
       } else if (el.webkitRequestFullscreen) {
         el.webkitRequestFullscreen();
       }
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
     }
   };
@@ -598,13 +598,13 @@ export default function GamePlayerView({
   const getCleanGameUrl = (rawUrl) => {
     if (!rawUrl) return '';
     let finalUrl = rawUrl.trim();
-    
+
     // 1. Extract src from <iframe> snippet if present
     const iframeMatch = finalUrl.match(/src=["']([^"']+)["']/i);
     if (iframeMatch) {
       finalUrl = iframeMatch[1];
     }
-    
+
     // 2. Automatically wrap Google Gadget .xml files with proxy
     if (finalUrl.endsWith('.xml') || finalUrl.includes('.xml?')) {
       return `/game-proxy/gadgets/ifr?url=${encodeURIComponent(finalUrl)}`;
@@ -617,7 +617,7 @@ export default function GamePlayerView({
         return `/game-proxy${finalUrl.slice(subIdx)}`;
       }
     }
-    
+
     // 4. Add protocol if missing
     if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('//') && !finalUrl.startsWith('/')) {
       finalUrl = 'https://' + finalUrl;
@@ -630,7 +630,7 @@ export default function GamePlayerView({
 
   return (
     <div className={`crazy-game-page-container ${isLightsOff ? 'lights-off-active' : ''}`}>
-      
+
       {/* Lights-off Cinematic Dark Backdrop */}
       {isLightsOff && (
         <div
@@ -673,10 +673,10 @@ export default function GamePlayerView({
 
       {/* 2. Main Game Player Stage (Split: Left Player + Right Play Next Column) */}
       <div className={`crazy-stage-wrapper ${isTheaterMode ? 'theater-expanded' : ''}`}>
-        
+
         {/* Left/Center Game Player Column */}
         <div className="crazy-player-column">
-          
+
           {/* Game Frame Viewport with Glass Glow Ambient Lighting */}
           <div
             ref={screenWrapperRef}
@@ -775,31 +775,31 @@ export default function GamePlayerView({
             )}
           </div>
 
-          {/* Under-Game Bottom Control Bar (Exact Poki.com Style) */}
-          <div className="poki-under-ctrl-bar">
-            
+          {/* Under-Game Bottom Control Bar (Exact sky.com Style) */}
+          <div className="sky-under-ctrl-bar">
+
             {/* Left: Game Thumbnail + Title + Developer + Live Room Count */}
-            <div className="poki-ctrl-left">
+            <div className="sky-ctrl-left">
               <img
                 src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&q=80'}
                 alt={game.title}
-                className="poki-ctrl-thumb"
+                className="sky-ctrl-thumb"
               />
-              <div className="poki-ctrl-meta">
+              <div className="sky-ctrl-meta">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h2 className="poki-ctrl-title">{game.title}</h2>
+                  <h2 className="sky-ctrl-title">{game.title}</h2>
                   <span className="live-room-player-tag" title="Concurrent active players in this game">
                     <span className="live-pulse-dot small" /> {roomPlayersCount} playing
                   </span>
                 </div>
-                <span className="poki-ctrl-subtitle">
+                <span className="sky-ctrl-subtitle">
                   by {game.developer || game.author || (game.category ? game.category.toUpperCase() : 'SYBO')}
                 </span>
               </div>
             </div>
 
-            {/* Right: Poki Actions + Real-time Reaction Picker + Engine Switcher + Reload + Fullscreen */}
-            <div className="poki-ctrl-right">
+            {/* Right: sky Actions + Real-time Reaction Picker + Engine Switcher + Reload + Fullscreen */}
+            <div className="sky-ctrl-right">
               {/* Live Emoji Quick Reactions */}
               <div className="live-reaction-picker" title="Send live reaction to all players">
                 <button className="emoji-react-btn" onClick={() => sendReaction('🔥')} title="Fire">🔥</button>
@@ -810,64 +810,64 @@ export default function GamePlayerView({
 
               {/* Thumbs Up */}
               <button
-                className={`poki-action-btn ${userVote === 'like' ? 'voted-like' : ''}`}
+                className={`sky-action-btn ${userVote === 'like' ? 'voted-like' : ''}`}
                 onClick={handleLike}
                 title="I like this"
               >
-                <ThumbsUp size={19} className="poki-action-icon" />
-                <span className="poki-action-count">{likes >= 1000 ? `${(likes / 1000).toFixed(1)}K` : likes}</span>
+                <ThumbsUp size={19} className="sky-action-icon" />
+                <span className="sky-action-count">{likes >= 1000 ? `${(likes / 1000).toFixed(1)}K` : likes}</span>
               </button>
 
               {/* Thumbs Down */}
               <button
-                className={`poki-action-btn ${userVote === 'dislike' ? 'voted-dislike' : ''}`}
+                className={`sky-action-btn ${userVote === 'dislike' ? 'voted-dislike' : ''}`}
                 onClick={handleDislike}
                 title="I dislike this"
               >
-                <ThumbsDown size={19} className="poki-action-icon" />
-                <span className="poki-action-count">{dislikes >= 1000 ? `${(dislikes / 1000).toFixed(1)}K` : dislikes}</span>
+                <ThumbsDown size={19} className="sky-action-icon" />
+                <span className="sky-action-count">{dislikes >= 1000 ? `${(dislikes / 1000).toFixed(1)}K` : dislikes}</span>
               </button>
 
               {/* Favorite / Bookmark */}
               <button
-                className={`poki-action-btn ${isFavorite ? 'active-fav' : ''}`}
+                className={`sky-action-btn ${isFavorite ? 'active-fav' : ''}`}
                 onClick={() => {
                   sounds.playClick();
                   onToggleFavorite(game.id);
                 }}
                 title={isFavorite ? "Saved to Favorites" : "Add to Favorites"}
               >
-                <Heart size={19} className="poki-action-icon" fill={isFavorite ? "#f52d7e" : "none"} color={isFavorite ? "#f52d7e" : "currentColor"} />
+                <Heart size={19} className="sky-action-icon" fill={isFavorite ? "#f52d7e" : "none"} color={isFavorite ? "#f52d7e" : "currentColor"} />
               </button>
 
               {/* Switch Engine (Built-in Arcade vs Web URL) */}
               <button
-                className={`poki-action-btn ${useBuiltInEngine ? 'active-engine' : ''}`}
+                className={`sky-action-btn ${useBuiltInEngine ? 'active-engine' : ''}`}
                 onClick={() => {
                   sounds.playClick();
                   setUseBuiltInEngine(!useBuiltInEngine);
                 }}
                 title={useBuiltInEngine ? "Switch to Web Embed" : "Play Built-in Arcade Engine"}
               >
-                <Gamepad2 size={19} className="poki-action-icon" />
+                <Gamepad2 size={19} className="sky-action-icon" />
               </button>
 
               {/* Reload / Restart */}
               <button
-                className="poki-action-btn"
+                className="sky-action-btn"
                 onClick={handleRestartGame}
                 title="Reload Game"
               >
-                <RefreshCw size={19} className="poki-action-icon" />
+                <RefreshCw size={19} className="sky-action-icon" />
               </button>
 
               {/* Fullscreen Trigger */}
               <button
-                className="poki-action-btn poki-fullscreen-btn"
+                className="sky-action-btn sky-fullscreen-btn"
                 onClick={toggleFullscreen}
                 title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               >
-                {isFullscreen ? <Minimize2 size={20} className="poki-action-icon" /> : <Maximize2 size={20} className="poki-action-icon" />}
+                {isFullscreen ? <Minimize2 size={20} className="sky-action-icon" /> : <Maximize2 size={20} className="sky-action-icon" />}
               </button>
             </div>
 

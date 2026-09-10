@@ -41,14 +41,14 @@ export default function SkySearchBar({
     ).slice(0, 6);
 
   return (
-    <div className="poki-search-hero-container">
+    <div className="sky-search-hero-container">
       {/* Top Bar with Minimal Tools & Clean Search Input */}
-      <div className="poki-search-bar-row">
-        <div className={`poki-search-input-wrapper ${isFocused ? 'focused' : ''}`}>
+      <div className="sky-search-bar-row">
+        <div className={`sky-search-input-wrapper ${isFocused ? 'focused' : ''}`}>
           {/* Left Brand Badge in input */}
-          <div className="poki-search-input-logo">
-            <div className="poki-input-icon-circle">
-              <div className="poki-input-wave" />
+          <div className="sky-search-input-logo">
+            <div className="sky-input-icon-circle">
+              <div className="sky-input-wave" />
             </div>
           </div>
 
@@ -56,7 +56,7 @@ export default function SkySearchBar({
           <input
             ref={searchInputRef}
             type="text"
-            className="poki-main-search-input"
+            className="sky-main-search-input"
             placeholder="What are you playing today?"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -67,7 +67,7 @@ export default function SkySearchBar({
           {/* Right Action Icons */}
           {searchQuery ? (
             <button
-              className="poki-search-clear-btn"
+              className="sky-search-clear-btn"
               onClick={() => {
                 sounds.playClick();
                 setSearchQuery('');
@@ -77,21 +77,21 @@ export default function SkySearchBar({
               <X size={18} />
             </button>
           ) : (
-            <div className="poki-search-right-icon">
+            <div className="sky-search-right-icon">
               <Search size={20} />
             </div>
           )}
 
           {/* Autocomplete Dropdown */}
           {isFocused && searchResults.length > 0 && (
-            <div className="poki-search-dropdown">
-              <div className="poki-dropdown-header">
+            <div className="sky-search-dropdown">
+              <div className="sky-dropdown-header">
                 <span>SUGGESTED GAMES ({searchResults.length})</span>
               </div>
               {searchResults.map((game) => (
                 <div
                   key={game.id}
-                  className="poki-dropdown-item"
+                  className="sky-dropdown-item"
                   onMouseDown={() => {
                     sounds.playClick();
                     onSelectGame(game);
@@ -99,12 +99,12 @@ export default function SkySearchBar({
                     setIsFocused(false);
                   }}
                 >
-                  <img src={game.thumbnail} alt={game.title} className="poki-dropdown-thumb" />
-                  <div className="poki-dropdown-info">
-                    <span className="poki-dropdown-title">{game.title}</span>
-                    <span className="poki-dropdown-cat">{game.category?.toUpperCase() || 'ARCADE'}</span>
+                  <img src={game.thumbnail} alt={game.title} className="sky-dropdown-thumb" />
+                  <div className="sky-dropdown-info">
+                    <span className="sky-dropdown-title">{game.title}</span>
+                    <span className="sky-dropdown-cat">{game.category?.toUpperCase() || 'ARCADE'}</span>
                   </div>
-                  <span className="poki-dropdown-play">PLAY ▶</span>
+                  <span className="sky-dropdown-play">PLAY ▶</span>
                 </div>
               ))}
             </div>
@@ -112,10 +112,10 @@ export default function SkySearchBar({
         </div>
 
         {/* Minimal Right Quick Controls (Favorites & Sound) */}
-        <div className="poki-top-quick-actions">
+        <div className="sky-top-quick-actions">
           {/* Favorites Button */}
           <button
-            className="poki-quick-btn"
+            className="sky-quick-btn"
             onClick={() => {
               sounds.playClick();
               if (onOpenFavorites) onOpenFavorites();
@@ -123,12 +123,12 @@ export default function SkySearchBar({
             title="Saved Favorite Games"
           >
             <Heart size={20} className={favoritesCount > 0 ? "fill-crimson text-crimson" : ""} />
-            {favoritesCount > 0 && <span className="poki-quick-badge">{favoritesCount}</span>}
+            {favoritesCount > 0 && <span className="sky-quick-badge">{favoritesCount}</span>}
           </button>
 
           {/* Audio Toggle */}
           <button
-            className="poki-quick-btn"
+            className="sky-quick-btn"
             onClick={() => {
               sounds.playClick();
               if (onToggleMute) onToggleMute();
@@ -140,15 +140,15 @@ export default function SkySearchBar({
 
           {/* User / Profile Quick Button */}
           <button
-            className="poki-quick-btn user-btn"
+            className="sky-quick-btn user-btn"
             onClick={() => {
-              sounds.playClick();
-              if (onOpenAuth) onOpenAuth();
+              try { sounds.playClick(); } catch (err) { }
+              if (typeof onOpenAuth === 'function') onOpenAuth();
             }}
             title={user ? `Profile: ${user.name}` : "Log In / Register"}
           >
             {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="poki-user-tiny-avatar" />
+              <img src={user.avatar} alt={user.name} className="sky-user-tiny-avatar" />
             ) : (
               <User size={20} />
             )}
@@ -157,13 +157,13 @@ export default function SkySearchBar({
       </div>
 
       {/* Horizontal Scrolling Category Pills */}
-      <div className="poki-category-pills-scroll">
+      <div className="sky-category-pills-scroll">
         {SKY_CATEGORIES.map((cat) => {
           const isActive = (activeCategory === cat.id) || (!activeCategory && cat.id === 'all');
           return (
             <button
               key={cat.id}
-              className={`poki-pill-btn ${isActive ? 'active' : ''}`}
+              className={`sky-pill-btn ${isActive ? 'active' : ''}`}
               onClick={() => {
                 sounds.playClick();
                 onSelectCategory(cat.id === 'all' ? '' : cat.id);

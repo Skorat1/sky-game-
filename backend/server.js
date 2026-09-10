@@ -189,6 +189,7 @@ const SEED_USERS = [
   {
     id: 'usr-admin-1',
     username: 'SuperAdmin',
+    name: 'SuperAdmin',
     email: 'admin@skygames.io',
     password: hashPassword('Admin@123'),
     avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=SuperAdmin',
@@ -201,6 +202,7 @@ const SEED_USERS = [
   {
     id: 'usr-gamer-2',
     username: 'CyberNinja',
+    name: 'CyberNinja',
     email: 'ninja@cyberpunk.io',
     password: hashPassword('Gamer@123'),
     avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=CyberNinja',
@@ -213,6 +215,7 @@ const SEED_USERS = [
   {
     id: 'usr-gamer-3',
     username: 'PixelWarrior',
+    name: 'PixelWarrior',
     email: 'pixel.warrior@gmail.com',
     password: hashPassword('Player@123'),
     avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=PixelWarrior',
@@ -220,6 +223,19 @@ const SEED_USERS = [
     role: 'user',
     status: 'active',
     createdAt: '2026-09-08T09:45:00.000Z',
+    lastLogin: new Date().toISOString()
+  },
+  {
+    id: 'usr-gamer-4',
+    username: 'DemoPlayer',
+    name: 'DemoPlayer',
+    email: 'demo@skygames.io',
+    password: hashPassword('Demo@123'),
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=DemoPlayer',
+    provider: 'email',
+    role: 'user',
+    status: 'active',
+    createdAt: '2026-09-10T10:00:00.000Z',
     lastLogin: new Date().toISOString()
   }
 ];
@@ -252,6 +268,21 @@ function initStore() {
       const data = fs.readFileSync(STORE_FILE, 'utf-8');
       localStore = { ...localStore, ...JSON.parse(data) };
       if (!Array.isArray(localStore.users)) localStore.users = [];
+      
+      // Ensure seed users with valid passwords are present in localStore
+      for (const seedUser of SEED_USERS) {
+        const exists = localStore.users.find(u => 
+          (u.email && u.email.toLowerCase() === seedUser.email.toLowerCase()) ||
+          (u.username && u.username.toLowerCase() === seedUser.username.toLowerCase()) ||
+          u.id === seedUser.id
+        );
+        if (!exists) {
+          localStore.users.push(seedUser);
+        } else if (!exists.password) {
+          exists.password = seedUser.password;
+        }
+      }
+      fs.writeFileSync(STORE_FILE, JSON.stringify(localStore, null, 2));
     } else {
       localStore.users = [...SEED_USERS];
       fs.writeFileSync(STORE_FILE, JSON.stringify(localStore, null, 2));
@@ -393,7 +424,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ---------------- AUTH API ROUTES ----------------
+// ---------------- AUTH ROUTES ----------------
 
 // Register new user
 app.post('/api/auth/register', async (req, res) => {
@@ -402,8 +433,8 @@ app.post('/api/auth/register', async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Username, email and password are required' });
     }
-    const cleanEmail = email.toLowerCase().trim();
-    const cleanUsername = username.trim();
+    const cleanEmail = String(email).toLowerCase().trim();
+    const cleanUsername = String(username).trim();
 
     if (cleanUsername.length < 2) {
       return res.status(400).json({ error: 'Username must be at least 2 characters long' });
@@ -429,12 +460,13 @@ app.post('/api/auth/register', async (req, res) => {
     }
     if (!existingUser) {
       existingUser = (localStore.users || []).find(
-        u => u.email.toLowerCase() === cleanEmail || u.username.toLowerCase() === cleanUsername.toLowerCase()
+        u => (u.email && u.email.toLowerCase() === cleanEmail) || 
+             (u.username && u.username.toLowerCase() === cleanUsername.toLowerCase())
       );
     }
 
     if (existingUser) {
-      if (existingUser.email.toLowerCase() === cleanEmail) {
+      if (existingUser.email && existingUser.email.toLowerCase() === cleanEmail) {
         return res.status(409).json({ error: 'An account with this email already exists' });
       }
       return res.status(409).json({ error: 'This username is already taken' });
@@ -447,6 +479,7 @@ app.post('/api/auth/register', async (req, res) => {
     const newUser = {
       id: userId,
       username: cleanUsername,
+      name: cleanUsername,
       email: cleanEmail,
       password: hashedPassword,
       avatar,
@@ -488,7 +521,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email/username and password are required' });
     }
-    const cleanIdent = email.toLowerCase().trim();
+    const cleanIdent = String(email).toLowerCase().trim();
 
     let user = null;
     if (mongoose.connection.readyState === 1) {
@@ -502,16 +535,24 @@ app.post('/api/auth/login', async (req, res) => {
     }
     if (!user) {
       user = (localStore.users || []).find(
-        u => u.email.toLowerCase() === cleanIdent || u.username.toLowerCase() === cleanIdent
+        u => (u.email && u.email.toLowerCase() === cleanIdent) || 
+             (u.username && u.username.toLowerCase() === cleanIdent)
       );
     }
 
     if (!user) {
-      return res.status(401).json({ error: 'Account not found with this email or username' });
+      return res.status(404).json({ error: 'Account not found with this email or username. Please check details or register a new account.' });
     }
 
     if (user.status === 'banned') {
       return res.status(403).json({ error: 'This account has been suspended' });
+    }
+
+    // If account was created via social login and does not have a password set
+    if (!user.password && user.provider && user.provider !== 'email') {
+      return res.status(400).json({ 
+        error: `This account was registered via ${user.provider.toUpperCase()}. Please sign in using Quick Sign In below or reset your password.` 
+      });
     }
 
     const isMatch = verifyPassword(password, user.password);
@@ -530,7 +571,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    recordActivity('user_login', 'Player Logged In', `${user.username} signed in`);
+    recordActivity('user_login', 'Player Logged In', `${user.username || user.name || 'Player'} signed in`);
 
     res.json({
       success: true,
@@ -551,7 +592,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     if (!identifier) {
       return res.status(400).json({ error: 'Please enter your email or username' });
     }
-    const cleanIdent = identifier.toLowerCase().trim();
+    const cleanIdent = String(identifier).toLowerCase().trim();
 
     let user = null;
     if (mongoose.connection.readyState === 1) {
@@ -561,7 +602,8 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
     if (!user) {
       user = (localStore.users || []).find(
-        u => u.email.toLowerCase() === cleanIdent || u.username.toLowerCase() === cleanIdent
+        u => (u.email && u.email.toLowerCase() === cleanIdent) || 
+             (u.username && u.username.toLowerCase() === cleanIdent)
       );
     }
 
@@ -570,10 +612,11 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
 
     // Password reset simulation / reset instructions
-    recordActivity('user_activity', 'Password Reset Requested', `Password reset requested for ${user.username}`);
+    recordActivity('user_activity', 'Password Reset Requested', `Password reset requested for ${user.username || user.name}`);
+    const maskedEmail = user.email ? user.email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '***') : 'your registered email';
     res.json({
       success: true,
-      message: `Password reset link sent to ${user.email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '***')}`
+      message: `Password reset link sent to ${maskedEmail}`
     });
   } catch (err) {
     console.error('Forgot password error:', err);
@@ -593,7 +636,7 @@ app.post('/api/auth/social', async (req, res) => {
       user = await User.findOne({ email: cleanEmail });
     }
     if (!user) {
-      user = (localStore.users || []).find(u => u.email.toLowerCase() === cleanEmail);
+      user = (localStore.users || []).find(u => u.email && u.email.toLowerCase() === cleanEmail);
     }
 
     if (!user) {
@@ -602,6 +645,7 @@ app.post('/api/auth/social', async (req, res) => {
       user = {
         id: userId,
         username: cleanName,
+        name: cleanName,
         email: cleanEmail,
         avatar: userAvatar,
         provider: provider.toLowerCase(),
@@ -631,7 +675,7 @@ app.post('/api/auth/social', async (req, res) => {
       if (mongoose.connection.readyState === 1) {
         await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => {});
       }
-      recordActivity('user_login', 'Player Logged In', `${user.username} signed in via ${provider}`);
+      recordActivity('user_login', 'Player Logged In', `${user.username || user.name} signed in via ${provider}`);
     }
 
     const token = crypto.randomBytes(32).toString('hex');

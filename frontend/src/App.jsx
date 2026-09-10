@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy, Component } from 'react';
 import SkyNavbar from './components/SkyNavbar';
 import Sidebar from './components/Sidebar';
 import GameGrid from './components/GameGrid';
@@ -18,6 +18,60 @@ import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
 import { sounds } from './utils/audio';
 
 import { socket } from './utils/socket';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('App ErrorBoundary caught error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#0b0f19',
+          color: '#ffffff',
+          padding: 24,
+          textAlign: 'center',
+          fontFamily: 'Inter, system-ui, sans-serif'
+        }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: 12 }}>🎮 SkyGames Ready</h2>
+          <p style={{ color: '#94a3b8', maxWidth: 460, marginBottom: 20 }}>
+            An unexpected glitch was caught and safely recovered.
+          </p>
+          <button
+            style={{
+              background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+              color: '#070a13',
+              fontWeight: 800,
+              padding: '12px 28px',
+              borderRadius: 999,
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
+          >
+            Reload Arcade
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -51,7 +105,7 @@ function parseUrlNavState() {
   }
 }
 
-export default function App() {
+function App() {
   const initialNav = useMemo(() => parseUrlNavState(), []);
 
   // Instant 0ms cached games initialization
@@ -62,7 +116,7 @@ export default function App() {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch {}
+    } catch { }
     return DEFAULT_STATIC_GAMES;
   });
 
@@ -125,7 +179,7 @@ export default function App() {
           setGames(liveGames);
           try {
             localStorage.setItem('sky_cached_games', JSON.stringify(liveGames));
-          } catch {}
+          } catch { }
         }
       }
 
@@ -172,7 +226,7 @@ export default function App() {
         if (!prevUser) return null;
         if (prevUser.id === updatedUser.id || (prevUser._id && prevUser._id === updatedUser._id)) {
           const merged = { ...prevUser, ...updatedUser };
-          try { localStorage.setItem('sky_user', JSON.stringify(merged)); } catch {}
+          try { localStorage.setItem('sky_user', JSON.stringify(merged)); } catch { }
           return merged;
         }
         return prevUser;
@@ -184,10 +238,10 @@ export default function App() {
       setUser(prevUser => {
         if (!prevUser) return null;
         if (prevUser.id === data.id || (prevUser._id && prevUser._id === data.id)) {
-          try { 
-            localStorage.removeItem('sky_user'); 
+          try {
+            localStorage.removeItem('sky_user');
             localStorage.removeItem('sky_token');
-          } catch {}
+          } catch { }
           return null;
         }
         return prevUser;
@@ -409,14 +463,14 @@ export default function App() {
   }, [games, activePage, activeCategory, searchQuery, recentlyPlayed]);
 
   return (
-    <div className="sky-app-root poki-theme-root gamepix-app-layout">
+    <div className="sky-app-root sky-theme-root gamepix-app-layout">
       {/* Sitewide Announcement Banner */}
       {banner && banner.active === true && Boolean(banner.message?.trim()) && (
-        <div className="poki-sitewide-banner">
-          {banner.badge && <span className="poki-banner-badge">{banner.badge}</span>}
+        <div className="sky-sitewide-banner">
+          {banner.badge && <span className="sky-banner-badge">{banner.badge}</span>}
           <span>{banner.message}</span>
           {banner.ctaText && (
-            <a href={banner.ctaLink || '#'} className="poki-banner-cta">
+            <a href={banner.ctaLink || '#'} className="sky-banner-cta">
               {banner.ctaText}
             </a>
           )}
@@ -433,11 +487,19 @@ export default function App() {
         games={games}
         onSelectGame={handlePlayGame}
         onOpenAuth={() => setAuthModalOpen(true)}
+        onLogout={() => {
+          try {
+            localStorage.removeItem('sky_token');
+            localStorage.removeItem('sky_user');
+          } catch { }
+          setUser(null);
+        }}
         user={user}
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
         favoritesCount={favorites.length}
         onOpenFavorites={() => setFavoritesDrawerOpen(true)}
+        onNavigate={handleNavigation}
       />
 
       <div className="gamepix-body-layout">
@@ -499,15 +561,22 @@ export default function App() {
 
       </div>
 
-      <Suspense fallback={null}>
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-          user={user}
-          onLogin={(loggedInUser) => setUser(loggedInUser)}
-          onLogout={() => setUser(null)}
-        />
+      {/* Critical Auth & Profile Modal - Rendered directly for instant response */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        user={user}
+        onLogin={(loggedInUser) => setUser(loggedInUser)}
+        onLogout={() => {
+          try {
+            localStorage.removeItem('sky_token');
+            localStorage.removeItem('sky_user');
+          } catch { }
+          setUser(null);
+        }}
+      />
 
+      <Suspense fallback={null}>
         {/* Saved Favorites Sliding Drawer */}
         <FavoritesDrawer
           isOpen={favoritesDrawerOpen}
@@ -527,3 +596,12 @@ export default function App() {
     </div>
   );
 }
+
+export default function AppWrapper() {
+  return (
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
+}
+
