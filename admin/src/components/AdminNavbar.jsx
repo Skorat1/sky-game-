@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-export default function AdminNavbar({ activeTab, onOpenGameModal, onToggleSidebar, livePlayerCount }) {
+export default function AdminNavbar({ 
+  activeTab, 
+  onOpenGameModal, 
+  onOpenUserModal,
+  onToggleSidebar, 
+  livePlayerCount = 0, 
+  adminUser, 
+  onLogout,
+  dbStatus,
+  onSearchGlobal
+}) {
   const titles = {
-    dashboard: 'Platform Overview',
-    games: 'Games Inventory & Management',
-    users: 'User Accounts & Player Management',
-    categories: 'Game Categories & Tags',
-    banner: 'Announcement & Alerts',
-    submissions: 'Developer Submissions',
-    messages: 'Inbox & User Feedback',
-    settings: 'Platform Settings & Config'
+    dashboard: 'Platform Overview & Live Telemetry',
+    games: 'Games Catalog & Asset Management',
+    users: 'User & Gamer Accounts Management',
+    categories: 'Game Categories & Taxonomy',
+    banner: 'Sitewide Announcement Broadcast',
+    submissions: 'Developer Community Submissions',
+    messages: 'Inbox & User Feedback Stream',
+    settings: 'Platform Configuration & Security'
   };
 
   return (
@@ -17,35 +27,35 @@ export default function AdminNavbar({ activeTab, onOpenGameModal, onToggleSideba
       <div className="header-left">
         <button
           className="header-btn"
-          style={{ display: 'none' }}
+          style={{ padding: '6px 10px', fontSize: '1rem', display: 'none' }}
           onClick={onToggleSidebar}
           aria-label="Toggle Sidebar"
+          id="mobileSidebarToggle"
         >
           ☰
         </button>
+
         <div className="page-title">
-          <span>{titles[activeTab] || 'Admin Dashboard'}</span>
+          <span>{titles[activeTab] || 'Control Center'}</span>
           <span className="live-indicator">
             <span className="live-dot"></span>
-            <span>{livePlayerCount.toLocaleString()} Live Players</span>
+            <span>{livePlayerCount.toLocaleString()} Live Visitors</span>
           </span>
         </div>
       </div>
 
       <div className="header-right">
-        <a
-          href="http://localhost:5173"
-          target="_blank"
-          rel="noreferrer"
-          className="header-btn"
-          title="Open Player Website"
-        >
-          🚀 View Main Website
-        </a>
-
-        {activeTab === 'games' && (
+        {activeTab === 'games' && onOpenGameModal && (
           <button className="header-btn primary" onClick={() => onOpenGameModal(null)}>
-            ➕ Add New Game
+            <span>➕</span>
+            <span>Add New Game</span>
+          </button>
+        )}
+
+        {activeTab === 'users' && onOpenUserModal && (
+          <button className="header-btn primary" onClick={() => onOpenUserModal(null)}>
+            <span>➕</span>
+            <span>Add New User</span>
           </button>
         )}
       </div>

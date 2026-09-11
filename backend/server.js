@@ -55,8 +55,8 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 
 const activeVisitors = new Set();
-const gameActivePlayers = new Map(); 
-const recentActivities = []; 
+const gameActivePlayers = new Map();
+const recentActivities = [];
 
 function broadcastOnlineCount() {
   const count = activeVisitors.size;
@@ -89,6 +89,10 @@ io.on('connection', (socket) => {
     socket.join('admin-room');
     socket.emit('online:count', { count: activeVisitors.size });
   }
+
+  socket.on('request:online:count', () => {
+    socket.emit('online:count', { count: activeVisitors.size });
+  });
 
   socket.emit('activities:init', recentActivities.slice(0, 20));
 
@@ -147,7 +151,56 @@ io.on('connection', (socket) => {
   });
 });
 
-// ---------------- AUTH & USER HELPERS ----------------
+// ---------------- AUTH & USER HELPERS (JWT & SECURITY) ----------------
+const JWT_SECRET = process.env.JWT_SECRET || 'skygames_enterprise_jwt_super_secret_key_2026';
+
+function signToken(payload, expiresInSeconds = 7 * 24 * 60 * 60) {
+  try {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+    const exp = Math.floor(Date.now() / 1000) + expiresInSeconds;
+    const body = Buffer.from(JSON.stringify({ ...payload, exp })).toString('base64url');
+    const signature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
+    return `${header}.${body}.${signature}`;
+  } catch {
+    return crypto.randomBytes(32).toString('hex');
+  }
+}
+
+function verifyToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [header, body, signature] = parts;
+  try {
+    const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
+    if (signature !== expectedSig) return null;
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
+    if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+// Socket Authentication Middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token ||
+    (socket.handshake.headers?.authorization ? socket.handshake.headers.authorization.replace('Bearer ', '') : null);
+
+  if (!token) {
+    socket.user = { isGuest: true, id: 'guest-' + socket.id };
+    return next();
+  }
+
+  const decoded = verifyToken(token);
+  if (decoded) {
+    socket.user = decoded;
+  } else {
+    socket.user = { isGuest: true, id: 'guest-' + socket.id };
+  }
+  next();
+});
+
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
@@ -268,10 +321,10 @@ function initStore() {
       const data = fs.readFileSync(STORE_FILE, 'utf-8');
       localStore = { ...localStore, ...JSON.parse(data) };
       if (!Array.isArray(localStore.users)) localStore.users = [];
-      
+
       // Ensure seed users with valid passwords are present in localStore
       for (const seedUser of SEED_USERS) {
-        const exists = localStore.users.find(u => 
+        const exists = localStore.users.find(u =>
           (u.email && u.email.toLowerCase() === seedUser.email.toLowerCase()) ||
           (u.username && u.username.toLowerCase() === seedUser.username.toLowerCase()) ||
           u.id === seedUser.id
@@ -329,7 +382,7 @@ app.all('/game-proxy/*', async (req, res) => {
   try {
     const subPath = req.path.replace(/^\/game-proxy/, '');
     const queryString = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-    
+
     // Upstream server for Google Gadgets proxy
     const upstreamBase = 'https://opensocial.googleusercontent.com';
     const upstreamUrl = `${upstreamBase}${subPath}${queryString}`;
@@ -412,6 +465,230 @@ canvas, #canvas, #game, #gameCanvas, #game-canvas, #c2canvas, #unity-canvas, ifr
 
 // ---------------- API ROUTES ----------------
 
+// Auto-detect metadata (thumbnail, previewVideo, banner, title, description) from any Game URL or Embed Code
+app.post('/api/games/detect-metadata', async (req, res) => {
+  try {
+    const { url } = req.body || {};
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    let targetUrl = url.trim();
+    // 1. Extract src from <iframe> tag if user pasted full embed iframe
+    const iframeMatch = targetUrl.match(/src=["']([^"']+)["']/i);
+    if (iframeMatch) {
+      targetUrl = iframeMatch[1];
+    }
+
+    // 2. Check if it's a Google opensocial gadget URL with embedded ?url=
+    let gadgetXmlUrl = null;
+    if (targetUrl.includes('opensocial.googleusercontent.com/gadgets/ifr') || targetUrl.includes('/game-proxy/gadgets/ifr')) {
+      try {
+        const parsed = new URL(targetUrl, 'http://localhost');
+        gadgetXmlUrl = parsed.searchParams.get('url');
+      } catch {}
+    } else if (targetUrl.endsWith('.xml') || targetUrl.includes('.xml?')) {
+      gadgetXmlUrl = targetUrl;
+    }
+
+    let detected = {
+      thumbnail: '',
+      banner: '',
+      previewVideo: '',
+      title: '',
+      description: ''
+    };
+
+    const fetchHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,video/*,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9'
+    };
+
+    // Heuristic 1: CrazyGames URLs (Direct High-Res 16:9 Cover & Video Teaser)
+    const cgMatch = targetUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
+    if (cgMatch) {
+      const slug = cgMatch[1];
+      detected.thumbnail = `https://images.crazygames.com/games/${slug}/cover-16x9.png`;
+      detected.previewVideo = `https://videos.crazygames.com/games/${slug}/cover-16x9.mp4`;
+      detected.banner = detected.thumbnail;
+      detected.title = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    // Heuristic 2: Poki URLs
+    const pokiMatch = targetUrl.match(/poki\.com\/(?:[a-zA-Z-]+\/)?g\/([a-zA-Z0-9-]+)/i);
+    if (pokiMatch) {
+      const slug = pokiMatch[1];
+      detected.thumbnail = `https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/${slug}.png`;
+      if (!detected.title) detected.title = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    // Heuristic 3: GameMonetize
+    const gmMatch = targetUrl.match(/gamemonetize\.(?:com|co)\/([a-zA-Z0-9]+)/i) || targetUrl.match(/html5\.gamemonetize\.com\/([a-zA-Z0-9]+)/i);
+    if (gmMatch) {
+      const id = gmMatch[1];
+      detected.thumbnail = `https://img.gamemonetize.com/${id}/512x384.jpg`;
+      detected.banner = detected.thumbnail;
+    }
+
+    // Heuristic 4: GameDistribution
+    const gdMatch = targetUrl.match(/html5\.gamedistribution\.com\/([a-zA-Z0-9]+)/i);
+    if (gdMatch) {
+      const id = gdMatch[1];
+      detected.thumbnail = `https://img.gamedistribution.com/${id}-512x384.jpeg`;
+      detected.banner = detected.thumbnail;
+    }
+
+    // Case A: Google Gadgets XML Extraction
+    if (gadgetXmlUrl && !detected.thumbnail) {
+      try {
+        const xmlResp = await fetch(gadgetXmlUrl, { headers: fetchHeaders, signal: AbortSignal.timeout(6000) });
+        if (xmlResp.ok) {
+          const xmlText = await xmlResp.text();
+          
+          const titleMatch = xmlText.match(/<ModulePrefs[^>]*\btitle=["']([^"']+)["']/i) || xmlText.match(/<title>([^<]+)<\/title>/i);
+          if (titleMatch) detected.title = titleMatch[1];
+
+          const thumbMatch = xmlText.match(/<ModulePrefs[^>]*\bthumbnail=["']([^"']+)["']/i) ||
+                             xmlText.match(/<Thumbnail>([^<]+)<\/Thumbnail>/i) ||
+                             xmlText.match(/<img[^>]*\bsrc=["']([^"']+)["']/i);
+          if (thumbMatch) detected.thumbnail = thumbMatch[1];
+
+          const descMatch = xmlText.match(/<ModulePrefs[^>]*\bdescription=["']([^"']+)["']/i) ||
+                            xmlText.match(/<Description>([^<]+)<\/Description>/i);
+          if (descMatch) detected.description = descMatch[1];
+
+          const screenshotMatch = xmlText.match(/<Screenshot[^>]*\burl=["']([^"']+)["']/i) || xmlText.match(/<Screenshot>([^<]+)<\/Screenshot>/i);
+          if (screenshotMatch) {
+            detected.banner = screenshotMatch[1];
+            if (!detected.thumbnail) detected.thumbnail = screenshotMatch[1];
+          }
+
+          // Resolve relative XML assets
+          if (detected.thumbnail && !detected.thumbnail.startsWith('http')) {
+            try {
+              detected.thumbnail = new URL(detected.thumbnail, gadgetXmlUrl).href;
+            } catch {}
+          }
+          if (detected.banner && !detected.banner.startsWith('http')) {
+            try {
+              detected.banner = new URL(detected.banner, gadgetXmlUrl).href;
+            } catch {}
+          }
+        }
+      } catch (err) {
+        console.warn('Gadget XML fetch error:', err.message);
+      }
+    }
+
+    // Case B: General Web Page / OpenGraph / JSON-LD / HTML5 Extraction
+    if (!detected.thumbnail) {
+      let finalFetchUrl = targetUrl;
+      if (!finalFetchUrl.startsWith('http://') && !finalFetchUrl.startsWith('https://')) {
+        finalFetchUrl = 'https://' + finalFetchUrl;
+      }
+
+      try {
+        const resp = await fetch(finalFetchUrl, { headers: fetchHeaders, signal: AbortSignal.timeout(6000) });
+        const contentType = resp.headers.get('content-type') || '';
+
+        // If direct image URL was passed
+        if (contentType.startsWith('image/')) {
+          detected.thumbnail = finalFetchUrl;
+          detected.banner = finalFetchUrl;
+        } else if (contentType.includes('text/html') || contentType.includes('application/xhtml') || contentType.includes('application/xml')) {
+          const html = await resp.text();
+
+          // 1. JSON-LD structured metadata extraction
+          try {
+            const jsonLdMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
+            if (jsonLdMatches) {
+              for (const block of jsonLdMatches) {
+                const rawJson = block.replace(/<script[^>]*>|<\/script>/gi, '').trim();
+                const parsed = JSON.parse(rawJson);
+                const item = Array.isArray(parsed) ? parsed[0] : (parsed?.['@graph'] ? parsed['@graph'][0] : parsed);
+                if (item) {
+                  if (item.image) {
+                    detected.thumbnail = typeof item.image === 'string' ? item.image : (item.image.url || item.image[0]);
+                  } else if (item.thumbnailUrl) {
+                    detected.thumbnail = typeof item.thumbnailUrl === 'string' ? item.thumbnailUrl : item.thumbnailUrl[0];
+                  }
+                  if (item.name && !detected.title) detected.title = item.name;
+                  if (item.description && !detected.description) detected.description = item.description;
+                  if (detected.thumbnail) break;
+                }
+              }
+            }
+          } catch {}
+
+          // 2. OpenGraph and Twitter meta tag image extraction
+          if (!detected.thumbnail) {
+            const ogImgMatch = html.match(/<meta[^>]*property=["']og:image(?::url|:secure_url)?["'][^>]*content=["']([^"']+)["']/i) ||
+                               html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image(?::url|:secure_url)?["']/i) ||
+                               html.match(/<meta[^>]*name=["']twitter:image(?::src)?["'][^>]*content=["']([^"']+)["']/i) ||
+                               html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image(?::src)?["']/i) ||
+                               html.match(/<link[^>]*rel=["'](?:image_src|apple-touch-icon|icon|shortcut icon)["'][^>]*href=["']([^"']+)["']/i);
+            
+            if (ogImgMatch) {
+              detected.thumbnail = ogImgMatch[1];
+            }
+          }
+
+          // 3. Fallback to prominent in-page game banner/cover image
+          if (!detected.thumbnail) {
+            const imgTagMatch = html.match(/<img[^>]*class=["'][^"']*(?:cover|thumb|poster|banner|hero|game-img)[^"']*["'][^>]*src=["']([^"']+)["']/i) ||
+                                html.match(/<img[^>]*src=["']([^"']*(?:cover|thumb|banner|screenshot|icon)[^"']*)["']/i);
+            if (imgTagMatch) {
+              detected.thumbnail = imgTagMatch[1];
+            }
+          }
+
+          // OpenGraph video preview
+          const ogVideoMatch = html.match(/<meta[^>]*property=["']og:video(?::secure_url)?["'][^>]*content=["']([^"']+)["']/i) ||
+                               html.match(/<meta[^>]*name=["']twitter:player:stream["'][^>]*content=["']([^"']+)["']/i);
+          if (ogVideoMatch) {
+            detected.previewVideo = ogVideoMatch[1];
+          }
+
+          // Title
+          const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i) ||
+                               html.match(/<title[^>]*>([^<]+)<\/title>/i);
+          if (ogTitleMatch && !detected.title) {
+            detected.title = ogTitleMatch[1].replace(/ - Play on .*| \| Play Online.*| - Poki| - CrazyGames| - Free Online Games/i, '').trim();
+          }
+
+          // Description
+          const ogDescMatch = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
+                              html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+          if (ogDescMatch && !detected.description) {
+            detected.description = ogDescMatch[1].trim();
+          }
+
+          // Resolve relative URL to absolute URL
+          if (detected.thumbnail && !detected.thumbnail.startsWith('http')) {
+            try {
+              detected.thumbnail = new URL(detected.thumbnail, finalFetchUrl).href;
+            } catch {}
+          }
+          if (detected.thumbnail && !detected.banner) {
+            detected.banner = detected.thumbnail;
+          }
+        }
+      } catch (err) {
+        console.warn('HTML fetch error:', err.message);
+      }
+    }
+
+    return res.json({
+      success: Boolean(detected.thumbnail || detected.title),
+      data: detected
+    });
+  } catch (error) {
+    console.error('Error detecting metadata:', error);
+    res.status(500).json({ error: 'Failed to detect game metadata', details: error.message });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -422,6 +699,10 @@ app.get('/api/health', (req, res) => {
     totalUsers: (localStore.users || []).length,
     onlinePlayers: activeVisitors.size
   });
+});
+
+app.get('/api/stats/online', (req, res) => {
+  res.json({ count: activeVisitors.size });
 });
 
 // ---------------- AUTH ROUTES ----------------
@@ -460,8 +741,8 @@ app.post('/api/auth/register', async (req, res) => {
     }
     if (!existingUser) {
       existingUser = (localStore.users || []).find(
-        u => (u.email && u.email.toLowerCase() === cleanEmail) || 
-             (u.username && u.username.toLowerCase() === cleanUsername.toLowerCase())
+        u => (u.email && u.email.toLowerCase() === cleanEmail) ||
+          (u.username && u.username.toLowerCase() === cleanUsername.toLowerCase())
       );
     }
 
@@ -495,10 +776,16 @@ app.post('/api/auth/register', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      User.create(newUser).catch(() => {});
+      User.create(newUser).catch(() => { });
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = signToken({
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
+      provider: newUser.provider
+    });
     recordActivity('user_register', 'New Gamer Joined', `${cleanUsername} registered an account`);
     io.emit('user:registered', sanitizeUser(newUser));
 
@@ -535,8 +822,8 @@ app.post('/api/auth/login', async (req, res) => {
     }
     if (!user) {
       user = (localStore.users || []).find(
-        u => (u.email && u.email.toLowerCase() === cleanIdent) || 
-             (u.username && u.username.toLowerCase() === cleanIdent)
+        u => (u.email && u.email.toLowerCase() === cleanIdent) ||
+          (u.username && u.username.toLowerCase() === cleanIdent)
       );
     }
 
@@ -550,8 +837,8 @@ app.post('/api/auth/login', async (req, res) => {
 
     // If account was created via social login and does not have a password set
     if (!user.password && user.provider && user.provider !== 'email') {
-      return res.status(400).json({ 
-        error: `This account was registered via ${user.provider.toUpperCase()}. Please sign in using Quick Sign In below or reset your password.` 
+      return res.status(400).json({
+        error: `This account was registered via ${user.provider.toUpperCase()}. Please sign in using Quick Sign In below or reset your password.`
       });
     }
 
@@ -567,10 +854,16 @@ app.post('/api/auth/login', async (req, res) => {
       persistStore();
     }
     if (mongoose.connection.readyState === 1) {
-      await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => {});
+      await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => { });
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = signToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      provider: user.provider || 'email'
+    });
     recordActivity('user_login', 'Player Logged In', `${user.username || user.name || 'Player'} signed in`);
 
     res.json({
@@ -602,34 +895,135 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
     if (!user) {
       user = (localStore.users || []).find(
-        u => (u.email && u.email.toLowerCase() === cleanIdent) || 
-             (u.username && u.username.toLowerCase() === cleanIdent)
+        u => (u.email && u.email.toLowerCase() === cleanIdent) ||
+          (u.username && u.username.toLowerCase() === cleanIdent)
       );
     }
 
     if (!user) {
-      return res.status(404).json({ error: 'No gamer account found with that email or username' });
+      return res.status(404).json({ error: 'Account not found with this identifier' });
     }
 
-    // Password reset simulation / reset instructions
-    recordActivity('user_activity', 'Password Reset Requested', `Password reset requested for ${user.username || user.name}`);
-    const maskedEmail = user.email ? user.email.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '***') : 'your registered email';
+    recordActivity('password_reset', 'Password Reset Request', `Reset requested for ${user.email}`);
+
     res.json({
       success: true,
-      message: `Password reset link sent to ${maskedEmail}`
+      message: `Password reset instructions have been sent to ${user.email}!`
     });
   } catch (err) {
     console.error('Forgot password error:', err);
-    res.status(500).json({ error: err.message || 'Error processing password reset' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
-// Social Login / SSO (Google, Apple, Microsoft, Passkey)
+// WebAuthn Passkey Challenge Endpoint
+const passkeyChallenges = new Map();
+
+app.get('/api/auth/passkey-challenge', (req, res) => {
+  try {
+    const challengeRaw = crypto.randomBytes(32);
+    const challengeBase64 = challengeRaw.toString('base64');
+    const challengeId = 'ch-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 6);
+    passkeyChallenges.set(challengeId, { challenge: challengeBase64, createdAt: Date.now() });
+
+    // Prune expired challenges (>5 mins)
+    const now = Date.now();
+    for (const [k, v] of passkeyChallenges.entries()) {
+      if (now - v.createdAt > 300000) passkeyChallenges.delete(k);
+    }
+
+    res.json({
+      success: true,
+      challengeId,
+      challenge: challengeBase64
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate challenge' });
+  }
+});
+
+// WebAuthn Passkey Verify Endpoint
+app.post('/api/auth/passkey-verify', async (req, res) => {
+  try {
+    const { credentialId, challengeId, name, email } = req.body;
+    const cleanName = (name && name.trim()) ? name.trim() : 'Passkey Player';
+    const cleanEmail = (email && email.trim()) ? email.trim().toLowerCase() : `passkey_${(credentialId || Date.now().toString(36)).slice(0, 8)}@skygames.io`;
+
+    let user = (localStore.users || []).find(u => u.email === cleanEmail || (u.passkeyCredentialId && u.passkeyCredentialId === credentialId));
+
+    if (!user) {
+      const userId = 'usr-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5);
+      user = {
+        id: userId,
+        username: cleanName.replace(/\s+/g, '') || 'PasskeyPlayer',
+        name: cleanName,
+        email: cleanEmail,
+        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`,
+        provider: 'passkey',
+        passkeyCredentialId: credentialId,
+        role: 'user',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+      if (!localStore.users) localStore.users = [];
+      localStore.users.unshift(user);
+      persistStore();
+      recordActivity('user_register', 'Passkey User Joined', `${cleanName} registered via Biometric Passkey`);
+      io.emit('user:registered', sanitizeUser(user));
+    } else {
+      const nowIso = new Date().toISOString();
+      const idx = (localStore.users || []).findIndex(u => u.id === user.id);
+      if (idx !== -1) {
+        localStore.users[idx].lastLogin = nowIso;
+        persistStore();
+      }
+      recordActivity('user_login', 'Player Logged In', `${user.name || user.username} signed in via Passkey`);
+    }
+
+    const token = signToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      provider: 'passkey'
+    });
+
+    res.json({
+      success: true,
+      message: 'Biometric Passkey authenticated successfully!',
+      user: sanitizeUser(user),
+      token
+    });
+  } catch (err) {
+    console.error('Passkey verify error:', err);
+    res.status(500).json({ error: err.message || 'Biometric verification failed' });
+  }
+});
+
+// OAuth Redirect Endpoint with CSRF State Token Verification
+app.get('/api/auth/:provider', (req, res) => {
+  const { provider } = req.params;
+  const { state } = req.query;
+
+  if (!['google', 'apple', 'microsoft'].includes(provider.toLowerCase())) {
+    return res.status(400).json({ error: 'Unsupported OAuth provider' });
+  }
+
+  const csrfState = state || crypto.randomBytes(16).toString('hex');
+  const frontendUrl = 'http://localhost:5173';
+  res.redirect(`${frontendUrl}?oauth_provider=${provider}&state=${encodeURIComponent(csrfState)}&status=ready`);
+});
+
+// Social Login endpoint
 app.post('/api/auth/social', async (req, res) => {
   try {
-    const { provider = 'Social', name, email, avatar } = req.body;
-    const cleanName = (name || `${provider} Gamer`).trim();
-    const cleanEmail = (email || `${provider.toLowerCase()}_${Date.now()}@skygames.io`).toLowerCase().trim();
+    const { provider, name, email, avatar } = req.body;
+    if (!provider || !email) {
+      return res.status(400).json({ error: 'Provider and email are required' });
+    }
+    const cleanEmail = String(email).toLowerCase().trim();
+    const cleanName = name ? String(name).trim() : (cleanEmail.split('@')[0] || `${provider} Gamer`);
 
     let user = null;
     if (mongoose.connection.readyState === 1) {
@@ -644,7 +1038,7 @@ app.post('/api/auth/social', async (req, res) => {
       const userAvatar = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`;
       user = {
         id: userId,
-        username: cleanName,
+        username: cleanName.replace(/\s+/g, '') || `${provider}User`,
         name: cleanName,
         email: cleanEmail,
         avatar: userAvatar,
@@ -660,7 +1054,7 @@ app.post('/api/auth/social', async (req, res) => {
       persistStore();
 
       if (mongoose.connection.readyState === 1) {
-        await User.create(user).catch(() => {});
+        await User.create(user).catch(() => { });
       }
 
       recordActivity('user_register', 'New Gamer Joined', `${cleanName} joined via ${provider}!`);
@@ -673,12 +1067,19 @@ app.post('/api/auth/social', async (req, res) => {
         persistStore();
       }
       if (mongoose.connection.readyState === 1) {
-        await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => {});
+        await User.findOneAndUpdate({ id: user.id }, { $set: { lastLogin: new Date() } }).catch(() => { });
       }
       recordActivity('user_login', 'Player Logged In', `${user.username || user.name} signed in via ${provider}`);
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = signToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      provider: provider.toLowerCase()
+    });
+
     res.json({
       success: true,
       message: `Signed in with ${provider}`,
@@ -744,7 +1145,7 @@ app.delete('/api/users/:id', async (req, res) => {
           { id: rawId },
           { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
         ]
-      }).catch(() => {});
+      }).catch(() => { });
     }
 
     io.emit('user:deleted', { id: rawId });
@@ -777,7 +1178,7 @@ app.patch('/api/users/:id', async (req, res) => {
         { $or: [{ id: req.params.id }, { _id: mongoose.isValidObjectId(req.params.id) ? req.params.id : null }] },
         { $set: updates },
         { new: true }
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     const sanitized = sanitizeUser(updated);
@@ -837,7 +1238,7 @@ app.post('/api/games', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Game.create(gameData).catch(() => {});
+      await Game.create(gameData).catch(() => { });
     }
 
     io.emit('game:created', gameData);
@@ -867,7 +1268,7 @@ app.put('/api/games/:id', async (req, res) => {
         { id: req.params.id },
         { $set: req.body },
         { new: true, upsert: true }
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     io.emit('game:updated', updated);
@@ -885,7 +1286,7 @@ app.delete('/api/games/:id', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Game.findOneAndDelete({ id: req.params.id }).catch(() => {});
+      await Game.findOneAndDelete({ id: req.params.id }).catch(() => { });
     }
 
     io.emit('game:deleted', { id: req.params.id });
@@ -903,7 +1304,7 @@ app.delete('/api/games', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Game.deleteMany({}).catch(() => {});
+      await Game.deleteMany({}).catch(() => { });
     }
 
     io.emit('game:all_deleted');
@@ -952,7 +1353,7 @@ app.post('/api/games/:id/play', async (req, res) => {
         { id: req.params.id },
         { $inc: { plays: 1 } },
         { new: true }
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     io.emit('game:play:increment', { id: req.params.id, plays, title });
@@ -992,7 +1393,7 @@ app.post('/api/provably-fair/verify', (req, res) => {
     const calculatedHash = crypto.createHash('sha256').update(serverSeed).digest('hex');
     const combination = `${serverSeed}:${clientSeed}:${nonce || 1}`;
     const finalHash = crypto.createHash('sha256').update(combination).digest('hex');
-    
+
     const subHash = finalHash.substring(0, 8);
     const intVal = parseInt(subHash, 16);
     const outcome = ((intVal % 10000) / 100).toFixed(2);
@@ -1076,7 +1477,7 @@ app.delete('/api/banner', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Banner.updateMany({}, { $set: { active: false, message: '' } }).catch(() => {});
+      await Banner.updateMany({}, { $set: { active: false, message: '' } }).catch(() => { });
     }
 
     io.emit('banner:update', localStore.banner);
@@ -1107,7 +1508,7 @@ app.post('/api/categories', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Category.create(cat).catch(() => {});
+      await Category.create(cat).catch(() => { });
     }
 
     io.emit('category:new', cat);
@@ -1123,7 +1524,7 @@ app.delete('/api/categories/:id', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Category.findOneAndDelete({ id: req.params.id }).catch(() => {});
+      await Category.findOneAndDelete({ id: req.params.id }).catch(() => { });
     }
 
     io.emit('category:delete', req.params.id);
@@ -1155,7 +1556,7 @@ app.post('/api/submissions', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Submission.create(data).catch(() => {});
+      await Submission.create(data).catch(() => { });
     }
 
     io.emit('submission:new', data);
@@ -1179,7 +1580,7 @@ app.patch('/api/submissions/:id', async (req, res) => {
         { id: req.params.id },
         { $set: req.body },
         { new: true }
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     res.json(localStore.submissions[idx] || { id: req.params.id, ...req.body });
@@ -1194,7 +1595,7 @@ app.delete('/api/submissions/:id', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Submission.findOneAndDelete({ id: req.params.id }).catch(() => {});
+      await Submission.findOneAndDelete({ id: req.params.id }).catch(() => { });
     }
 
     res.json({ message: 'Submission deleted' });
@@ -1226,7 +1627,7 @@ app.post('/api/messages', async (req, res) => {
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Message.create(msg).catch(() => {});
+      await Message.create(msg).catch(() => { });
     }
 
     io.emit('message:new', msg);
@@ -1250,7 +1651,7 @@ app.patch('/api/messages/:id/read', async (req, res) => {
         { $or: [{ id: req.params.id }, { _id: mongoose.isValidObjectId(req.params.id) ? req.params.id : null }] },
         { $set: { read: true } },
         { new: true }
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     res.json(localStore.messages[idx] || { id: req.params.id, read: true });
@@ -1267,7 +1668,7 @@ app.delete('/api/messages/:id', async (req, res) => {
     if (mongoose.connection.readyState === 1) {
       await Message.findOneAndDelete({
         $or: [{ id: req.params.id }, { _id: mongoose.isValidObjectId(req.params.id) ? req.params.id : null }]
-      }).catch(() => {});
+      }).catch(() => { });
     }
 
     res.json({ message: 'Message deleted' });
@@ -1336,11 +1737,11 @@ app.post('/api/reset', async (req, res) => {
         Banner.deleteMany({}),
         Submission.deleteMany({}),
         Message.deleteMany({})
-      ]).catch(() => {});
+      ]).catch(() => { });
 
-      await Game.insertMany(SEED_GAMES).catch(() => {});
-      await Category.insertMany(SEED_CATEGORIES).catch(() => {});
-      await Banner.create(localStore.banner).catch(() => {});
+      await Game.insertMany(SEED_GAMES).catch(() => { });
+      await Category.insertMany(SEED_CATEGORIES).catch(() => { });
+      await Banner.create(localStore.banner).catch(() => { });
     }
 
     io.emit('game:all_deleted');

@@ -3,49 +3,88 @@ import React from 'react';
 export default function AdminSidebar({ 
   activeTab, 
   setActiveTab, 
-  gamesCount, 
+  gamesCount = 0, 
   usersCount = 0,
-  submissionsCount, 
-  unreadMessagesCount,
-  bannerActive 
+  submissionsCount = 0, 
+  unreadMessagesCount = 0,
+  bannerActive = false,
+  adminUser,
+  onLogout,
+  isOpen,
+  onClose
 }) {
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'games', label: 'Games Manager', icon: '🎮', badge: gamesCount },
-    { id: 'users', label: 'User Accounts', icon: '👥', badge: usersCount > 0 ? usersCount : null },
-    { id: 'categories', label: 'Categories', icon: '🏷️' },
-    { id: 'banner', label: 'Banner Alerts', icon: '📢', badge: bannerActive ? 'ON' : null },
-    { id: 'submissions', label: 'Dev Submissions', icon: '🚀', badge: submissionsCount > 0 ? submissionsCount : null },
-    { id: 'messages', label: 'Inbox / Reports', icon: '📩', badge: unreadMessagesCount > 0 ? unreadMessagesCount : null },
-    { id: 'settings', label: 'Settings', icon: '⚙️' }
+  const mainNavItems = [
+    { id: 'dashboard', label: 'Overview & Telemetry', icon: '📊' },
+    { id: 'games', label: 'Games Catalog', icon: '🎮' },
+    { id: 'users', label: 'User & Player Accounts', icon: '👥' },
+    { id: 'categories', label: 'Game Categories', icon: '🏷️' }
   ];
 
+  const opsNavItems = [
+    { id: 'banner', label: 'Banner Broadcast', icon: '📢', badge: bannerActive ? 'LIVE' : null, isLive: bannerActive },
+    { id: 'submissions', label: 'Dev Submissions', icon: '🚀', badge: submissionsCount > 0 ? submissionsCount : null },
+    { id: 'messages', label: 'Support & Inquiries', icon: '📩', badge: unreadMessagesCount > 0 ? unreadMessagesCount : null },
+    { id: 'settings', label: 'System Settings', icon: '⚙️' }
+  ];
+
+  const adminInitial = (adminUser?.username || adminUser?.name || 'A')[0].toUpperCase();
+
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar ${isOpen ? 'open' : ''}`}>
+      {/* Sidebar Top Header */}
       <div className="sidebar-header">
-        <div className="logo-badge">⚡</div>
+        <div className="logo-badge">🎮</div>
         <div className="brand-text">
-          <h1>SKY ADMIN</h1>
-          <div className="brand-tag">Master Control</div>
+          <h1>SKY<span>GAMES</span></h1>
+          <div className="brand-tag">
+            <span className="live-dot" style={{ width: 5, height: 5 }}></span>
+            <span>CONTROL CENTER</span>
+          </div>
         </div>
       </div>
 
-      <ul className="nav-links">
-        {navItems.map((item) => (
-          <li key={item.id}>
-            <button
-              className={`nav-item-btn ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-              {item.badge && <span className="nav-badge">{item.badge}</span>}
-            </button>
-          </li>
+      {/* Navigation Groups */}
+      <div className="nav-links">
+        <div className="nav-section-label">Main Console</div>
+        {mainNavItems.map((item) => (
+          <button
+            key={item.id}
+            className={`nav-item-btn ${activeTab === item.id ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (onClose) onClose();
+            }}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
+            {item.badge && (
+              <span className={`nav-badge ${item.isLive ? 'live' : ''}`}>{item.badge}</span>
+            )}
+          </button>
         ))}
-      </ul>
 
-      <div style={{ padding: '0 12px 14px' }}>
+        <div className="nav-section-label" style={{ marginTop: 12 }}>Operations & Feed</div>
+        {opsNavItems.map((item) => (
+          <button
+            key={item.id}
+            className={`nav-item-btn ${activeTab === item.id ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (onClose) onClose();
+            }}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
+            {item.badge && (
+              <span className={`nav-badge ${item.isLive ? 'live' : ''}`}>{item.badge}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+
+      {/* Main Website Shortcut Button */}
+      <div style={{ padding: '0 12px 10px' }}>
         <a
           href="http://localhost:5173"
           target="_blank"
@@ -57,38 +96,76 @@ export default function AdminSidebar({
             gap: '8px',
             width: '100%',
             padding: '10px 14px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(184, 93, 245, 0.15))',
-            border: '1px solid rgba(0, 242, 254, 0.35)',
-            color: '#00f2fe',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%)',
+            border: '1px solid rgba(0, 242, 254, 0.3)',
+            color: '#38bdf8',
             fontWeight: '700',
-            fontSize: '0.85rem',
+            fontSize: '0.84rem',
             textDecoration: 'none',
-            boxShadow: '0 4px 14px rgba(0, 242, 254, 0.15)',
-            transition: 'all 0.2s ease',
-            boxSizing: 'border-box'
+            transition: 'all 0.25s ease',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, #00f2fe, #b85df5)';
-            e.currentTarget.style.color = '#0b0216';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #00f2fe 0%, #2563eb 100%)';
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 242, 254, 0.4)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(184, 93, 245, 0.15))';
-            e.currentTarget.style.color = '#00f2fe';
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%)';
+            e.currentTarget.style.color = '#38bdf8';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
           }}
         >
           <span>🚀</span>
-          <span>Open SkyGame Site</span>
+          <span>Open Main Gaming Portal</span>
         </a>
       </div>
 
+      {/* Admin Profile Footer */}
       <div className="sidebar-footer">
-        <div className="admin-profile">
-          <div className="avatar-admin">SA</div>
-          <div className="profile-info">
-            <div className="user-name">Super Administrator</div>
-            <div className="user-role">Full Access</div>
+        <div className="admin-profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
+            <div className="avatar-admin">{adminInitial}</div>
+            <div className="profile-info" style={{ overflow: 'hidden' }}>
+              <div className="user-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {adminUser?.username || adminUser?.name || 'SuperAdmin'}
+              </div>
+              <div className="user-role">
+                ⚡ {adminUser?.role ? String(adminUser.role).toUpperCase() : 'ADMIN'}
+              </div>
+            </div>
           </div>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              title="Sign Out"
+              style={{
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#f87171',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                padding: '5px 8px',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#ef4444';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
+                e.currentTarget.style.color = '#f87171';
+              }}
+            >
+              Exit
+            </button>
+          )}
         </div>
       </div>
     </aside>

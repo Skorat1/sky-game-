@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function BannerView({ banner, onUpdateBanner }) {
-  const [formData, setFormData] = React.useState({ ...banner });
+  const [formData, setFormData] = useState({ ...banner });
+  const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'mobile'
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (banner) {
       setFormData({ ...banner });
     }
@@ -29,14 +30,34 @@ export default function BannerView({ banner, onUpdateBanner }) {
       {/* Configuration Form */}
       <div className="glass-panel">
         <div className="panel-header">
-          <h2 className="panel-title">📢 Sitewide Announcement Banner</h2>
-          <span className={`status-badge ${formData.active ? 'active' : 'pending'}`}>
-            {formData.active ? 'Broadcasting LIVE' : 'Disabled / Removed'}
+          <div>
+            <h2 className="panel-title">
+              <span style={{ color: 'var(--accent-rose)' }}>📢</span>
+              <span>Announcement Banner Broadcast</span>
+            </h2>
+            <span className="panel-subtitle">
+              Display high-priority notifications, tournament alerts, and promo alerts to all active players
+            </span>
+          </div>
+
+          <span className={`status-badge ${formData.active ? 'active' : 'draft'}`}>
+            {formData.active ? 'Broadcasting LIVE' : 'Disabled'}
           </span>
         </div>
 
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 8 }}>
+          {/* Active Switch */}
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 14, 
+              padding: '14px 18px', 
+              background: formData.active ? 'rgba(0, 242, 254, 0.08)' : 'rgba(10, 16, 36, 0.7)', 
+              border: `1px solid ${formData.active ? 'rgba(0, 242, 254, 0.3)' : 'var(--border-glass)'}`,
+              borderRadius: 'var(--radius)' 
+            }}
+          >
             <input
               type="checkbox"
               id="bannerActive"
@@ -44,8 +65,8 @@ export default function BannerView({ banner, onUpdateBanner }) {
               onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
               style={{ width: 20, height: 20, accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
             />
-            <label htmlFor="bannerActive" style={{ cursor: 'pointer', fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
-              Enable Top Announcement Banner on Main Website
+            <label htmlFor="bannerActive" style={{ cursor: 'pointer', fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>
+              Broadcast Top Announcement Banner on Live Website
             </label>
           </div>
 
@@ -55,7 +76,7 @@ export default function BannerView({ banner, onUpdateBanner }) {
               type="text"
               className="form-input"
               placeholder="e.g. 🔥 TOURNAMENT LIVE, ⚡ NEW UPDATE, 🎁 WEEKEND EVENT"
-              value={formData.badge}
+              value={formData.badge || ''}
               onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
             />
           </div>
@@ -65,8 +86,8 @@ export default function BannerView({ banner, onUpdateBanner }) {
             <textarea
               className="form-textarea"
               rows="3"
-              placeholder="Enter message for all players..."
-              value={formData.message}
+              placeholder="Enter message text displayed to all players..."
+              value={formData.message || ''}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             />
           </div>
@@ -77,103 +98,144 @@ export default function BannerView({ banner, onUpdateBanner }) {
               <input
                 type="text"
                 className="form-input"
-                placeholder="e.g. Play Now, Join Event"
-                value={formData.ctaText}
+                placeholder="e.g. Play Now, Join Championship"
+                value={formData.ctaText || ''}
                 onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Button Target Link / Category</label>
+              <label className="form-label">Target Link / Route</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="e.g. #arcade, /tournament, #knife-clash"
-                value={formData.ctaLink}
+                placeholder="e.g. #arcade, /tournament"
+                value={formData.ctaLink || ''}
                 onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Border Accent Color</label>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <label className="form-label">Banner Border Accent Color</label>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <input
                 type="color"
-                value={formData.borderColor || '#ff0055'}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  borderColor: e.target.value,
-                  bgColor: e.target.value + '25'
-                })}
-                style={{ width: 42, height: 42, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                value={formData.borderColor || '#00f2fe'}
+                onChange={(e) => setFormData({ ...formData, borderColor: e.target.value })}
+                style={{ width: 44, height: 40, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'transparent' }}
               />
               <input
                 type="text"
                 className="form-input"
-                value={formData.borderColor || '#ff0055'}
+                value={formData.borderColor || '#00f2fe'}
                 onChange={(e) => setFormData({ ...formData, borderColor: e.target.value })}
-                style={{ flex: 1 }}
+                style={{ flex: 1, fontFamily: 'var(--font-mono)' }}
               />
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
-            <button type="submit" className="header-btn primary" style={{ flex: 1, justifyContent: 'center' }}>
-              💾 Save & Broadcast Banner
+            <button type="submit" className="admin-btn primary" style={{ flex: 1 }}>
+              <span>🚀</span>
+              <span>Publish & Broadcast Live</span>
             </button>
-            <button 
-              type="button" 
-              onClick={handleRemove}
-              className="header-btn danger" 
-              style={{ background: 'rgba(255, 8, 68, 0.15)', border: '1px solid #ff0844', color: '#ff0844', justifyContent: 'center' }}
-            >
-              🗑️ Remove / Disable Banner
-            </button>
+            {formData.active && (
+              <button 
+                type="button" 
+                className="admin-btn danger" 
+                onClick={handleRemove}
+                title="Deactivate and take down banner"
+              >
+                <span>✕</span>
+                <span>Turn Off</span>
+              </button>
+            )}
           </div>
         </form>
       </div>
 
-      {/* Live Preview Panel */}
+      {/* Live Preview Simulator */}
       <div className="glass-panel">
         <div className="panel-header">
-          <h2 className="panel-title">👁️ Live Banner Preview</h2>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>As seen by players</span>
+          <div>
+            <h2 className="panel-title">
+              <span>🖥️</span>
+              <span>Live Player Simulation</span>
+            </h2>
+            <span className="panel-subtitle">Real-time preview of banner on user screen</span>
+          </div>
+
+          <div className="chart-toggle-group">
+            <button
+              className={`chart-toggle-btn ${previewDevice === 'desktop' ? 'active' : ''}`}
+              onClick={() => setPreviewDevice('desktop')}
+            >
+              Desktop
+            </button>
+            <button
+              className={`chart-toggle-btn ${previewDevice === 'mobile' ? 'active' : ''}`}
+              onClick={() => setPreviewDevice('mobile')}
+            >
+              Mobile
+            </button>
+          </div>
         </div>
 
-        <div style={{ marginTop: 20 }}>
+        <div 
+          style={{
+            background: '#060a17',
+            border: '1px solid var(--border-glass)',
+            borderRadius: 'var(--radius)',
+            padding: previewDevice === 'mobile' ? '16px' : '24px',
+            maxWidth: previewDevice === 'mobile' ? '320px' : '100%',
+            margin: '0 auto',
+            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8)'
+          }}
+        >
+          {/* Simulated Browser Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }}></span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }}></span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }}></span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginLeft: 8, fontFamily: 'var(--font-mono)' }}>
+              https://skygames.io
+            </span>
+          </div>
+
+          {/* Banner Box */}
           {formData.active ? (
             <div
               style={{
-                background: formData.bgColor || 'rgba(255, 0, 85, 0.15)',
-                border: `1px solid ${formData.borderColor || '#ff0055'}`,
-                borderRadius: 12,
-                padding: '16px 20px',
+                background: formData.bgColor || 'rgba(0, 242, 254, 0.1)',
+                border: `1.5px solid ${formData.borderColor || 'var(--accent-cyan)'}`,
+                borderRadius: '10px',
+                padding: '12px 16px',
+                boxShadow: `0 0 15px ${formData.borderColor || 'var(--accent-cyan)'}40`,
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: previewDevice === 'mobile' ? 'column' : 'row',
+                alignItems: previewDevice === 'mobile' ? 'flex-start' : 'center',
                 justifyContent: 'space-between',
-                gap: 16,
-                boxShadow: `0 0 20px ${formData.borderColor || '#ff0055'}30`
+                gap: 12
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 {formData.badge && (
                   <span
                     style={{
-                      background: formData.borderColor || '#ff0055',
-                      color: '#fff',
-                      fontSize: '0.75rem',
+                      background: 'var(--grad-cyan-blue)',
+                      color: '#ffffff',
+                      fontSize: '0.68rem',
                       fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 6,
-                      letterSpacing: '1px',
-                      whiteSpace: 'nowrap'
+                      padding: '2px 8px',
+                      borderRadius: 4,
+                      letterSpacing: 0.5
                     }}
                   >
                     {formData.badge}
                   </span>
                 )}
-                <span style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 500 }}>
+                <span style={{ fontSize: '0.84rem', color: '#ffffff', fontWeight: 600 }}>
                   {formData.message || 'No announcement message specified.'}
                 </span>
               </div>
@@ -181,33 +243,25 @@ export default function BannerView({ banner, onUpdateBanner }) {
               {formData.ctaText && (
                 <button
                   style={{
-                    background: '#fff',
-                    color: '#000',
+                    background: 'var(--grad-cyan-blue)',
                     border: 'none',
-                    padding: '6px 14px',
-                    borderRadius: 6,
+                    color: '#ffffff',
                     fontWeight: 700,
-                    fontSize: '0.82rem',
+                    fontSize: '0.75rem',
+                    padding: '6px 12px',
+                    borderRadius: 6,
                     cursor: 'pointer',
+                    boxShadow: '0 0 10px rgba(0, 242, 254, 0.3)',
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  {formData.ctaText}
+                  {formData.ctaText} →
                 </button>
               )}
             </div>
           ) : (
-            <div
-              style={{
-                padding: '40px',
-                textAlign: 'center',
-                background: 'rgba(255,255,255,0.02)',
-                borderRadius: 12,
-                border: '1px dashed var(--border-glass)',
-                color: 'var(--text-muted)'
-              }}
-            >
-              Banner is currently disabled. Check the toggle above to activate.
+            <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              Announcement banner is currently disabled. Toggle active to preview.
             </div>
           )}
         </div>

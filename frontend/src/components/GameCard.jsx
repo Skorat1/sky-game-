@@ -1,5 +1,5 @@
-import React, { useState, memo } from 'react';
-import { Play, Star, Heart, Flame } from 'lucide-react';
+import React, { useState, useRef, memo } from 'react';
+import { Heart } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
 const BADGE_COLORS = {
@@ -14,14 +14,51 @@ const BADGE_COLORS = {
   'FEATURED': '#6366f1'
 };
 
+function getGamePreviewVideo(game) {
+  if (game?.previewVideo) return game.previewVideo;
+  if (!game?.gameUrl) return null;
+  const cg = game.gameUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
+  if (cg) return `https://videos.crazygames.com/games/${cg[1]}/cover-16x9.mp4`;
+  return null;
+}
+
 const GameCard = memo(function GameCard({
   game,
   onPlay,
   isFavorite = false,
-  onToggleFavorite
+  onToggleFavorite,
+  sizeVariant = '1x1'
 }) {
-  const [imgSrc, setImgSrc] = useState(game.thumbnail);
+  const currentThumb = game.thumbnail || game.thumbnailUrl || game.image || game.imageUrl || game.cover || game.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600';
+  const [imgSrc, setImgSrc] = useState(currentThumb);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef(null);
+
+  React.useEffect(() => {
+    setImgSrc(currentThumb);
+    setImgLoaded(false);
+  }, [currentThumb]);
+
+  const previewVideoUrl = !videoError ? getGamePreviewVideo(game) : null;
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && previewVideoUrl) {
+      videoRef.current.play().catch(() => { });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      try {
+        videoRef.current.currentTime = 0;
+      } catch { }
+    }
+  };
 
   const handleImageError = () => {
     setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80');
@@ -30,39 +67,56 @@ const GameCard = memo(function GameCard({
 
   return (
     <div
-      className="sky-game-card game-card"
+      className={`sky-game-card game-card poki-game-card poki-tile-${sizeVariant} ${isHovered ? 'is-card-hovered' : ''}`}
       onClick={() => {
         sounds.playClick();
         onPlay(game);
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      title={game.title}
     >
       <div className={`card-thumb-container ${!imgLoaded ? 'skeleton' : ''}`}>
+        {/* Main Static Thumbnail */}
         <img
           src={imgSrc}
           alt={game.title}
           className="card-thumb-img"
           loading="lazy"
           decoding="async"
-          width="260"
-          height="180"
           onLoad={() => setImgLoaded(true)}
           onError={handleImageError}
           style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.25s ease' }}
         />
+
+        {/* Hover Video Preview (Smooth Playback) */}
+        {previewVideoUrl && (
+          <video
+            ref={videoRef}
+            src={previewVideoUrl}
+            className={`card-hover-preview-video ${isHovered ? 'video-active' : ''}`}
+            muted
+            loop
+            playsInline
+            preload="none"
+            onError={() => setVideoError(true)}
+          />
+        )}
+
         <div className="card-overlay-gradient"></div>
 
-        {/* Top Badges */}
+        {/* Top Badges & Favorite */}
         <div className="card-top-badges">
           {game.badge ? (
             <span
               className="card-badge-pill"
-              style={{ background: BADGE_COLORS[game.badge.toUpperCase()] || '#f52d3a' }}
+              style={{ background: (typeof game.badge === 'string' && BADGE_COLORS[game.badge.toUpperCase()]) || '#f52d3a' }}
             >
               {game.badge}
             </span>
           ) : (
-            <span className="card-badge-pill" style={{ background: 'rgba(255, 255, 255, 0.15)' }}>
-              {game.category?.toUpperCase() || 'ARCADE'}
+            <span className="card-badge-pill" style={{ background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)' }}>
+              {(game.category ? String(game.category).toUpperCase() : 'ARCADE')}
             </span>
           )}
 
@@ -72,31 +126,19 @@ const GameCard = memo(function GameCard({
             onClick={(e) => {
               e.stopPropagation();
               sounds.playClick();
-              if (onToggleFavorite) onToggleFavorite(game.id);
+              if (onToggleFavorite) onToggleFavorite(game.id || game._id);
             }}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
-            <Heart size={15} fill={isFavorite ? "#f52d3a" : "none"} color={isFavorite ? "#f52d3a" : "#ffffff"} />
+            <Heart size={14} fill={isFavorite ? "#ef4444" : "none"} color={isFavorite ? "#ef4444" : "#ffffff"} />
           </button>
         </div>
 
-        {/* Hover Center Play Icon */}
-        <div className="card-play-hover-circle">
-          <Play size={22} fill="#ffffff" color="#ffffff" />
-        </div>
+
 
         {/* Card Bottom Meta */}
         <div className="card-bottom-info">
-          <div className="card-stats-row">
-            <span className="card-rating">
-              <Star size={12} fill="#ffd200" color="#ffd200" /> {game.rating || 4.8}
-            </span>
-            <span className="card-plays-count">
-              <Flame size={12} color="#f52d3a" /> {game.plays || '1.2k'}
-            </span>
-          </div>
           <h3 className="card-game-title">{game.title}</h3>
-          <span className="card-category-tag">{game.category?.toUpperCase()}</span>
         </div>
       </div>
     </div>
@@ -104,4 +146,5 @@ const GameCard = memo(function GameCard({
 });
 
 export default GameCard;
+
 

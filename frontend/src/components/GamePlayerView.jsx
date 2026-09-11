@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  ChevronRight,
-  ArrowLeft,
   Maximize2,
   Minimize2,
   Heart,
@@ -9,7 +7,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Gamepad2,
-  Flame,
   Check,
   RotateCcw,
   Volume2,
@@ -29,12 +26,100 @@ import {
   Eye,
   EyeOff,
   Zap,
-  SmilePlus
+  SmilePlus,
+  ChevronRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
 import GameCard from './GameCard';
+
+function getSidebarPreviewVideo(game) {
+  if (game?.previewVideo) return game.previewVideo;
+  if (!game?.gameUrl) return null;
+  const cg = game.gameUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
+  if (cg) return `https://videos.crazygames.com/games/${cg[1]}/cover-16x9.mp4`;
+  return null;
+}
+
+function SidebarGameTile({ game, onPlay, isFirst }) {
+  const currentThumb = game?.thumbnail || game?.thumbnailUrl || game?.image || game?.imageUrl || game?.cover || game?.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400';
+  const [imgSrc, setImgSrc] = useState(currentThumb);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef(null);
+
+  React.useEffect(() => {
+    setImgSrc(currentThumb);
+    setImgLoaded(false);
+  }, [currentThumb]);
+
+  const previewVideoUrl = !videoError ? getSidebarPreviewVideo(game) : null;
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && previewVideoUrl) {
+      videoRef.current.play().catch(() => { });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      try {
+        videoRef.current.currentTime = 0;
+      } catch { }
+    }
+  };
+
+  return (
+    <div
+      className={`crazy-sidebar-game-tile ${isFirst ? 'is-first-tile' : ''} ${isHovered ? 'is-hovered' : ''}`}
+      onClick={() => {
+        sounds.playClick();
+        onPlay(game);
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      title={game.title}
+    >
+      <img
+        src={imgSrc}
+        alt={game.title}
+        loading="lazy"
+        className={`crazy-sidebar-game-img ${imgLoaded ? 'is-loaded' : ''}`}
+        onLoad={() => setImgLoaded(true)}
+        onError={() => {
+          setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80');
+          setImgLoaded(true);
+        }}
+      />
+
+      {/* Hover Video Preview (CrazyGames Style) */}
+      {previewVideoUrl && (
+        <video
+          ref={videoRef}
+          src={previewVideoUrl}
+          className={`card-hover-preview-video ${isHovered ? 'video-active' : ''}`}
+          muted
+          loop
+          playsInline
+          preload="none"
+          onError={() => setVideoError(true)}
+        />
+      )}
+
+
+
+      {/* Subtle Title Overlay on Hover */}
+      <div className="crazy-sidebar-hover-bar">
+        <span className="sidebar-hover-title">{game.title}</span>
+      </div>
+    </div>
+  );
+}
 
 // Auto-detect best aspect ratio and dimensions from embed code or game metadata
 function parseEmbedDimensions(rawEmbed) {
@@ -587,13 +672,13 @@ export default function GamePlayerView({
     }
   };
 
-  const playNextGames = allGames
-    .filter(g => g.id !== game.id)
-    .slice(0, 3);
+  const sideGames = (allGames || [])
+    .filter(g => g && (g.id || g._id) && (g.id !== game?.id && g._id !== game?.id && g.id !== game?._id))
+    .slice(0, 8);
 
-  const moreRelatedGames = allGames
-    .filter(g => g.id !== game.id)
-    .slice(3, 15);
+  const moreRelatedGames = (allGames || [])
+    .filter(g => g && (g.id || g._id) && (g.id !== game?.id && g._id !== game?.id && g.id !== game?._id))
+    .slice(8, 24);
 
   const getCleanGameUrl = (rawUrl) => {
     if (!rawUrl) return '';
@@ -640,41 +725,10 @@ export default function GamePlayerView({
         />
       )}
 
-      {/* 1. Breadcrumb Row & Focus Controls */}
-      <div className="crazy-breadcrumb-row">
-        <button
-          className="crazy-back-btn"
-          onClick={() => {
-            sounds.playClick();
-            onClose();
-          }}
-          title="Back to All Games"
-        >
-          <ArrowLeft size={16} />
-          <span>Back</span>
-        </button>
-
-        <div className="crazy-breadcrumbs">
-          <span className="crumb-link" onClick={() => { sounds.playClick(); onClose(); }}>Games</span>
-          <ChevronRight size={14} className="crumb-sep" />
-          <span
-            className="crumb-link"
-            onClick={() => {
-              sounds.playClick();
-              if (onSelectCategory && game.category) onSelectCategory(game.category.toLowerCase());
-            }}
-          >
-            {game.category || 'Arcade'}
-          </span>
-          <ChevronRight size={14} className="crumb-sep" />
-          <span className="crumb-current">{game.title}</span>
-        </div>
-      </div>
-
-      {/* 2. Main Game Player Stage (Split: Left Player + Right Play Next Column) */}
+      {/* 2. Main Game Player Stage (Split: Left Main Game Player Screen + Right Recommended Games Column) */}
       <div className={`crazy-stage-wrapper ${isTheaterMode ? 'theater-expanded' : ''}`}>
 
-        {/* Left/Center Game Player Column */}
+        {/* Left/Center Main Game Player Column */}
         <div className="crazy-player-column">
 
           {/* Game Frame Viewport with Glass Glow Ambient Lighting */}
@@ -873,61 +927,58 @@ export default function GamePlayerView({
 
           </div>
 
-        </div>
-
-        {/* Play Next Section (Clean Responsive Grid) */}
-        {!isTheaterMode && playNextGames.length > 0 && (
-          <div className="crazy-play-next-section">
-            <div className="play-next-header">
-              <Flame size={20} color="#f52d7e" />
-              <h3>Play Next</h3>
+          {/* 3. Sleek Minimalist Game Info Bar */}
+          <div className="crazy-minimal-details-card">
+            <div className="min-details-left">
+              <div className="min-game-badge-row">
+                <span className="min-cat-badge">{(game.category || 'Arcade').toUpperCase()}</span>
+                {game.tags && game.tags.slice(0, 5).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="min-tag-pill"
+                    onClick={() => {
+                      sounds.playClick();
+                      if (onSelectCategory) onSelectCategory(tag.toLowerCase());
+                    }}
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+              {game.description && (
+                <p className="min-desc-text">
+                  {game.description}
+                </p>
+              )}
             </div>
 
-            <div className="crazy-play-next-grid">
-              {playNextGames.map((nextGame) => (
-                <GameCard
-                  key={`next-${nextGame.id}`}
-                  game={nextGame}
+            <div className="min-controls-pill">
+              <Gamepad2 size={16} color="#00f2fe" />
+              <span className="min-ctrl-text"><strong>WASD / Arrows</strong> to move • <strong>Space / Click</strong> to play</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Side Games Column - Play next single-column format */}
+        {!isTheaterMode && sideGames.length > 0 && (
+          <aside className="crazy-play-next-sidebar">
+            <div className="play-next-header-row">
+              <h3 className="play-next-heading">Play next</h3>
+            </div>
+            <div className="play-next-vertical-list custom-scrollbar">
+              {sideGames.map((sideGame, idx) => (
+                <SidebarGameTile
+                  key={`side-${sideGame.id}`}
+                  game={sideGame}
                   onPlay={onSelectRelatedGame}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={onToggleFavorite}
+                  isFirst={idx === 0}
                 />
               ))}
             </div>
-          </div>
+          </aside>
         )}
 
-      </div>
-
-      {/* 3. Sleek Minimalist Game Info Bar */}
-      <div className="crazy-minimal-details-card">
-        <div className="min-details-left">
-          <div className="min-game-badge-row">
-            <span className="min-cat-badge">{(game.category || 'Arcade').toUpperCase()}</span>
-            {game.tags && game.tags.slice(0, 5).map((tag, idx) => (
-              <span
-                key={idx}
-                className="min-tag-pill"
-                onClick={() => {
-                  sounds.playClick();
-                  if (onSelectCategory) onSelectCategory(tag.toLowerCase());
-                }}
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-          {game.description && (
-            <p className="min-desc-text">
-              {game.description}
-            </p>
-          )}
-        </div>
-
-        <div className="min-controls-pill">
-          <Gamepad2 size={16} color="#00f2fe" />
-          <span className="min-ctrl-text"><strong>WASD / Arrows</strong> to move • <strong>Space / Click</strong> to play</span>
-        </div>
       </div>
 
       {/* 4. More Recommended Games Shelf */}

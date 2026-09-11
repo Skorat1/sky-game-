@@ -32,22 +32,22 @@ export default function SkyBrandCard({ onOpenAuth, onFocusSearch, user }) {
       {/* Horizontal Divider */}
       <div className="sky-brand-card-divider" />
 
-      {/* Bottom half: Split into 👤 User and 🔍 Search */}
+      {/* Bottom half: Split into 👤 User/Account and 🔍 Search (Poki style) */}
       <div className="sky-brand-card-bottom">
-        {/* Left: People / User Profile */}
+        {/* Left: User / Gamer Profile */}
         <button
           className="sky-brand-action-btn user-action-btn"
           onClick={() => {
-            try { sounds.playClick(); } catch (err) { }
+            sounds.playClick();
             if (typeof onOpenAuth === 'function') onOpenAuth();
           }}
-          title={user ? `Logged in as ${user.name}` : "Login or Register"}
+          title={user ? `Logged in as ${user.username || user.name || 'Gamer'}` : "Save your game progress"}
           aria-label="User profile and login"
         >
           {user && user.avatar ? (
-            <img src={user.avatar} alt={user.name} className="sky-btn-avatar" />
+            <img src={user.avatar} alt={user.name} className="sky-btn-avatar" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
           ) : (
-            <User size={24} className="sky-btn-icon user-icon" />
+            <User size={22} className="sky-btn-icon user-icon" />
           )}
           {user && <span className="sky-user-online-dot" />}
         </button>
@@ -60,12 +60,12 @@ export default function SkyBrandCard({ onOpenAuth, onFocusSearch, user }) {
           className="sky-brand-action-btn search-action-btn"
           onClick={() => {
             sounds.playClick();
-            onFocusSearch();
+            if (typeof onFocusSearch === 'function') onFocusSearch();
           }}
           title="Search games"
           aria-label="Search games"
         >
-          <Search size={24} className="sky-btn-icon search-icon" />
+          <Search size={22} className="sky-btn-icon search-icon" />
         </button>
       </div>
     </div>

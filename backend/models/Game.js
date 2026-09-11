@@ -7,6 +7,7 @@ const gameSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   thumbnail: { type: String, default: '' },
   banner: { type: String, default: '' },
+  previewVideo: { type: String, default: '' },
   gameUrl: { type: String, default: '' },
   tags: [{ type: String }],
   rating: { type: Number, default: 4.8 },

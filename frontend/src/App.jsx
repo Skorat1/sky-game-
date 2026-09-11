@@ -7,12 +7,12 @@ import GamePlayerView from './components/GamePlayerView';
 // Critical auth modal imported directly for instant 0ms response
 import AuthModal from './components/AuthModal';
 
-// Code-split other non-critical modals
+// Code-split other non-critical pages & drawers
 const FavoritesDrawer = lazy(() => import('./components/FavoritesDrawer'));
 const DeveloperPortal = lazy(() => import('./components/DeveloperPortal'));
-const AboutModal = lazy(() => import('./components/AboutModal'));
-const ContactModal = lazy(() => import('./components/ContactModal'));
-const PrivacyModal = lazy(() => import('./components/PrivacyModal'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
+const PrivacyPage = lazy(() => import('./components/PrivacyPage'));
 
 import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
 import { sounds } from './utils/audio';
@@ -39,8 +39,8 @@ class ErrorBoundary extends Component {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0b0f19',
-          color: '#ffffff',
+          background: '#f4f6fb',
+          color: '#0f172a',
           padding: 24,
           textAlign: 'center',
           fontFamily: 'Inter, system-ui, sans-serif'
@@ -61,7 +61,10 @@ class ErrorBoundary extends Component {
             }}
             onClick={() => {
               this.setState({ hasError: false, error: null });
-              window.location.reload();
+              try {
+                localStorage.removeItem('sky_cached_games');
+              } catch { }
+              window.location.href = window.location.origin + window.location.pathname;
             }}
           >
             Reload Arcade
@@ -122,7 +125,7 @@ function App() {
 
   const [banner, setBanner] = useState(null);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activePage, setActivePage] = useState(initialNav.page);
   const [activeCategory, setActiveCategory] = useState(initialNav.category);
@@ -407,56 +410,51 @@ function App() {
   }, [games, handlePlayGame]);
 
   const handleNavigation = useCallback((pageId) => {
-    if (pageId === 'about') {
-      setAboutOpen(true);
-    } else if (pageId === 'contact') {
-      setContactOpen(true);
-    } else if (pageId === 'privacy') {
-      setPrivacyOpen(true);
-    } else {
-      setSelectedGame(null);
-      setPendingGameId(null);
-      setActivePage(pageId);
-      setActiveCategory('');
-      setSearchQuery('');
-      const targetUrl = buildNavUrl(null, '', pageId, '');
-      window.history.pushState({ gameId: null, category: '', page: pageId }, '', targetUrl);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    setSelectedGame(null);
+    setPendingGameId(null);
+    setActivePage(pageId);
+    setActiveCategory('');
+    setSearchQuery('');
+    const targetUrl = buildNavUrl(null, '', pageId, '');
+    window.history.pushState({ gameId: null, category: '', page: pageId }, '', targetUrl);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const displayedGames = useMemo(() => {
-    let list = [...games];
+    let list = Array.isArray(games) ? [...games] : [];
 
-    list = list.filter(g => !g.status || g.status === 'active');
+    list = list.filter(g => g && (!g.status || g.status === 'active'));
 
     if (activePage === 'trending') {
-      list = list.filter(g => g.badge === 'HOT' || g.badge === 'TRENDING' || g.badge === 'POPULAR' || g.featured);
+      list = list.filter(g => g && (g.badge === 'HOT' || g.badge === 'TRENDING' || g.badge === 'POPULAR' || g.featured));
     } else if (activePage === 'top-rated' || activePage === 'most-played') {
-      list = list.sort((a, b) => (b.plays || 0) - (a.plays || 0));
+      list = list.sort((a, b) => ((b && b.plays) || 0) - ((a && a.plays) || 0));
     } else if (activePage === 'new') {
-      list = list.sort((a, b) => new Date(b.createdAt || '2026-01-01') - new Date(a.createdAt || '2026-01-01'));
+      list = list.sort((a, b) => new Date((b && b.createdAt) || '2026-01-01') - new Date((a && a.createdAt) || '2026-01-01'));
     } else if (activePage === 'recently-played') {
-      return recentlyPlayed;
+      return Array.isArray(recentlyPlayed) ? recentlyPlayed : [];
     }
 
     if (activeCategory) {
       const catKey = activeCategory.toLowerCase();
       list = list.filter(g => {
+        if (!g) return false;
         const c = (g.category || '').toLowerCase();
-        const tags = (g.tags || []).map(t => t.toLowerCase());
+        const tags = Array.isArray(g.tags) ? g.tags.map(t => (typeof t === 'string' ? t.toLowerCase() : '')) : [];
         return c.includes(catKey) || tags.includes(catKey) || (catKey === 'multiplayer' && (c.includes('2') || tags.includes('2-player')));
       });
     }
 
-    if (searchQuery.trim() !== '') {
+    if (searchQuery && searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      list = list.filter(g =>
-        g.title.toLowerCase().includes(q) ||
-        (g.tags && g.tags.some(t => t.toLowerCase().includes(q))) ||
-        (g.category && g.category.toLowerCase().includes(q)) ||
-        (g.description && g.description.toLowerCase().includes(q))
-      );
+      list = list.filter(g => {
+        if (!g) return false;
+        const titleMatch = g.title && typeof g.title === 'string' && g.title.toLowerCase().includes(q);
+        const tagsMatch = Array.isArray(g.tags) && g.tags.some(t => typeof t === 'string' && t.toLowerCase().includes(q));
+        const catMatch = g.category && typeof g.category === 'string' && g.category.toLowerCase().includes(q);
+        const descMatch = g.description && typeof g.description === 'string' && g.description.toLowerCase().includes(q);
+        return titleMatch || tagsMatch || catMatch || descMatch;
+      });
     }
 
     return list;
@@ -497,6 +495,7 @@ function App() {
         user={user}
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
         favoritesCount={favorites.length}
         onOpenFavorites={() => setFavoritesDrawerOpen(true)}
         onNavigate={handleNavigation}
@@ -515,6 +514,8 @@ function App() {
           recentlyPlayedCount={recentlyPlayed.length}
           onOpenFavorites={() => setFavoritesDrawerOpen(true)}
           onRandomPlay={handleRandomPlay}
+          user={user}
+          onOpenAuth={() => setAuthModalOpen(true)}
         />
 
         {/* Right Main Content Area */}
@@ -534,6 +535,18 @@ function App() {
               <Suspense fallback={<div className="loading-spinner" />}>
                 <DeveloperPortal onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
               </Suspense>
+            ) : activePage === 'about' ? (
+              <Suspense fallback={<div className="loading-spinner" />}>
+                <AboutPage onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+              </Suspense>
+            ) : activePage === 'privacy' ? (
+              <Suspense fallback={<div className="loading-spinner" />}>
+                <PrivacyPage onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+              </Suspense>
+            ) : activePage === 'contact' ? (
+              <Suspense fallback={<div className="loading-spinner" />}>
+                <ContactPage onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+              </Suspense>
             ) : (
               <GameGrid
                 title={
@@ -543,7 +556,7 @@ function App() {
                         activePage === 'new' ? '✨ New Game Releases' :
                           activePage === 'recently-played' ? '🕒 Recently Played' :
                             activeCategory ? `${activeCategory.toUpperCase()} GAMES` :
-                              'Home Arcade'
+                              ''
                 }
                 games={displayedGames}
                 onPlayGame={handlePlayGame}
@@ -554,6 +567,13 @@ function App() {
                 activePage={activePage}
                 searchQuery={searchQuery}
                 recentlyPlayed={recentlyPlayed}
+                onOpenAuth={() => setAuthModalOpen(true)}
+                onFocusSearch={() => {
+                  if (searchInputRef.current) {
+                    searchInputRef.current.focus();
+                  }
+                }}
+                user={user}
               />
             )}
           </main>
@@ -587,11 +607,6 @@ function App() {
           onRemoveFavorite={handleToggleFavorite}
           onClearAll={() => setFavorites([])}
         />
-
-        {/* Info Modals */}
-        <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
-        <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
-        <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       </Suspense>
     </div>
   );

@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import StatCard from '../components/StatCard';
+import React, { useState, useEffect } from 'react';
 
 export default function UsersView({
   users = [],
   onAddUser,
   onUpdateUser,
   onDeleteUser,
-  onRefresh
+  onRefresh,
+  isModalOpen: isModalOpenProp,
+  setIsModalOpen: setIsModalOpenProp
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
   // Modal State for Add / Edit
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [localModalOpen, setLocalModalOpen] = useState(false);
+  const isModalOpen = isModalOpenProp !== undefined ? isModalOpenProp : localModalOpen;
+  const setIsModalOpen = setIsModalOpenProp !== undefined ? setIsModalOpenProp : setLocalModalOpen;
+
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
@@ -24,6 +28,19 @@ export default function UsersView({
   });
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isModalOpen && !editingUser) {
+      setFormData({
+        username: '',
+        email: '',
+        password: '',
+        role: 'user',
+        status: 'active'
+      });
+      setFormError('');
+    }
+  }, [isModalOpen, editingUser]);
 
   // Filter logic
   const filteredUsers = users.filter((u) => {
@@ -95,6 +112,7 @@ export default function UsersView({
         await onAddUser(formData);
       }
       setIsModalOpen(false);
+      setEditingUser(null);
     } catch (err) {
       setFormError(err.message || 'Operation failed');
     } finally {
@@ -102,98 +120,62 @@ export default function UsersView({
     }
   };
 
-  const handleToggleStatus = (u) => {
-    const newStatus = u.status === 'banned' ? 'active' : 'banned';
-    onUpdateUser(u.id, { status: newStatus });
-  };
-
-  const handleRoleChange = (u, newRole) => {
-    onUpdateUser(u.id, { role: newRole });
+  const handleToggleBan = async (u) => {
+    const nextStatus = u.status === 'banned' ? 'active' : 'banned';
+    const confirmMsg = nextStatus === 'banned' 
+      ? `Are you sure you want to BAN user "${u.username}"?` 
+      : `Unban user "${u.username}"?`;
+    if (window.confirm(confirmMsg)) {
+      await onUpdateUser(u.id, { status: nextStatus });
+    }
   };
 
   return (
-    <div>
-      {/* Top Header & Action */}
-      <div className="panel-header" style={{ marginBottom: 24 }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#fff' }}>
-            👥 User Management Panel
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: '4px 0 0' }}>
-            Manage registered players, assign admin/moderator roles, and monitor account activity in real time.
-          </p>
+    <div className="glass-panel">
+      {/* Metrics Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
+        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL ACCOUNTS</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>{totalUsers}</div>
         </div>
-        <button
-          className="admin-btn primary"
-          onClick={handleOpenAddModal}
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <span>Add New User</span>
-        </button>
+        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
+          <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>ACTIVE PLAYERS</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399' }}>{activeUsers}</div>
+        </div>
+        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
+          <div style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>STAFF / ADMINS</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#c084fc' }}>{staffCount}</div>
+        </div>
+        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
+          <div style={{ fontSize: '0.72rem', color: '#fca5a5', fontWeight: 600 }}>BANNED / LOCKED</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fca5a5' }}>{bannedCount}</div>
+        </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="stats-grid" style={{ marginBottom: 28 }}>
-        <StatCard
-          label="Total Registered Users"
-          value={totalUsers}
-          trend="Real-time synchronized"
-          trendUp={true}
-          icon="👥"
-          color="cyan"
-        />
-        <StatCard
-          label="Active Players"
-          value={activeUsers}
-          trend={`${totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 100}% of total`}
-          trendUp={true}
-          icon="🟢"
-          color="emerald"
-        />
-        <StatCard
-          label="Admins & Moderators"
-          value={staffCount}
-          trend="Platform Staff"
-          trendUp={true}
-          icon="🛡️"
-          color="magenta"
-        />
-        <StatCard
-          label="Suspended / Banned"
-          value={bannedCount}
-          trend={bannedCount > 0 ? 'Action Taken' : 'Zero Infractions'}
-          trendUp={bannedCount === 0}
-          icon="🚫"
-          color="amber"
-        />
-      </div>
-
-      {/* Filter and Search Bar */}
+      {/* Filter Toolbar */}
       <div className="filter-bar">
         <div className="search-input-wrapper">
           <span className="search-icon-pos">🔍</span>
           <input
             type="text"
             className="search-input"
-            placeholder="Search by username, email, ID..."
+            placeholder="Search by username, email or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <select
             className="select-filter"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
-            <option value="all">All Roles</option>
-            <option value="user">🎮 Players (Users)</option>
-            <option value="moderator">🛡️ Moderators</option>
-            <option value="admin">⚡ Administrators</option>
+            <option value="all">All Roles ({users.length})</option>
+            <option value="admin">Admins 👑</option>
+            <option value="moderator">Moderators 🛡️</option>
+            <option value="vip">VIP Gamers 💎</option>
+            <option value="user">Regular Players 🎮</option>
           </select>
 
           <select
@@ -201,246 +183,179 @@ export default function UsersView({
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">All Status</option>
-            <option value="active">🟢 Active</option>
-            <option value="banned">🚫 Suspended / Banned</option>
+            <option value="all">All Statuses</option>
+            <option value="active">Active 🟢</option>
+            <option value="banned">Banned 🔴</option>
           </select>
 
           {onRefresh && (
-            <button
-              className="admin-btn secondary"
-              onClick={onRefresh}
-              title="Refresh users list from database"
-            >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-              <span>Refresh</span>
+            <button className="admin-btn secondary" onClick={onRefresh} title="Sync Users from MongoDB">
+              <span>🔄</span>
+              <span>Sync</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="glass-panel">
-        <div className="panel-header">
-          <div className="panel-title">
-            <span>📋 Registered Accounts</span>
-            <span className="nav-badge" style={{ background: 'var(--accent-cyan)', color: '#04070d' }}>
-              {filteredUsers.length} shown
-            </span>
-          </div>
-        </div>
+      <div className="table-responsive">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Gamer Identity</th>
+              <th>Email Address</th>
+              <th>Role</th>
+              <th>Level / XP</th>
+              <th>Status</th>
+              <th>Joined Date</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  No player accounts found matching filters.
+                </td>
+              </tr>
+            ) : (
+              filteredUsers.map((u) => {
+                const userInitial = (u.username || u.name || 'U')[0].toUpperCase();
+                const isStaff = u.role === 'admin' || u.role === 'moderator';
 
-        {filteredUsers.length === 0 ? (
-          <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔍</div>
-            <h3 style={{ color: '#fff', margin: '0 0 6px' }}>No Users Found</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>
-              {searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
-                ? 'Try adjusting your search filters.'
-                : 'No users registered yet. New player registrations will appear here automatically!'}
-            </p>
-          </div>
-        ) : (
-          <div className="table-wrapper">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>User / Player</th>
-                  <th>Email Address</th>
-                  <th>Auth Provider</th>
-                  <th>Platform Role</th>
-                  <th>Status</th>
-                  <th>Registered</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((u) => {
-                  const avatarUrl = u.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username || u.name || 'gamer'}`;
-                  const isStaff = u.role === 'admin' || u.role === 'moderator';
-                  const isBanned = u.status === 'banned';
-
-                  return (
-                    <tr key={u.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <img
-                            src={avatarUrl}
-                            alt={u.username || u.name}
-                            style={{
-                              width: 38,
-                              height: 38,
-                              borderRadius: '50%',
-                              background: '#1e293b',
-                              border: isStaff ? '2px solid #00f2fe' : '1px solid rgba(255, 255, 255, 0.15)'
-                            }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              {u.username || u.name || 'Anonymous Gamer'}
-                              {u.role === 'admin' && <span title="Administrator">⚡</span>}
-                            </div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontFamily: 'monospace' }}>
-                              {u.id}
-                            </div>
+                return (
+                  <tr key={u.id || u._id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div 
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: '10px',
+                            background: isStaff ? 'var(--grad-purple-pink)' : 'var(--grad-cyan-blue)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            color: '#ffffff',
+                            fontSize: '0.95rem',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                            flexShrink: 0
+                          }}
+                        >
+                          {userInitial}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>
+                            {u.username || u.name}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                            ID: {u.id || u._id}
                           </div>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
-                      <td>
-                        <span style={{ color: '#94a3b8', fontSize: '0.88rem' }}>{u.email}</span>
-                      </td>
+                    <td>
+                      <span style={{ color: 'var(--text-body)', fontSize: '0.84rem' }}>{u.email}</span>
+                    </td>
 
-                      <td>
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            padding: '3px 8px',
-                            borderRadius: 6,
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            color: '#cbd5e1'
+                    <td>
+                      <span 
+                        style={{
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: 6,
+                          textTransform: 'uppercase',
+                          background: u.role === 'admin' ? 'rgba(168, 85, 247, 0.15)' : u.role === 'vip' ? 'rgba(251, 191, 36, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                          color: u.role === 'admin' ? '#c084fc' : u.role === 'vip' ? '#fbbf24' : '#38bdf8',
+                          border: `1px solid ${u.role === 'admin' ? 'rgba(168, 85, 247, 0.3)' : u.role === 'vip' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
+                        }}
+                      >
+                        {u.role === 'admin' ? '👑 Admin' : u.role === 'vip' ? '💎 VIP' : u.role === 'moderator' ? '🛡️ Mod' : '🎮 Player'}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#38bdf8' }}>
+                        Lv. {u.level || 1} • {(u.xp || 0).toLocaleString()} XP
+                      </span>
+                    </td>
+
+                    <td>
+                      <span className={`status-badge ${u.status === 'banned' ? 'rejected' : 'active'}`}>
+                        {u.status === 'banned' ? 'Banned' : 'Active'}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Active'}
+                      </span>
+                    </td>
+
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
+                        <button
+                          className="icon-action-btn"
+                          title={u.status === 'banned' ? 'Unban Player' : 'Ban Player'}
+                          onClick={() => handleToggleBan(u)}
+                          style={{ color: u.status === 'banned' ? '#34d399' : '#f87171' }}
+                        >
+                          {u.status === 'banned' ? '🔓' : '🚫'}
+                        </button>
+                        <button
+                          className="icon-action-btn edit"
+                          title="Edit User"
+                          onClick={() => handleOpenEditModal(u)}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="icon-action-btn delete"
+                          title="Delete User"
+                          onClick={() => {
+                            if (window.confirm(`Delete user "${u.username}" permanently?`)) {
+                              onDeleteUser(u.id || u._id);
+                            }
                           }}
                         >
-                          {u.provider === 'google' ? '🌐 Google' :
-                           u.provider === 'apple' ? '🍎 Apple' :
-                           u.provider === 'microsoft' ? '🪟 Microsoft' :
-                           u.provider === 'passkey' ? '🔑 Passkey' : '✉️ Email'}
-                        </span>
-                      </td>
-
-                      <td>
-                        <select
-                          value={u.role || 'user'}
-                          onChange={(e) => handleRoleChange(u, e.target.value)}
-                          style={{
-                            background: u.role === 'admin' ? 'rgba(0, 242, 254, 0.15)' : u.role === 'moderator' ? 'rgba(184, 93, 245, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                            border: `1px solid ${u.role === 'admin' ? 'rgba(0, 242, 254, 0.4)' : u.role === 'moderator' ? 'rgba(184, 93, 245, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
-                            color: u.role === 'admin' ? '#00f2fe' : u.role === 'moderator' ? '#b85df5' : '#e2e8f0',
-                            padding: '4px 8px',
-                            borderRadius: 6,
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            outline: 'none'
-                          }}
-                        >
-                          <option value="user" style={{ background: '#0f172a', color: '#fff' }}>Player (User)</option>
-                          <option value="moderator" style={{ background: '#0f172a', color: '#b85df5' }}>🛡️ Moderator</option>
-                          <option value="admin" style={{ background: '#0f172a', color: '#00f2fe' }}>⚡ Admin</option>
-                        </select>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`status-badge ${isBanned ? 'pending' : 'active'}`}
-                          style={isBanned ? { background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)' } : {}}
-                        >
-                          <span className="dot" />
-                          {isBanned ? 'Banned' : 'Active'}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--text-dim)' }}>
-                          {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Recent'}
-                        </span>
-                      </td>
-
-                      <td style={{ textAlign: 'right' }}>
-                        <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
-                          <button
-                            className="icon-action-btn edit"
-                            onClick={() => handleOpenEditModal(u)}
-                            title="Edit user details"
-                          >
-                            ✏️
-                          </button>
-
-                          <button
-                            className="icon-action-btn"
-                            onClick={() => handleToggleStatus(u)}
-                            title={isBanned ? 'Unban user' : 'Ban / Suspend user'}
-                            style={{
-                              color: isBanned ? '#4ade80' : '#f87171',
-                              borderColor: isBanned ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'
-                            }}
-                          >
-                            {isBanned ? '🔓' : '🚫'}
-                          </button>
-
-                          <button
-                            className="icon-action-btn delete"
-                            onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete user "${u.username || u.name}"?`)) {
-                                onDeleteUser(u.id);
-                              }
-                            }}
-                            title="Delete user permanently"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Add / Edit User Modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <div className="modal-overlay" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <div className="modal-title-group">
-                <span>{editingUser ? '✏️' : '➕'}</span>
-                <h3 className="modal-title">
-                  {editingUser ? 'Edit User Profile' : 'Create New User Account'}
-                </h3>
-                {editingUser && (
-                  <span className="modal-id-badge">{editingUser.id}</span>
-                )}
-              </div>
-              <button className="close-btn" onClick={() => setIsModalOpen(false)}>
-                ×
-              </button>
+              <h2 className="modal-title">{editingUser ? '✏️ Edit User Profile' : '➕ Create New User'}</h2>
+              <button className="close-btn" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>&times;</button>
             </div>
 
             <form onSubmit={handleFormSubmit}>
               <div className="modal-body">
                 {formError && (
-                  <div
-                    style={{
-                      padding: '10px 14px',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      color: '#f87171',
-                      borderRadius: 8,
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    ⚠️ {formError}
+                  <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 8, color: '#fca5a5', fontSize: '0.82rem' }}>
+                    {formError}
                   </div>
                 )}
 
                 <div className="form-group">
-                  <label className="form-label">Player Username *</label>
+                  <label className="form-label">Username *</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="e.g. ProGamer99"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     required
@@ -452,7 +367,6 @@ export default function UsersView({
                   <input
                     type="email"
                     className="form-input"
-                    placeholder="user@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
@@ -460,30 +374,28 @@ export default function UsersView({
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">
-                    {editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}
-                  </label>
+                  <label className="form-label">{editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}</label>
                   <input
                     type="password"
                     className="form-input"
-                    placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required={!editingUser}
+                    placeholder={editingUser ? '••••••••' : 'Enter secure password'}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Platform Role</label>
+                    <label className="form-label">System Role</label>
                     <select
                       className="form-select"
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     >
-                      <option value="user">🎮 Player (User)</option>
-                      <option value="moderator">🛡️ Moderator</option>
-                      <option value="admin">⚡ Administrator</option>
+                      <option value="user">Regular Player</option>
+                      <option value="vip">VIP Gamer</option>
+                      <option value="moderator">Moderator</option>
+                      <option value="admin">Administrator</option>
                     </select>
                   </div>
 
@@ -494,36 +406,19 @@ export default function UsersView({
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     >
-                      <option value="active">🟢 Active</option>
-                      <option value="banned">🚫 Suspended / Banned</option>
+                      <option value="active">Active 🟢</option>
+                      <option value="banned">Banned 🔴</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '16px 24px',
-                  borderTop: '1px solid var(--border-glass)',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: 12,
-                  background: 'rgba(255, 255, 255, 0.02)'
-                }}
-              >
-                <button
-                  type="button"
-                  className="admin-btn secondary"
-                  onClick={() => setIsModalOpen(false)}
-                >
+              <div className="modal-footer">
+                <button type="button" className="admin-btn secondary" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="admin-btn primary"
-                  disabled={submitting}
-                >
-                  {submitting ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}
+                <button type="submit" className="admin-btn primary" disabled={submitting}>
+                  {submitting ? 'Saving...' : editingUser ? 'Update Profile' : 'Create User'}
                 </button>
               </div>
             </form>

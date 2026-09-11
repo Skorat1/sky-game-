@@ -19,7 +19,9 @@ import {
   Info,
   Shield,
   Mail,
-  Rocket
+  Rocket,
+  User,
+  LogIn
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -45,7 +47,9 @@ export default function Sidebar({
   favoritesCount = 0,
   recentlyPlayedCount = 0,
   onOpenFavorites,
-  onRandomPlay
+  onRandomPlay,
+  user,
+  onOpenAuth
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home, color: '#00f2fe' },
@@ -84,30 +88,24 @@ export default function Sidebar({
     } else {
       onNavigate(item.id);
     }
-    if (window.innerWidth < 1024) {
-      setIsOpen(false);
-    }
+    setIsOpen(false);
   };
 
   const handleCategoryClick = (catId) => {
     sounds.playClick();
     onSelectCategory(catId);
-    if (window.innerWidth < 1024) {
-      setIsOpen(false);
-    }
+    setIsOpen(false);
   };
 
   const handleFooterLinkClick = (pageId) => {
     sounds.playClick();
     if (onNavigate) onNavigate(pageId);
-    if (window.innerWidth < 1024) {
-      setIsOpen(false);
-    }
+    setIsOpen(false);
   };
 
   return (
     <>
-      {/* Mobile Overlay Backdrop */}
+      {/* Mobile Backdrop */}
       {isOpen && (
         <div
           className="gamepix-sidebar-backdrop"
@@ -119,7 +117,9 @@ export default function Sidebar({
       )}
 
       {/* GamePix Sticky Left Sidebar */}
-      <aside className={`gamepix-sidebar ${isOpen ? 'open' : 'closed'}`}>
+      <aside 
+        className={`gamepix-sidebar ${isOpen ? 'open' : 'closed'}`}
+      >
         <div className="gamepix-sidebar-inner custom-scrollbar">
           
           {/* Main Navigation Section */}
@@ -194,26 +194,23 @@ export default function Sidebar({
               <span>Submit Game</span>
             </button>
 
-            {/* Quick Links Row */}
+            {/* Quick Links Group */}
             <div className="sidebar-links-group">
-              <button onClick={() => handleFooterLinkClick('about')} className="sidebar-mini-link">
-                <Info size={13} /> <span>About</span>
+              <button onClick={() => handleFooterLinkClick('about')} className="sidebar-mini-link" title="About SKYGAMES">
+                <Info size={13} />
+                <span>About</span>
               </button>
-              <span className="sidebar-link-dot">•</span>
-              <button onClick={() => handleFooterLinkClick('privacy')} className="sidebar-mini-link">
-                <Shield size={13} /> <span>Privacy</span>
+              <button onClick={() => handleFooterLinkClick('privacy')} className="sidebar-mini-link" title="Privacy Policy">
+                <Shield size={13} />
+                <span>Privacy</span>
               </button>
-              <span className="sidebar-link-dot">•</span>
-              <button onClick={() => handleFooterLinkClick('contact')} className="sidebar-mini-link">
-                <Mail size={13} /> <span>Contact</span>
+              <button onClick={() => handleFooterLinkClick('contact')} className="sidebar-mini-link" title="Contact Us">
+                <Mail size={13} />
+                <span>Contact</span>
               </button>
             </div>
 
-            {/* Server Status Indicator */}
-            <div className="sidebar-status-indicator">
-              <span className="status-live-ping"></span>
-              <span>60 FPS • Operational</span>
-            </div>
+
 
             {/* Mini Copyright */}
             <div className="sidebar-copyright-text">

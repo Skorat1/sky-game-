@@ -1,17 +1,51 @@
 import React, { useState } from 'react';
 
-export default function SubmissionsView({ submissions, onApprove, onReject }) {
+export default function SubmissionsView({ submissions = [], onApprove, onReject }) {
   const [activePreviewUrl, setActivePreviewUrl] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredSubs = submissions.filter(s => {
+    if (statusFilter === 'all') return true;
+    return s.status === statusFilter;
+  });
+
+  const pendingCount = submissions.filter(s => s.status === 'pending').length;
 
   return (
     <div>
       <div className="glass-panel">
         <div className="panel-header">
           <div>
-            <h2 className="panel-title">🚀 Developer Game Submissions ({submissions.length})</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>
-              Review HTML5 / WebGL games submitted by game creators and indie developers.
-            </p>
+            <h2 className="panel-title">
+              <span style={{ color: 'var(--accent-rose)' }}>🚀</span>
+              <span>Developer Community Submissions ({submissions.length})</span>
+            </h2>
+            <span className="panel-subtitle">
+              Review and curate HTML5 / WebGL games submitted by indie game creators & studios
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="chart-toggle-group">
+              <button
+                className={`chart-toggle-btn ${statusFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('all')}
+              >
+                All ({submissions.length})
+              </button>
+              <button
+                className={`chart-toggle-btn ${statusFilter === 'pending' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('pending')}
+              >
+                Pending ({pendingCount})
+              </button>
+              <button
+                className={`chart-toggle-btn ${statusFilter === 'approved' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('approved')}
+              >
+                Approved
+              </button>
+            </div>
           </div>
         </div>
 
@@ -19,56 +53,64 @@ export default function SubmissionsView({ submissions, onApprove, onReject }) {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Game & Creator</th>
+                <th>Game Title & Studio</th>
                 <th>Category</th>
                 <th>Date Submitted</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {submissions.length === 0 ? (
+              {filteredSubs.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                    No pending submissions at this time.
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                    No game submissions match the selected filter.
                   </td>
                 </tr>
               ) : (
-                submissions.map((sub) => (
+                filteredSubs.map((sub) => (
                   <tr key={sub.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                         <img
                           src={sub.thumbnailUrl || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600'}
                           alt={sub.gameTitle}
-                          style={{ width: 50, height: 50, borderRadius: 8, objectFit: 'cover' }}
+                          style={{ width: 52, height: 52, borderRadius: 'var(--radius)', objectFit: 'cover', border: '1px solid var(--border-glass)' }}
                         />
                         <div>
-                          <div style={{ fontWeight: 700, color: '#fff' }}>{sub.gameTitle}</div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--accent-cyan)' }}>
-                            by {sub.developerName} ({sub.email})
+                          <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>{sub.gameTitle}</div>
+                          <div style={{ fontSize: '0.76rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                            by {sub.developerName} <span style={{ color: 'var(--text-muted)' }}>({sub.email})</span>
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                            {sub.description}
-                          </div>
+                          {sub.description && (
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: 2, maxWidth: 380 }}>
+                              {sub.description}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
+
                     <td>
-                      <span style={{ textTransform: 'capitalize', color: 'var(--accent-amber)', fontWeight: 600 }}>
-                        {sub.category}
+                      <span className="category-pill-tag">
+                        {sub.category || 'Arcade'}
                       </span>
                     </td>
+
                     <td>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{sub.date}</span>
+                      <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                        {sub.date || 'Recent'}
+                      </span>
                     </td>
+
                     <td>
                       <span className={`status-badge ${sub.status}`}>
                         {sub.status}
                       </span>
                     </td>
-                    <td>
-                      <div className="action-btn-group">
+
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="action-btn-group" style={{ justifyContent: 'flex-end' }}>
                         {sub.gameUrl && (
                           <button
                             className="header-btn"
@@ -81,10 +123,10 @@ export default function SubmissionsView({ submissions, onApprove, onReject }) {
                         {sub.status === 'pending' && (
                           <>
                             <button
-                              className="header-btn primary"
+                              className="admin-btn success"
                               style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                               onClick={() => onApprove(sub)}
-                              title="Approve & publish to catalog"
+                              title="Approve & automatically publish to catalog"
                             >
                               ✓ Approve
                             </button>
@@ -107,19 +149,19 @@ export default function SubmissionsView({ submissions, onApprove, onReject }) {
         </div>
       </div>
 
-      {/* Test Play Modal */}
+      {/* Test Play Sandbox Modal */}
       {activePreviewUrl && (
         <div className="modal-overlay" onClick={() => setActivePreviewUrl(null)}>
-          <div className="modal-content" style={{ maxWidth: 850, height: 600 }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content sandbox-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">🕹️ Developer Game Live Test</h2>
+              <h2 className="modal-title">🕹️ Developer Game Live Play Sandbox</h2>
               <button className="close-btn" onClick={() => setActivePreviewUrl(null)}>&times;</button>
             </div>
-            <div style={{ flex: 1, background: '#000' }}>
+            <div className="sandbox-iframe-wrapper">
               <iframe
                 src={activePreviewUrl}
-                title="Game Preview"
-                style={{ width: '100%', height: '100%', border: 'none' }}
+                title="Developer Game Preview"
+                scrolling="no"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
                 allowFullScreen={true}
                 sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock allow-modals"

@@ -13,7 +13,7 @@ export default function FavoritesDrawer({
 }) {
   if (!isOpen) return null;
 
-  const favoriteGames = games.filter(g => favorites.includes(g.id));
+  const favoriteGames = (games || []).filter(g => g && (favorites || []).includes(g.id || g._id));
 
   return (
     <>
@@ -33,11 +33,11 @@ export default function FavoritesDrawer({
           <>
             <div className="drawer-list">
               {favoriteGames.map((game) => (
-                <div key={game.id} className="drawer-item">
-                  <img src={game.thumbnail} alt={game.title} className="drawer-item-thumb" />
+                <div key={game.id || game._id} className="drawer-item">
+                  <img src={game.thumbnail || game.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&q=80'} alt={game.title} className="drawer-item-thumb" />
                   <div className="drawer-item-info">
                     <h4>{game.title}</h4>
-                    <span className="drawer-item-cat">{game.category.toUpperCase()} • ★ {game.rating}</span>
+                    <span className="drawer-item-cat">{(game.category || 'ARCADE').toUpperCase()} • ★ {game.rating || 5}</span>
                   </div>
                   <div className="drawer-item-actions">
                     <button

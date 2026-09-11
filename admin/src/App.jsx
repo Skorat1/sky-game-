@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import AdminSidebar from './components/AdminSidebar';
 import AdminNavbar from './components/AdminNavbar';
+import AdminLogin from './components/AdminLogin';
 import Toast from './components/Toast';
 
 // Code-split all admin views on demand
@@ -30,6 +31,21 @@ const API_BASE = 'http://localhost:5000/api';
 
 const VALID_TABS = ['dashboard', 'games', 'users', 'categories', 'banner', 'submissions', 'messages', 'settings'];
 
+function getInitialAdminUser() {
+  try {
+    const isSessionActive = sessionStorage.getItem('sky_admin_logged_in') === 'true';
+    if (!isSessionActive) return null;
+    const saved = localStorage.getItem('sky_admin_user');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && (parsed.role === 'admin' || parsed.role === 'moderator' || parsed.username)) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
 function getInitialTab() {
   try {
     const hash = window.location.hash.replace('#', '').trim().toLowerCase();
@@ -42,12 +58,14 @@ function getInitialTab() {
 }
 
 export default function App() {
+  const [adminUser, setAdminUser] = useState(getInitialAdminUser);
   const [activeTab, setActiveTab] = useState(getInitialTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
   const [dbStatus, setDbStatus] = useState({ connected: false, checked: false });
 
   // State
+  const [onlineCount, setOnlineCount] = useState(0);
   const [games, setGames] = useState(DEFAULT_GAMES);
   const [users, setUsers] = useState(DEFAULT_USERS);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
@@ -55,6 +73,29 @@ export default function App() {
   const [messages, setMessages] = useState(DEFAULT_MESSAGES);
   const [banner, setBanner] = useState(DEFAULT_BANNER);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+
+  // Real-time live online visitor tracking
+  useEffect(() => {
+    fetch(`${API_BASE}/stats/online`)
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data?.count === 'number') setOnlineCount(data.count);
+      })
+      .catch(() => {});
+
+    const handleCount = (data) => {
+      if (typeof data?.count === 'number') setOnlineCount(data.count);
+    };
+
+    socket.on('online:count', handleCount);
+    if (socket.connected) {
+      socket.emit('request:online:count');
+    }
+
+    return () => {
+      socket.off('online:count', handleCount);
+    };
+  }, []);
 
   // Sync activeTab with URL hash and localStorage
   useEffect(() => {
@@ -80,6 +121,7 @@ export default function App() {
   // Modal State
   const [editingGame, setEditingGame] = useState(null);
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -379,6 +421,19 @@ export default function App() {
     }
   };
 
+  const handleMarkAllRead = async () => {
+    try {
+      const unreadList = messages.filter(m => !m.read);
+      for (const m of unreadList) {
+        try { await fetch(`${API_BASE}/messages/${m.id}/read`, { method: 'PATCH' }); } catch (e) {}
+      }
+      setMessages(messages.map(m => ({ ...m, read: true })));
+      showToast('All messages marked as read.');
+    } catch (err) {
+      setMessages(messages.map(m => ({ ...m, read: true })));
+    }
+  };
+
   const handleDeleteMessage = async (msgId) => {
     try {
       await fetch(`${API_BASE}/messages/${msgId}`, { method: 'DELETE' });
@@ -548,8 +603,39 @@ export default function App() {
     }
   };
 
+  const handleAdminLogin = (user) => {
+    try {
+      sessionStorage.setItem('sky_admin_logged_in', 'true');
+    } catch (e) {}
+    setAdminUser(user);
+    showToast(`Welcome back, ${user.username || user.name || 'Admin'}!`);
+  };
+
+  const handleAdminLogout = () => {
+    try {
+      sessionStorage.removeItem('sky_admin_logged_in');
+      localStorage.removeItem('sky_admin_token');
+      localStorage.removeItem('sky_admin_user');
+    } catch (e) {}
+    setAdminUser(null);
+    showToast('Signed out of admin console.', 'info');
+  };
+
   const unreadMessagesCount = messages.filter(m => !m.read).length;
   const pendingSubmissionsCount = submissions.filter(s => s.status === 'pending').length;
+
+  if (!adminUser) {
+    return (
+      <>
+        <AdminLogin onLoginSuccess={handleAdminLogin} />
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: 'success' })}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="admin-app">
@@ -561,14 +647,22 @@ export default function App() {
         submissionsCount={pendingSubmissionsCount}
         unreadMessagesCount={unreadMessagesCount}
         bannerActive={banner.active}
+        adminUser={adminUser}
+        onLogout={handleAdminLogout}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       <div className="admin-main">
         <AdminNavbar
           activeTab={activeTab}
           onOpenGameModal={handleOpenGameModal}
+          onOpenUserModal={() => setIsUserModalOpen(true)}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          livePlayerCount={2480}
+          livePlayerCount={onlineCount}
+          adminUser={adminUser}
+          onLogout={handleAdminLogout}
+          dbStatus={dbStatus}
         />
 
         <main className="admin-content-area">
@@ -580,6 +674,7 @@ export default function App() {
                 categories={categories}
                 submissions={submissions}
                 messages={messages}
+                onlineCount={onlineCount}
                 onNavigateTab={(tab) => setActiveTab(tab)}
                 onEditGame={handleOpenGameModal}
               />
@@ -604,6 +699,8 @@ export default function App() {
                 onUpdateUser={handleUpdateUser}
                 onDeleteUser={handleDeleteUser}
                 onRefresh={fetchAllData}
+                isModalOpen={isUserModalOpen}
+                setIsModalOpen={setIsUserModalOpen}
               />
             )}
 
@@ -635,6 +732,7 @@ export default function App() {
               <MessagesView
                 messages={messages}
                 onRead={handleMarkRead}
+                onMarkAllRead={handleMarkAllRead}
                 onDeleteMessage={handleDeleteMessage}
               />
             )}

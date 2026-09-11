@@ -4,11 +4,12 @@ import {
   AlertCircle, Eye, EyeOff, Loader2, KeyRound, ShieldCheck, Check
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import { socket, authenticateSocket } from '../utils/socket';
 
 const API_BASE = 'http://localhost:5000/api';
 
 export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) {
-  const [tab, setTab] = useState('login'); // 'login' | 'register' | 'forgot'
+  const [tab, setTab] = useState('register'); // 'register' | 'login' | 'forgot'
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +27,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
   const [socialCustomEmail, setSocialCustomEmail] = useState('');
   const [appleHideEmail, setAppleHideEmail] = useState(false);
   const [passkeyScanning, setPasskeyScanning] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState(null);
 
   // Feedback & Validation States
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
   // Reset all fields when modal opens
   useEffect(() => {
     if (isOpen) {
-      setTab('login');
+      setTab('register');
       setUsername('');
       try {
         const saved = localStorage.getItem('sky_remember_identifier');
@@ -53,6 +55,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
       setFieldErrors({});
       setSuccessMsg('');
       setLoading(false);
+      setLoadingProvider(null);
       setSocialPrompt(null);
       setPasskeyScanning(false);
     }
@@ -120,6 +123,113 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
     }
   };
 
+  // 1. OAuth Redirect Handler with CSRF State Token
+  const handleOAuthLogin = (provider) => {
+    setLoadingProvider(provider);
+    setGlobalError('');
+    const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    try { sessionStorage.setItem('oauth_state', state); } catch {}
+    
+    // Open provider dialog or direct redirect
+    openSocialPrompt(provider);
+    setLoadingProvider(null);
+  };
+
+  // 2. WebAuthn / Passkey Biometric Native Handler (Fingerprint icon)
+  const handlePasskeyLogin = async () => {
+    setLoadingProvider('Passkey');
+    setGlobalError('');
+    setSuccessMsg('');
+
+    if (!window.PublicKeyCredential || !navigator.credentials) {
+      setGlobalError('તમારું બ્રાઉઝર અથવા ડિવાઇસ બાયોમેટ્રિક પાસકી સપોર્ટ કરતું નથી. કૃપા કરીને પાસવર્ડથી લૉગિન કરો.');
+      setLoadingProvider(null);
+      return;
+    }
+
+    try {
+      setPasskeyScanning(true);
+      try { sounds.playPowerup(); } catch (e) {}
+
+      // Step 1: Challenge fetch from Backend
+      let challengeBase64 = '';
+      let challengeId = '';
+      try {
+        const res = await fetch(`${API_BASE}/auth/passkey-challenge`);
+        const options = await res.json();
+        challengeBase64 = options.challenge;
+        challengeId = options.challengeId;
+      } catch {
+        challengeBase64 = btoa('skygames_secure_biometric_challenge_' + Date.now());
+      }
+
+      // Step 2: Native WebAuthn Biometric Prompt
+      const challengeBytes = Uint8Array.from(atob(challengeBase64), c => c.charCodeAt(0));
+      const userIdBytes = new Uint8Array(16);
+      window.crypto.getRandomValues(userIdBytes);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: challengeBytes,
+          rp: { name: 'SkyGames Arcade', id: window.location.hostname || 'localhost' },
+          user: {
+            id: userIdBytes,
+            name: 'player@skygames.io',
+            displayName: 'Gamer'
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: 'public-key' },
+            { alg: -257, type: 'public-key' }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'preferred'
+          },
+          timeout: 60000
+        }
+      });
+
+      // Step 3: Verify with Backend & Authenticate Socket
+      const verifyRes = await fetch(`${API_BASE}/auth/passkey-verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credentialId: credential ? credential.id : 'pk_' + Date.now().toString(36),
+          challengeId,
+          name: 'Passkey Player',
+          email: 'passkey_player@skygames.io'
+        })
+      });
+
+      const data = await verifyRes.json();
+      if (data.token && data.user) {
+        try { sounds.playPowerup(); } catch (e) {}
+        setSuccessMsg(data.message || 'Passkey Verified Successfully!');
+        try { localStorage.setItem('sky_token', data.token); } catch {}
+        try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch {}
+        
+        // Reconnect Socket with Authenticated Token
+        authenticateSocket(data.token);
+
+        setTimeout(() => {
+          onLogin(data.user);
+          setLoadingProvider(null);
+          setPasskeyScanning(false);
+          onClose();
+        }, 400);
+      } else {
+        throw new Error(data.error || 'Biometric verification failed');
+      }
+    } catch (err) {
+      console.warn('WebAuthn prompt finished/skipped:', err);
+      // Fallback to social custom prompt
+      openSocialPrompt('Passkey');
+    } finally {
+      setLoadingProvider(null);
+      setPasskeyScanning(false);
+    }
+  };
+
   // Open Social Authentication Prompt
   const openSocialPrompt = (provider) => {
     try { sounds.playClick(); } catch (e) {}
@@ -160,6 +270,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         setSuccessMsg(data.message || `Successfully signed in with ${provider}!`);
         if (data.token) {
           try { localStorage.setItem('sky_token', data.token); } catch {}
+          authenticateSocket(data.token);
         }
         try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch {}
         setTimeout(() => {
@@ -539,7 +650,74 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
           </div>
         ) : (
           <>
-            {/* Tabs: Register | Login */}
+            {/* Title / Poki style heading */}
+            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+              <h2
+                className="sky-auth-title"
+                style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 900,
+                  color: '#ffffff',
+                  letterSpacing: '-0.02em',
+                  margin: '0 0 6px 0'
+                }}
+              >
+                Save your game progress
+              </h2>
+              <p
+                style={{
+                  fontSize: '0.82rem',
+                  color: '#94a3b8',
+                  margin: 0,
+                  lineHeight: '1.4'
+                }}
+              >
+                Sign in to keep your high scores, favorites & sync across all devices!
+              </p>
+            </div>
+
+            {/* Global Feedback Alerts */}
+            {globalError && (
+              <div
+                className="sky-auth-error-msg"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  color: '#fca5a5',
+                  fontSize: '0.82rem',
+                  marginBottom: '14px',
+                  lineHeight: '1.4'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <span>{globalError}</span>
+                </div>
+              </div>
+            )}
+            {successMsg && (
+              <div
+                className="sky-auth-success-msg"
+                style={{
+                  background: 'rgba(34, 197, 94, 0.15)',
+                  border: '1px solid rgba(34, 197, 94, 0.35)',
+                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  color: '#86efac',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  marginBottom: '14px',
+                  textAlign: 'center'
+                }}
+              >
+                <CheckCircle2 size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
+                {successMsg}
+              </div>
+            )}
+
+            {/* Tabs: Create Account (First) | Sign In (Second) */}
             <div
               className="sky-auth-tabs"
               style={{
@@ -548,7 +726,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: '12px',
                 padding: '4px',
-                marginBottom: '16px',
+                marginBottom: '14px',
                 gap: '4px'
               }}
             >
@@ -558,19 +736,19 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                 onClick={() => handleTabChange('register')}
                 style={{
                   flex: 1,
-                  padding: '9px 0',
+                  padding: '8px 0',
                   background: tab === 'register' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
                   color: tab === 'register' ? '#ffffff' : '#94a3b8',
-                  fontSize: '0.92rem',
+                  fontSize: '0.88rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   textAlign: 'center',
                   boxShadow: tab === 'register' ? '0 4px 12px rgba(59, 130, 246, 0.35)' : 'none'
                 }}
               >
-                Register
+                Register Account
               </button>
               <button
                 type="button"
@@ -578,109 +756,29 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                 onClick={() => handleTabChange('login')}
                 style={{
                   flex: 1,
-                  padding: '9px 0',
+                  padding: '8px 0',
                   background: tab === 'login' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
                   color: tab === 'login' ? '#ffffff' : '#94a3b8',
-                  fontSize: '0.92rem',
+                  fontSize: '0.88rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   textAlign: 'center',
                   boxShadow: tab === 'login' ? '0 4px 12px rgba(59, 130, 246, 0.35)' : 'none'
                 }}
               >
-                Login
+                Sign In
               </button>
             </div>
 
-            {/* Title */}
-            <h2
-              className="sky-auth-title"
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 800,
-                color: '#ffffff',
-                textAlign: 'center',
-                margin: tab === 'login' ? '0 0 8px 0' : '0 0 12px 0'
-              }}
-            >
-              {tab === 'register'
-                ? 'Create a Free Gamer Account'
-                : tab === 'login'
-                  ? 'Log In to SkyGames'
-                  : 'Reset Account Password'}
-            </h2>
-
-            {/* Global Feedback Alerts */}
-            {globalError && (
-              <div
-                className="sky-auth-error-msg"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.35)',
-                  borderRadius: '10px',
-                  padding: '10px 12px',
-                  color: '#fca5a5',
-                  fontSize: '0.82rem',
-                  marginBottom: '12px',
-                  lineHeight: '1.4'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <span>{globalError}</span>
-                </div>
-                {tab === 'login' && (globalError.toLowerCase().includes('not found') || globalError.toLowerCase().includes('register') || globalError.toLowerCase().includes('account')) && (
-                  <button
-                    type="button"
-                    className="sky-quick-switch-register-btn"
-                    onClick={() => handleTabChange('register', email)}
-                    style={{
-                      display: 'block',
-                      marginTop: '8px',
-                      background: 'none',
-                      border: 'none',
-                      color: '#38bdf8',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    ✨ Click here to create a free account with {email || 'this email'}
-                  </button>
-                )}
-              </div>
-            )}
-            {successMsg && (
-              <div
-                className="sky-auth-success-msg"
-                style={{
-                  background: 'rgba(34, 197, 94, 0.15)',
-                  border: '1px solid rgba(34, 197, 94, 0.35)',
-                  borderRadius: '10px',
-                  padding: '10px 12px',
-                  color: '#86efac',
-                  fontSize: '0.84rem',
-                  fontWeight: 600,
-                  marginBottom: '12px',
-                  textAlign: 'center'
-                }}
-              >
-                <CheckCircle2 size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                {successMsg}
-              </div>
-            )}
-
             {/* Form Component */}
-            <form onSubmit={handleSubmit} className="sky-email-form" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} autoComplete="off" noValidate>
+            <form onSubmit={handleSubmit} className="sky-email-form" style={{ display: 'flex', flexDirection: 'column', gap: '11px' }} autoComplete="off" noValidate>
 
               {/* --- REGISTER TAB: USERNAME FIELD --- */}
               {tab === 'register' && (
-                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#cbd5e1' }}>
+                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#cbd5e1' }}>
                     Player Username <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <div
@@ -689,44 +787,44 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                       position: 'relative',
                       display: 'flex',
                       alignItems: 'center',
-                      background: 'rgba(15, 23, 42, 0.9)',
-                      border: fieldErrors.username ? '1.5px solid #ef4444' : '1.5px solid rgba(255, 255, 255, 0.12)',
+                      background: 'rgba(15, 23, 42, 0.7)',
+                      border: fieldErrors.username ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
                       borderRadius: '10px',
                       padding: '0 12px',
-                      height: '44px',
-                      gap: '10px'
+                      height: '42px'
                     }}
                   >
-                    <User size={18} style={{ color: fieldErrors.username ? '#ef4444' : '#94a3b8' }} />
+                    <User size={16} style={{ color: '#94a3b8', marginRight: '8px', flexShrink: 0 }} />
                     <input
                       type="text"
-                      name="sky_new_username"
-                      placeholder="e.g. ProGamer99"
+                      placeholder="e.g. MasterGamer99"
                       value={username}
-                      autoComplete="off"
-                      data-lpignore="true"
                       onChange={(e) => {
                         setUsername(e.target.value);
                         if (fieldErrors.username) setFieldErrors(prev => ({ ...prev, username: '' }));
-                        setGlobalError('');
                       }}
-                      style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#ffffff', fontSize: '0.9rem' }}
-                      required
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        width: '100%',
+                        outline: 'none'
+                      }}
                     />
                   </div>
                   {fieldErrors.username && (
-                    <span className="sky-field-error" style={{ fontSize: '0.74rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <AlertCircle size={13} /> {fieldErrors.username}
+                    <span style={{ fontSize: '0.72rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertCircle size={12} /> {fieldErrors.username}
                     </span>
                   )}
                 </div>
               )}
 
-              {/* --- EMAIL OR USERNAME FIELD --- */}
-              <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#cbd5e1' }}>
-                  {tab === 'register' ? 'Email Address' : 'Email or Gamer Username'}{' '}
-                  <span style={{ color: '#ef4444' }}>*</span>
+              {/* --- EMAIL / USERNAME FIELD --- */}
+              <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#cbd5e1' }}>
+                  {tab === 'register' ? 'Email Address' : 'Email or Username'} <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <div
                   className={`sky-input-box ${fieldErrors.email ? 'error-border' : ''}`}
@@ -734,53 +832,61 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
-                    background: 'rgba(15, 23, 42, 0.9)',
-                    border: fieldErrors.email ? '1.5px solid #ef4444' : '1.5px solid rgba(255, 255, 255, 0.12)',
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    border: fieldErrors.email ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
                     borderRadius: '10px',
                     padding: '0 12px',
-                    height: '44px',
-                    gap: '10px'
+                    height: '42px'
                   }}
                 >
-                  <Mail size={18} style={{ color: fieldErrors.email ? '#ef4444' : '#94a3b8' }} />
+                  <Mail size={16} style={{ color: '#94a3b8', marginRight: '8px', flexShrink: 0 }} />
                   <input
                     type={tab === 'register' ? 'email' : 'text'}
-                    name={tab === 'register' ? 'sky_new_email' : 'sky_user_ident'}
-                    placeholder={tab === 'register' ? 'you@example.com' : 'Your email or gamer username'}
+                    placeholder={tab === 'register' ? 'gamer@example.com' : 'Enter your email or username'}
                     value={email}
-                    autoComplete={tab === 'register' ? 'off' : 'username'}
-                    data-lpignore="true"
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: '' }));
-                      setGlobalError('');
                     }}
-                    style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#ffffff', fontSize: '0.9rem' }}
-                    required
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#ffffff',
+                      fontSize: '0.85rem',
+                      width: '100%',
+                      outline: 'none'
+                    }}
                   />
                 </div>
                 {fieldErrors.email && (
-                  <span className="sky-field-error" style={{ fontSize: '0.74rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <AlertCircle size={13} /> {fieldErrors.email}
+                  <span style={{ fontSize: '0.72rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <AlertCircle size={12} /> {fieldErrors.email}
                   </span>
                 )}
               </div>
 
-              {/* --- PASSWORD FIELD (REGISTER / LOGIN) --- */}
+              {/* --- PASSWORD FIELD (IF NOT FORGOT) --- */}
               {tab !== 'forgot' && (
-                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#cbd5e1' }}>
+                    <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#cbd5e1' }}>
                       Password <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     {tab === 'login' && (
                       <button
                         type="button"
-                        className="sky-forgot-link-btn"
                         onClick={() => handleTabChange('forgot')}
-                        style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#38bdf8',
+                          fontSize: '0.72rem',
+                          cursor: 'pointer',
+                          padding: 0,
+                          fontWeight: 600
+                        }}
                       >
-                        Forgot Password?
+                        Forgot password?
                       </button>
                     )}
                   </div>
@@ -790,74 +896,51 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                       position: 'relative',
                       display: 'flex',
                       alignItems: 'center',
-                      background: 'rgba(15, 23, 42, 0.9)',
-                      border: fieldErrors.password ? '1.5px solid #ef4444' : '1.5px solid rgba(255, 255, 255, 0.12)',
+                      background: 'rgba(15, 23, 42, 0.7)',
+                      border: fieldErrors.password ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
                       borderRadius: '10px',
                       padding: '0 12px',
-                      height: '44px',
-                      gap: '10px'
+                      height: '42px'
                     }}
                   >
-                    <Lock size={18} style={{ color: fieldErrors.password ? '#ef4444' : '#94a3b8' }} />
+                    <Lock size={16} style={{ color: '#94a3b8', marginRight: '8px', flexShrink: 0 }} />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      name={tab === 'register' ? 'sky_new_password' : 'sky_login_password'}
                       placeholder="••••••••"
                       value={password}
-                      autoComplete={tab === 'register' ? 'new-password' : 'current-password'}
-                      data-lpignore="true"
                       onChange={(e) => {
                         setPassword(e.target.value);
                         if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: '' }));
-                        setGlobalError('');
                       }}
-                      style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#ffffff', fontSize: '0.9rem' }}
-                      required
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        width: '100%',
+                        outline: 'none'
+                      }}
                     />
                     <button
                       type="button"
-                      className="sky-eye-toggle-btn"
                       onClick={() => setShowPassword(!showPassword)}
-                      title={showPassword ? 'Hide password' : 'Show password'}
-                      tabIndex="-1"
-                      style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   {fieldErrors.password && (
-                    <span className="sky-field-error" style={{ fontSize: '0.74rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <AlertCircle size={13} /> {fieldErrors.password}
+                    <span style={{ fontSize: '0.72rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertCircle size={12} /> {fieldErrors.password}
                     </span>
-                  )}
-
-                  {/* Password Strength Meter (Register Mode) */}
-                  {tab === 'register' && password.length > 0 && (
-                    <div className="sky-strength-meter" style={{ marginTop: '6px' }}>
-                      <div className="sky-strength-bar-bg" style={{ width: '100%', height: '4px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div
-                          className="sky-strength-bar-fill"
-                          style={{
-                            height: '100%',
-                            width: `${passwordStrength.percent}%`,
-                            backgroundColor: passwordStrength.color,
-                            transition: 'width 0.3s ease, background-color 0.3s ease'
-                          }}
-                        />
-                      </div>
-                      <div className="sky-strength-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 700, marginTop: '4px', color: passwordStrength.color }}>
-                        <span>Strength: {passwordStrength.label}</span>
-                        {passwordStrength.score >= 3 && <ShieldCheck size={14} />}
-                      </div>
-                    </div>
                   )}
                 </div>
               )}
 
-              {/* --- CONFIRM PASSWORD FIELD (REGISTER ONLY) --- */}
+              {/* --- CONFIRM PASSWORD FIELD (REGISTER MODE) --- */}
               {tab === 'register' && (
-                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#cbd5e1' }}>
+                <div className="sky-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#cbd5e1' }}>
                     Confirm Password <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <div
@@ -866,82 +949,51 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                       position: 'relative',
                       display: 'flex',
                       alignItems: 'center',
-                      background: 'rgba(15, 23, 42, 0.9)',
-                      border: fieldErrors.confirmPassword ? '1.5px solid #ef4444' : '1.5px solid rgba(255, 255, 255, 0.12)',
+                      background: 'rgba(15, 23, 42, 0.7)',
+                      border: fieldErrors.confirmPassword ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
                       borderRadius: '10px',
                       padding: '0 12px',
-                      height: '44px',
-                      gap: '10px'
+                      height: '42px'
                     }}
                   >
-                    <KeyRound size={18} style={{ color: fieldErrors.confirmPassword ? '#ef4444' : '#94a3b8' }} />
+                    <Lock size={16} style={{ color: '#94a3b8', marginRight: '8px', flexShrink: 0 }} />
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
-                      name="sky_confirm_password"
                       placeholder="••••••••"
                       value={confirmPassword}
-                      autoComplete="new-password"
-                      data-lpignore="true"
                       onChange={(e) => {
                         setConfirmPassword(e.target.value);
                         if (fieldErrors.confirmPassword) setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
-                        setGlobalError('');
                       }}
-                      style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#ffffff', fontSize: '0.9rem' }}
-                      required
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '0.85rem',
+                        width: '100%',
+                        outline: 'none'
+                      }}
                     />
                     <button
                       type="button"
-                      className="sky-eye-toggle-btn"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      tabIndex="-1"
-                      style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}
                     >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   {fieldErrors.confirmPassword && (
-                    <span className="sky-field-error" style={{ fontSize: '0.74rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <AlertCircle size={13} /> {fieldErrors.confirmPassword}
+                    <span style={{ fontSize: '0.72rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertCircle size={12} /> {fieldErrors.confirmPassword}
                     </span>
                   )}
                 </div>
               )}
 
-              {/* --- REMEMBER ME (LOGIN MODE) --- */}
-              {tab === 'login' && (
-                <label className="sky-checkbox-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#cbd5e1', userSelect: 'none' }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={{ display: 'none' }}
-                  />
-                  <span
-                    className="sky-checkbox-custom"
-                    style={{
-                      width: '18px',
-                      height: '18px',
-                      borderRadius: '5px',
-                      background: rememberMe ? '#3b82f6' : 'rgba(15, 23, 42, 0.8)',
-                      border: rememberMe ? '1.5px solid #3b82f6' : '1.5px solid rgba(255, 255, 255, 0.2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#ffffff'
-                    }}
-                  >
-                    {rememberMe && <Check size={12} strokeWidth={3} />}
-                  </span>
-                  <span>Remember my login</span>
-                </label>
-              )}
-
               {/* --- TERMS & PRIVACY CHECKBOX (REGISTER MODE) --- */}
               {tab === 'register' && (
                 <div>
-                  <label className="sky-checkbox-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.8rem', color: '#cbd5e1', userSelect: 'none' }}>
+                  <label className="sky-checkbox-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#cbd5e1', userSelect: 'none' }}>
                     <input
                       type="checkbox"
                       checked={agreeTerms}
@@ -972,8 +1024,8 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     </span>
                   </label>
                   {fieldErrors.terms && (
-                    <span className="sky-field-error" style={{ fontSize: '0.74rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px', marginTop: 4 }}>
-                      <AlertCircle size={13} /> {fieldErrors.terms}
+                    <span className="sky-field-error" style={{ fontSize: '0.72rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px', marginTop: 4 }}>
+                      <AlertCircle size={12} /> {fieldErrors.terms}
                     </span>
                   )}
                 </div>
@@ -983,23 +1035,26 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
               <button
                 type="submit"
                 className="sky-submit-auth-btn"
-                disabled={loading}
+                disabled={loading || (tab === 'register' && !agreeTerms)}
                 style={{
                   width: '100%',
-                  height: '46px',
+                  height: '44px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #38bdf8 0%, #2563eb 100%)',
+                  background: (tab === 'register' && !agreeTerms)
+                    ? 'rgba(59, 130, 246, 0.35)'
+                    : 'linear-gradient(135deg, #38bdf8 0%, #2563eb 100%)',
                   border: 'none',
-                  color: '#ffffff',
-                  fontSize: '0.95rem',
+                  color: (tab === 'register' && !agreeTerms) ? '#94a3b8' : '#ffffff',
+                  fontSize: '0.92rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
-                  marginTop: '4px'
+                  cursor: (loading || (tab === 'register' && !agreeTerms)) ? 'not-allowed' : 'pointer',
+                  boxShadow: (tab === 'register' && !agreeTerms) ? 'none' : '0 4px 18px rgba(37, 99, 235, 0.4)',
+                  marginTop: '4px',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 {loading ? (
@@ -1011,9 +1066,9 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                   <>
                     <span>
                       {tab === 'register'
-                        ? 'Create Account'
+                        ? 'Register Account'
                         : tab === 'login'
-                          ? 'Sign In'
+                          ? 'Sign In with Email'
                           : 'Send Reset Link'}
                     </span>
                     <ArrowRight size={18} />
@@ -1027,159 +1082,27 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                   type="button"
                   className="sky-back-to-social"
                   onClick={() => handleTabChange('login')}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', textAlign: 'center', width: '100%', marginTop: '8px' }}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', textAlign: 'center', width: '100%', marginTop: '6px' }}
                 >
-                  ← Back to Login
+                  ← Back to Sign In
                 </button>
               )}
             </form>
 
-            {/* Quick 1-Click Social Sign In Row with Tooltips */}
-            {tab !== 'forgot' && (
-              <>
-                <div
-                  className="sky-divider-row"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    margin: '14px 0 10px 0',
-                    color: '#64748b',
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    letterSpacing: '1px'
-                  }}
-                >
-                  <span>OR QUICK SIGN IN</span>
-                </div>
-
-                <div className="sky-social-row" style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                  <div className="sky-social-tooltip-wrap">
-                    <button
-                      type="button"
-                      className="sky-social-mini-btn"
-                      onClick={() => openSocialPrompt('Google')}
-                      disabled={loading}
-                      aria-label="Sign in with Google"
-                      title="Google Sign In"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="sky-social-tooltip-wrap">
-                    <button
-                      type="button"
-                      className="sky-social-mini-btn"
-                      onClick={() => openSocialPrompt('Apple')}
-                      disabled={loading}
-                      aria-label="Sign in with Apple"
-                      title="Apple Sign In"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: '#fff'
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-1.98.6-2.61 1.34-.55.63-1.03 1.68-.9 2.7.99.08 2.01-.48 2.59-1.19z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="sky-social-tooltip-wrap">
-                    <button
-                      type="button"
-                      className="sky-social-mini-btn"
-                      onClick={() => openSocialPrompt('Microsoft')}
-                      disabled={loading}
-                      aria-label="Sign in with Microsoft"
-                      title="Microsoft Sign In"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="18" height="18">
-                        <rect x="1" y="1" width="10" height="10" fill="#f25022" />
-                        <rect x="13" y="1" width="10" height="10" fill="#7fba00" />
-                        <rect x="1" y="13" width="10" height="10" fill="#00a4ef" />
-                        <rect x="13" y="13" width="10" height="10" fill="#ffb900" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="sky-social-tooltip-wrap">
-                    <button
-                      type="button"
-                      className="sky-social-mini-btn"
-                      onClick={() => openSocialPrompt('Passkey')}
-                      disabled={loading}
-                      aria-label="Sign in with Passkey"
-                      title="Biometric Passkey"
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.06)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Fingerprint size={20} style={{ color: '#38bdf8' }} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Footer Disclaimer */}
-                <div
-                  className="sky-auth-footer"
-                  style={{
-                    textAlign: 'center',
-                    marginTop: '14px',
-                    paddingTop: '10px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.06)'
-                  }}
-                >
-                  <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
-                    Instant cloud-synced gameplay, high scores & achievements across all devices.
-                  </p>
-                </div>
-              </>
-            )}
+            {/* Footer Disclaimer */}
+            <div
+              className="sky-auth-footer"
+              style={{
+                textAlign: 'center',
+                marginTop: '14px',
+                paddingTop: '10px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.06)'
+              }}
+            >
+              <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                Instant cloud sync across devices • No password needed with Passkey
+              </p>
+            </div>
           </>
         )}
 

@@ -137,22 +137,6 @@ export default function SkySearchBar({
           >
             {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
           </button>
-
-          {/* User / Profile Quick Button */}
-          <button
-            className="sky-quick-btn user-btn"
-            onClick={() => {
-              try { sounds.playClick(); } catch (err) { }
-              if (typeof onOpenAuth === 'function') onOpenAuth();
-            }}
-            title={user ? `Profile: ${user.name}` : "Log In / Register"}
-          >
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="sky-user-tiny-avatar" />
-            ) : (
-              <User size={20} />
-            )}
-          </button>
         </div>
       </div>
 

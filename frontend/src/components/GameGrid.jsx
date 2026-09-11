@@ -2,8 +2,6 @@ import React, { useState, useMemo, memo } from 'react';
 import {
   Gamepad2,
   SlidersHorizontal,
-  ArrowLeft,
-  Play,
   ChevronDown
 } from 'lucide-react';
 import GameCard from './GameCard';
@@ -32,7 +30,10 @@ const GameGrid = memo(function GameGrid({
   activeCategory = '',
   onSelectCategory,
   activePage = 'home',
-  searchQuery = ''
+  searchQuery = '',
+  onOpenAuth,
+  onFocusSearch,
+  user
 }) {
   const [sortBy, setSortBy] = useState('popular');
   const [visibleLimit, setVisibleLimit] = useState(INITIAL_BATCH_SIZE);
@@ -54,21 +55,15 @@ const GameGrid = memo(function GameGrid({
 
   const isHomeView = activePage === 'home' && !activeCategory && !searchQuery;
 
-  // Find featured spotlight game if available
-  const featuredGame = useMemo(() => {
-    if (!isHomeView || !games || games.length === 0) return null;
-    return games.find(g => g.featured) || (games.length >= 4 ? games[0] : null);
-  }, [isHomeView, games]);
-
   // If no games exist on the platform
   if (!games || games.length === 0) {
     return (
-      <div className="empty-grid-state" style={{ minHeight: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '60px 20px', background: 'rgba(18, 22, 34, 0.4)', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.06)', backdropFilter: 'blur(12px)', margin: '20px 0' }}>
-        <div className="empty-icon-circle" style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(245, 45, 126, 0.3)', boxShadow: '0 0 30px rgba(245, 45, 126, 0.2)' }}>
+      <div className="empty-grid-state" style={{ minHeight: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '60px 20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', margin: '20px 0' }}>
+        <div className="empty-icon-circle" style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(245, 45, 126, 0.25)' }}>
           <Gamepad2 size={44} color="#f52d7e" />
         </div>
-        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff', marginBottom: '10px' }}>No games available</h3>
-        <p style={{ color: '#94a3b8', maxWidth: '440px', fontSize: '0.95rem', lineHeight: '1.6', margin: '0 auto 20px' }}>
+        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '10px' }}>No games available</h3>
+        <p style={{ color: '#64748b', maxWidth: '440px', fontSize: '0.95rem', lineHeight: '1.6', margin: '0 auto 20px' }}>
           There are currently no games published. Add games through the <strong>Admin Control Panel</strong> to display them here live.
         </p>
       </div>
@@ -85,95 +80,21 @@ const GameGrid = memo(function GameGrid({
 
   return (
     <section className="gamepix-category-grid-section">
-      {/* Featured Spotlight Banner (if on home view and a featured game exists) */}
-      {featuredGame && (
-        <div
-          className="home-spotlight-hero"
-          onClick={() => {
-            sounds.playClick();
-            onPlayGame(featuredGame);
-          }}
-          style={{
-            position: 'relative',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            marginBottom: '24px',
-            cursor: 'pointer',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            background: `linear-gradient(to right, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.7) 60%, rgba(15, 23, 42, 0.4) 100%), url(${featuredGame.banner || featuredGame.thumbnail}) center/cover no-repeat`,
-            minHeight: '200px',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '28px',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)'
-          }}
-        >
-          <div style={{ maxWidth: '520px', zIndex: 2 }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-              <span style={{ background: '#3b82f6', color: '#fff', fontSize: '0.75rem', fontWeight: '700', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>
-                ⭐ Featured Game
-              </span>
-              <span style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: '600', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>
-                {featuredGame.category}
-              </span>
-            </div>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#fff', margin: '0 0 8px 0' }}>
-              {featuredGame.title}
-            </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5', margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-              {featuredGame.description || 'Play this exciting game now on SKYGAMES!'}
-            </p>
-            <button
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: '#3b82f6',
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '0.9rem',
-                padding: '9px 20px',
-                borderRadius: '10px',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)'
-              }}
-            >
-              <Play size={16} fill="#ffffff" /> Play Now
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Quick Category Chips Bar */}
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '14px', marginBottom: '10px', scrollbarWidth: 'none' }}>
+      <div className="quick-cat-scroll-bar">
         {QUICK_CATEGORIES.map(cat => {
           const isActive = (activeCategory === cat.id) || (!activeCategory && cat.id === '' && isHomeView);
           return (
             <button
               key={cat.id || 'all'}
+              className={`category-quick-pill ${isActive ? 'active' : ''}`}
               onClick={() => {
                 sounds.playClick();
                 if (onSelectCategory) onSelectCategory(cat.id);
               }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 14px',
-                borderRadius: '10px',
-                fontSize: '0.82rem',
-                fontWeight: '600',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                background: isActive ? '#3b82f6' : '#1e293b',
-                color: isActive ? '#ffffff' : '#94a3b8',
-                border: isActive ? '1px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.08)'
-              }}
             >
-              <span>{cat.icon}</span>
-              <span>{cat.name}</span>
+              <span className="pill-emoji-icon">{cat.icon}</span>
+              <span className="pill-name-text">{cat.name}</span>
             </button>
           );
         })}
@@ -182,20 +103,6 @@ const GameGrid = memo(function GameGrid({
       {/* Grid Header */}
       <div className="grid-header-row">
         <div className="grid-title-group">
-          {!isHomeView && (
-            <button
-              className="gamepix-grid-back-btn"
-              onClick={() => {
-                sounds.playClick();
-                if (onSelectCategory) onSelectCategory('');
-              }}
-              title="Back to all games / Home"
-            >
-              <ArrowLeft size={16} />
-              <span>All Games</span>
-            </button>
-          )}
-
           <h2 className="grid-main-title sky-brand-heading">
             {searchQuery ? (
               <>Search Results for: <span className="highlight-text">"{searchQuery}"</span></>
@@ -203,7 +110,6 @@ const GameGrid = memo(function GameGrid({
               title || (activeCategory ? `${activeCategory.toUpperCase()} GAMES` : '🎮 All Games')
             )}
           </h2>
-          <span className="grid-total-pill">{sortedList.length} GAMES</span>
         </div>
 
         {/* Sort Controls */}
@@ -227,17 +133,36 @@ const GameGrid = memo(function GameGrid({
         </div>
       </div>
 
-      {/* Main Game Cards Grid */}
-      <div className="game-cards-masonry-grid">
-        {displayedGames.map((game) => (
-          <GameCard
-            key={game.id}
-            game={game}
-            onPlay={onPlayGame}
-            isFavorite={favorites.includes(game.id)}
-            onToggleFavorite={onToggleFavorite}
-          />
-        ))}
+      {/* Main Game Cards Dense Poki Mosaic Grid */}
+      <div className="game-cards-masonry-grid poki-masonry-grid">
+        {displayedGames.map((game, index) => {
+          // Priority 1: Exact size configured in Admin (1x1, 2x2, 2x1, 1x2)
+          let sizeVariant = game.tileSize;
+
+          // Priority 2: If size is 'auto' or not set, use intelligent Poki mosaic distribution
+          if (!sizeVariant || sizeVariant === 'auto') {
+            if (game.featured || index === 0) {
+              sizeVariant = '2x2';
+            } else if (index === 5 || index === 14 || index === 25 || index === 36) {
+              sizeVariant = '2x1';
+            } else if (index === 8 || index === 19 || index === 31) {
+              sizeVariant = '2x2';
+            } else {
+              sizeVariant = '1x1';
+            }
+          }
+
+          return (
+            <GameCard
+              key={game.id || game._id || index}
+              game={game}
+              onPlay={onPlayGame}
+              isFavorite={(favorites || []).includes(game.id || game._id)}
+              onToggleFavorite={onToggleFavorite}
+              sizeVariant={sizeVariant}
+            />
+          );
+        })}
       </div>
 
       {/* Load More Button if there are more games */}
@@ -251,15 +176,15 @@ const GameGrid = memo(function GameGrid({
               alignItems: 'center',
               gap: '8px',
               padding: '12px 32px',
-              background: 'linear-gradient(135deg, rgba(245, 45, 126, 0.2), rgba(0, 242, 254, 0.2))',
-              border: '1.5px solid rgba(0, 242, 254, 0.4)',
+              background: '#ffffff',
+              border: '1.5px solid #2563eb',
               borderRadius: '50px',
-              color: '#fff',
+              color: '#2563eb',
               fontSize: '0.95rem',
               fontWeight: '800',
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-              transition: 'all 0.25s ease'
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+              transition: 'all 0.2s ease'
             }}
           >
             <span>Show More Games ({sortedList.length - visibleLimit} Remaining)</span>
@@ -271,13 +196,13 @@ const GameGrid = memo(function GameGrid({
       {/* Search / Filter Empty State */}
       {sortedList.length === 0 && (
         <div className="empty-grid-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
-          <div className="empty-icon-circle" style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <div className="empty-icon-circle" style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid rgba(245, 45, 126, 0.25)' }}>
             <Gamepad2 size={36} color="#f52d7e" />
           </div>
-          <h3 style={{ fontSize: '1.3rem', color: '#fff', marginBottom: '8px' }}>
+          <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '8px', fontWeight: '800' }}>
             {searchQuery ? 'No games found' : 'No games in this category yet'}
           </h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
             {searchQuery
               ? 'Try searching for another keyword or selecting a different category from the pills above.'
               : 'Add games under this category from the Admin Control Panel.'}

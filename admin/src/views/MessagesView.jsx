@@ -1,14 +1,92 @@
 import React, { useState } from 'react';
 
-export default function MessagesView({ messages, onMarkRead, onDeleteMessage }) {
+export default function MessagesView({ messages = [], onRead, onMarkAllRead, onDeleteMessage }) {
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [filterType, setFilterType] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredMessages = messages.filter((msg) => {
+    const matchesType = filterType === 'all' || msg.type === filterType;
+    const matchesSearch = 
+      (msg.name && msg.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (msg.email && msg.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (msg.subject && msg.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (msg.message && msg.message.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    return matchesType && matchesSearch;
+  });
+
+  const unreadCount = messages.filter(m => !m.read).length;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: selectedMessage ? '1.2fr 1fr' : '1fr', gap: 24 }}>
       {/* Message List */}
       <div className="glass-panel">
         <div className="panel-header">
-          <h2 className="panel-title">📩 Inbox & User Feedback ({messages.length})</h2>
+          <div>
+            <h2 className="panel-title">
+              <span style={{ color: 'var(--accent-cyan)' }}>📩</span>
+              <span>Player Inbox & Support Stream ({messages.length})</span>
+            </h2>
+            <span className="panel-subtitle">Feedback, bug reports, and partnership inquiries from the player community</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {unreadCount > 0 && onMarkAllRead && (
+              <button
+                className="header-btn"
+                style={{ fontSize: '0.78rem', padding: '5px 10px' }}
+                onClick={onMarkAllRead}
+                title="Mark all inquiries as read"
+              >
+                ✓ Mark All Read
+              </button>
+            )}
+            <span className="live-indicator">
+              <span>{unreadCount} Unread</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Filter Toolbar */}
+        <div className="filter-bar">
+          <div className="search-input-wrapper">
+            <span className="search-icon-pos">🔍</span>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search sender, email, subject..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="chart-toggle-group">
+            <button
+              className={`chart-toggle-btn ${filterType === 'all' ? 'active' : ''}`}
+              onClick={() => setFilterType('all')}
+            >
+              All ({messages.length})
+            </button>
+            <button
+              className={`chart-toggle-btn ${filterType === 'Bug Report' ? 'active' : ''}`}
+              onClick={() => setFilterType('Bug Report')}
+            >
+              Bugs 🐛
+            </button>
+            <button
+              className={`chart-toggle-btn ${filterType === 'Game Request' ? 'active' : ''}`}
+              onClick={() => setFilterType('Game Request')}
+            >
+              Requests 💡
+            </button>
+            <button
+              className={`chart-toggle-btn ${filterType === 'Partnership' ? 'active' : ''}`}
+              onClick={() => setFilterType('Partnership')}
+            >
+              Partners 🤝
+            </button>
+          </div>
         </div>
 
         <div className="table-responsive">
@@ -19,53 +97,63 @@ export default function MessagesView({ messages, onMarkRead, onDeleteMessage }) 
                 <th>Type</th>
                 <th>Subject</th>
                 <th>Date</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {messages.length === 0 ? (
+              {filteredMessages.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                    No messages in your inbox.
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                    No messages found.
                   </td>
                 </tr>
               ) : (
-                messages.map((msg) => (
+                filteredMessages.map((msg) => (
                   <tr 
                     key={msg.id} 
                     style={{ 
                       cursor: 'pointer',
-                      background: msg.read ? 'transparent' : 'rgba(0, 255, 204, 0.04)' 
+                      background: selectedMessage?.id === msg.id 
+                        ? 'rgba(0, 242, 254, 0.08)' 
+                        : !msg.read 
+                          ? 'rgba(0, 242, 254, 0.03)' 
+                          : 'transparent'
                     }}
                     onClick={() => {
                       setSelectedMessage(msg);
-                      if (!msg.read) onMarkRead(msg.id);
+                      if (!msg.read && onRead) onRead(msg.id);
                     }}
                   >
                     <td>
                       <div>
-                        <div style={{ fontWeight: msg.read ? 600 : 800, color: '#fff' }}>
-                          {!msg.read && <span style={{ color: 'var(--accent-cyan)', marginRight: 6 }}>●</span>}
-                          {msg.name}
+                        <div style={{ fontWeight: msg.read ? 600 : 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {!msg.read && <span style={{ color: 'var(--accent-cyan)', fontSize: '0.8rem' }}>●</span>}
+                          <span>{msg.name}</span>
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{msg.email}</div>
+                        <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{msg.email}</div>
                       </div>
                     </td>
+
                     <td>
-                      <span className={`status-badge ${msg.type === 'Bug Report' ? 'featured' : 'active'}`}>
+                      <span className={`status-badge ${msg.type === 'Bug Report' ? 'rejected' : 'active'}`}>
                         {msg.type}
                       </span>
                     </td>
+
                     <td>
-                      <span style={{ fontWeight: msg.read ? 500 : 700, color: '#fff' }}>
+                      <span style={{ fontWeight: msg.read ? 500 : 700, color: '#fff', fontSize: '0.84rem' }}>
                         {msg.subject}
                       </span>
                     </td>
+
                     <td>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{msg.date}</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                        {msg.date}
+                      </span>
                     </td>
-                    <td>
-                      <div className="action-btn-group" onClick={(e) => e.stopPropagation()}>
+
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="action-btn-group" style={{ justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
                         <button
                           className="icon-action-btn delete"
                           title="Delete message"
@@ -90,34 +178,46 @@ export default function MessagesView({ messages, onMarkRead, onDeleteMessage }) 
       {selectedMessage && (
         <div className="glass-panel" style={{ height: 'fit-content' }}>
           <div className="panel-header">
-            <h2 className="panel-title">📖 Message Details</h2>
+            <div>
+              <h2 className="panel-title">
+                <span>📖</span>
+                <span>Inquiry Details</span>
+              </h2>
+              <span className="panel-subtitle">Received from {selectedMessage.email}</span>
+            </div>
             <button className="close-btn" onClick={() => setSelectedMessage(null)}>&times;</button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <span className={`status-badge ${selectedMessage.type === 'Bug Report' ? 'featured' : 'active'}`}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className={`status-badge ${selectedMessage.type === 'Bug Report' ? 'rejected' : 'active'}`}>
                 {selectedMessage.type}
               </span>
-              <h3 style={{ fontSize: '1.2rem', color: '#fff', marginTop: 10 }}>{selectedMessage.subject}</h3>
+              <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                {selectedMessage.date}
+              </span>
             </div>
 
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: 14, borderRadius: 8, border: '1px solid var(--border-glass)' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>From: <strong style={{ color: '#fff' }}>{selectedMessage.name}</strong> ({selectedMessage.email})</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: 4 }}>Date: {selectedMessage.date}</div>
+            <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '14px' }}>
+              <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>SUBJECT</div>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginTop: 2 }}>{selectedMessage.subject}</div>
             </div>
 
-            <div style={{ padding: '16px', background: 'rgba(0,0,0,0.3)', borderRadius: 8, border: '1px solid var(--border-glass)', lineHeight: 1.6, color: '#f0f4fc' }}>
-              {selectedMessage.message}
+            <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '14px' }}>
+              <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>MESSAGE CONTENT</div>
+              <div style={{ fontSize: '0.88rem', color: 'var(--text-body)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                {selectedMessage.message}
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
               <a
                 href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject)}`}
-                className="header-btn primary"
-                style={{ flex: 1, justifyContent: 'center' }}
+                className="admin-btn primary"
+                style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
               >
-                ✉️ Reply via Email
+                <span>📧</span>
+                <span>Reply via Email</span>
               </a>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
-import { Search, X, User, Gamepad2, Menu } from 'lucide-react';
+import { Search, X, Gamepad2, Menu } from 'lucide-react';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
 
@@ -13,7 +13,8 @@ const SkyNavbar = memo(function SkyNavbar({
   onSelectGame,
   onOpenAuth,
   user,
-  onToggleSidebar
+  onToggleSidebar,
+  onOpenSidebar
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
@@ -144,47 +145,6 @@ const SkyNavbar = memo(function SkyNavbar({
                 ))}
               </div>
             )}
-          </div>
-
-          {/* 4. Action Buttons (Login / Profile) */}
-          <div className="sky-navbar-right-group">
-            {/* Separate Advanced Login / Account Button */}
-            <button
-              type="button"
-              className={`sky-advanced-auth-btn ${user ? 'is-logged-in' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try { sounds.playClick(); } catch (err) { }
-                if (typeof onOpenAuth === 'function') {
-                  onOpenAuth();
-                }
-              }}
-              title={user ? `Profile: ${user.username || user.name || 'Gamer'}` : "Login or Create Account"}
-            >
-              {user ? (
-                <>
-                  <img
-                    src={user.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.username || user.name || 'gamer')}`}
-                    alt={user.username || user.name}
-                    className="sky-user-auth-avatar"
-                  />
-                  <div className="sky-user-auth-meta">
-                    <span className="sky-user-auth-name" title={user.username || user.name}>
-                      {user.username || user.name || (typeof user.email === 'string' ? user.email.split('@')[0] : 'Player')}
-                    </span>
-                    <span className="sky-user-auth-status">● {user.role === 'admin' ? 'Admin' : 'Active'}</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="sky-auth-icon-circle">
-                    <User size={18} />
-                  </div>
-                  <span className="sky-auth-btn-text">Sign In</span>
-                </>
-              )}
-            </button>
           </div>
 
         </div>
