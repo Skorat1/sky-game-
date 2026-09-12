@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WEEKLY_ANALYTICS } from '../data/defaultData';
 import { socket } from '../utils/socket';
+import GameSandboxModal from '../components/GameSandboxModal';
 
 export default function DashboardView({
   games = [],
@@ -19,52 +20,50 @@ export default function DashboardView({
       setOnlineCount(propOnlineCount);
     }
   }, [propOnlineCount]);
+
   const [activities, setActivities] = useState([]);
   const [activityFilter, setActivityFilter] = useState('all');
   const [chartMetric, setChartMetric] = useState('plays'); // 'plays' | 'players' | 'sessions'
-  const [timeRange, setTimeRange] = useState('7d'); // '24h' | '7d' | '30d' | '1y'
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [activePlayTestUrl, setActivePlayTestUrl] = useState(null);
+  const [activePlayGame, setActivePlayGame] = useState(null);
 
-  // Initial demo activities if stream is empty
+  // Clean demo activities
   const defaultActivities = [
     {
       id: 'act-1',
-      title: 'Game Session Started',
-      detail: 'Player initiated Cyber Runner Neon Edition',
+      title: 'Game Started',
+      detail: 'Cyber Runner Neon',
       category: 'game',
       icon: '🎮',
       timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString()
     },
     {
       id: 'act-2',
-      title: 'New Gamer Registered',
-      detail: 'User "alex_99" joined the platform',
+      title: 'New User Registered',
+      detail: 'alex_99 joined',
       category: 'user',
       icon: '👤',
       timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString()
     },
     {
       id: 'act-3',
-      title: 'High Score Achieved',
-      detail: 'New record (48,250 pts) in Knife Clash Arena',
+      title: 'High Score',
+      detail: 'Knife Clash (48,250 pts)',
       category: 'trophy',
       icon: '🏆',
       timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString()
     },
     {
       id: 'act-4',
-      title: 'Game Submission Received',
-      detail: 'Developer submitted "Galactic Drift Racer"',
+      title: 'Game Submitted',
+      detail: 'Galactic Drift Racer',
       category: 'submission',
       icon: '🚀',
       timestamp: new Date(Date.now() - 1000 * 60 * 42).toISOString()
     },
     {
       id: 'act-5',
-      title: 'Player Feedback Sent',
-      detail: 'Inquiry received regarding multiplayer tournament',
+      title: 'New Feedback',
+      detail: 'Multiplayer tournament inquiry',
       category: 'support',
       icon: '💬',
       timestamp: new Date(Date.now() - 1000 * 60 * 75).toISOString()
@@ -72,7 +71,6 @@ export default function DashboardView({
   ];
 
   useEffect(() => {
-    // Immediate fetch for instant live count
     fetch('http://localhost:5000/api/stats/online')
       .then(res => res.json())
       .then(data => {
@@ -99,7 +97,7 @@ export default function DashboardView({
     });
 
     socket.on('activity:new', (newAct) => {
-      setActivities(prev => [newAct, ...prev.slice(0, 24)]);
+      setActivities(prev => [newAct, ...prev.slice(0, 20)]);
     });
 
     if (activities.length === 0) {
@@ -113,35 +111,21 @@ export default function DashboardView({
     };
   }, []);
 
-  const handleManualRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setLastUpdated(new Date());
-      setIsRefreshing(false);
-    }, 600);
-  };
-
   const totalPlays = games.reduce((acc, g) => acc + (g.plays || 0), 0);
   const featuredGames = games.filter(g => g.featured);
   const pendingSubmissions = submissions.filter(s => s.status === 'pending');
   const unreadMessages = messages.filter(m => !m.read);
-
-  // Dynamic Chart Multipliers based on time range
-  const timeMultipliers = { '24h': 0.25, '7d': 1, '30d': 3.8, '1y': 42 };
-  const mult = timeMultipliers[timeRange] || 1;
+  const activeGamersCount = users.filter(u => u.role === 'vip' || u.level > 1).length;
 
   const dynamicAnalytics = WEEKLY_ANALYTICS.map(item => ({
     ...item,
-    plays: Math.round(item.plays * mult),
-    players: Math.round(item.players * mult),
-    sessions: Math.round(item.plays * 1.4 * mult)
+    sessions: Math.round(item.plays * 1.4)
   }));
 
   const activeMax = Math.max(...dynamicAnalytics.map(d => 
     chartMetric === 'plays' ? d.plays : chartMetric === 'players' ? d.players : d.sessions
   ));
 
-  // Category counts
   const categoryCounts = games.reduce((acc, g) => {
     const cat = g.category || 'other';
     acc[cat] = (acc[cat] || 0) + 1;
@@ -155,13 +139,13 @@ export default function DashboardView({
 
   return (
     <div className="overview-container">
-      {/* 6 Key Stat Cards Grid */}
+      {/* 6 Clean High-Impact Stat Cards */}
       <div className="stats-grid">
-        {/* Card 1: Live Active Gamers */}
+        {/* Card 1: Live Users */}
         <div className="stat-card stat-card-live">
           <div className="stat-info">
             <div className="stat-header-row">
-              <span className="stat-label">Live Concurrency</span>
+              <span className="stat-label">Online</span>
               <span className="live-indicator">
                 <span className="live-dot" /> LIVE
               </span>
@@ -169,7 +153,7 @@ export default function DashboardView({
             <div className="stat-value">{onlineCount.toLocaleString()}</div>
             <div className="stat-trend trend-up">
               <span>⚡</span>
-              <span>Live Website Visitors</span>
+              <span>Active now</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-emerald">
@@ -180,11 +164,11 @@ export default function DashboardView({
         {/* Card 2: Registered Gamers */}
         <div className="stat-card" onClick={() => onNavigateTab('users')} style={{ cursor: 'pointer' }}>
           <div className="stat-info">
-            <span className="stat-label">Registered Gamers</span>
+            <span className="stat-label">Users</span>
             <div className="stat-value">{users.length.toLocaleString()}</div>
             <div className="stat-trend trend-up">
               <span>↑</span>
-              <span>{users.filter(u => u.role === 'vip' || u.level > 1).length} Active Gamers</span>
+              <span>{activeGamersCount} Active</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-blue">
@@ -195,11 +179,11 @@ export default function DashboardView({
         {/* Card 3: Catalog Games */}
         <div className="stat-card" onClick={() => onNavigateTab('games')} style={{ cursor: 'pointer' }}>
           <div className="stat-info">
-            <span className="stat-label">Catalog Games</span>
+            <span className="stat-label">Games</span>
             <div className="stat-value">{games.length}</div>
             <div className="stat-trend trend-up">
               <span>⭐</span>
-              <span>{featuredGames.length} Spotlight Featured</span>
+              <span>{featuredGames.length} Featured</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-purple">
@@ -210,26 +194,26 @@ export default function DashboardView({
         {/* Card 4: Total Plays */}
         <div className="stat-card">
           <div className="stat-info">
-            <span className="stat-label">Total Play Sessions</span>
+            <span className="stat-label">Total Plays</span>
             <div className="stat-value">{totalPlays.toLocaleString()}</div>
             <div className="stat-trend trend-up">
-              <span>⚡</span>
-              <span>+24.6% growth</span>
+              <span>🔥</span>
+              <span>+24% Growth</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-amber">
-            <span>🔥</span>
+            <span>⚡</span>
           </div>
         </div>
 
-        {/* Card 5: Dev Submissions */}
+        {/* Card 5: Submissions */}
         <div className="stat-card" onClick={() => onNavigateTab('submissions')} style={{ cursor: 'pointer' }}>
           <div className="stat-info">
-            <span className="stat-label">Dev Submissions</span>
-            <div className="stat-value">{pendingSubmissions.length}</div>
+            <span className="stat-label">Submissions</span>
+            <div className="stat-value">{submissions.length}</div>
             <div className={`stat-trend ${pendingSubmissions.length > 0 ? 'trend-warn' : 'trend-up'}`}>
               <span>{pendingSubmissions.length > 0 ? '⚠️' : '✓'}</span>
-              <span>{pendingSubmissions.length > 0 ? 'Review Required' : 'All Approved'}</span>
+              <span>{pendingSubmissions.length > 0 ? `${pendingSubmissions.length} Pending` : 'All Clear'}</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-rose">
@@ -237,14 +221,14 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* Card 6: Support Inquiries */}
+        {/* Card 6: Messages */}
         <div className="stat-card" onClick={() => onNavigateTab('messages')} style={{ cursor: 'pointer' }}>
           <div className="stat-info">
-            <span className="stat-label">Feedback & Reports</span>
+            <span className="stat-label">Messages</span>
             <div className="stat-value">{messages.length}</div>
-            <div className="stat-trend trend-up">
+            <div className={`stat-trend ${unreadMessages.length > 0 ? 'trend-warn' : 'trend-up'}`}>
               <span>📩</span>
-              <span>{unreadMessages.length} unread in inbox</span>
+              <span>{unreadMessages.length > 0 ? `${unreadMessages.length} Unread` : 'Inbox Clean'}</span>
             </div>
           </div>
           <div className="stat-icon-wrapper icon-cyan">
@@ -261,9 +245,8 @@ export default function DashboardView({
             <div>
               <h2 className="panel-title">
                 <span style={{ color: 'var(--accent-cyan)' }}>📈</span>
-                <span>Audience Engagement & Traffic Analytics</span>
+                <span>Traffic Analytics</span>
               </h2>
-              <span className="panel-subtitle">Daily play volume distribution & concurrent gamers over {timeRange.toUpperCase()}</span>
             </div>
 
             <div className="chart-toggle-group">
@@ -271,13 +254,13 @@ export default function DashboardView({
                 className={`chart-toggle-btn ${chartMetric === 'plays' ? 'active' : ''}`}
                 onClick={() => setChartMetric('plays')}
               >
-                Play Counts
+                Plays
               </button>
               <button
                 className={`chart-toggle-btn ${chartMetric === 'players' ? 'active' : ''}`}
                 onClick={() => setChartMetric('players')}
               >
-                Unique Gamers
+                Players
               </button>
               <button
                 className={`chart-toggle-btn ${chartMetric === 'sessions' ? 'active' : ''}`}
@@ -319,50 +302,49 @@ export default function DashboardView({
 
           <div className="chart-summary-footer">
             <div className="summary-stat-box">
-              <span className="summary-stat-label">Peak Traffic Session</span>
-              <span className="summary-stat-value">Saturday (34,100 Plays)</span>
+              <span className="summary-stat-label">Peak Traffic</span>
+              <span className="summary-stat-value">Saturday (34.1k)</span>
             </div>
             <div className="summary-stat-box">
-              <span className="summary-stat-label">Average Play Duration</span>
-              <span className="summary-stat-value">24.5 Minutes / Session</span>
+              <span className="summary-stat-label">Avg Session</span>
+              <span className="summary-stat-value">24.5 Mins</span>
             </div>
             <div className="summary-stat-box">
-              <span className="summary-stat-label">Gamer Retention Rate</span>
-              <span className="summary-stat-value highlight-green">78.4% Weekly Recurring</span>
+              <span className="summary-stat-label">Retention</span>
+              <span className="summary-stat-value highlight-green">78.4%</span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Server Health & Cluster Telemetry */}
+        {/* Right Column: Infrastructure Telemetry */}
         <div className="glass-panel telemetry-panel">
           <div className="panel-header">
             <div>
               <h2 className="panel-title">
                 <span style={{ color: 'var(--accent-emerald)' }}>⚡</span>
-                <span>Infrastructure Telemetry</span>
+                <span>Telemetry</span>
               </h2>
-              <span className="panel-subtitle">Node.js, WebSockets & MongoDB Cluster</span>
             </div>
-            <span className="status-badge active">Healthy</span>
+            <span className="status-badge active">● Online</span>
           </div>
 
           <div className="telemetry-items">
-            {/* API Latency */}
+            {/* Latency */}
             <div className="telemetry-row">
               <div className="telemetry-meta">
-                <span className="meta-name">API Gateway Latency</span>
-                <span className="meta-val highlight-green">24 ms (Optimal)</span>
+                <span className="meta-name">Latency</span>
+                <span className="meta-val highlight-green">24 ms</span>
               </div>
               <div className="metric-progress-track">
-                <div className="metric-progress-bar bar-emerald" style={{ width: '22%' }} />
+                <div className="metric-progress-bar bar-emerald" style={{ width: '24%' }} />
               </div>
             </div>
 
-            {/* Server CPU Load */}
+            {/* CPU Load */}
             <div className="telemetry-row">
               <div className="telemetry-meta">
-                <span className="meta-name">CPU Load (Worker Threads)</span>
-                <span className="meta-val">14% / 100%</span>
+                <span className="meta-name">CPU Load</span>
+                <span className="meta-val">14%</span>
               </div>
               <div className="metric-progress-track">
                 <div className="metric-progress-bar bar-blue" style={{ width: '14%' }} />
@@ -372,22 +354,22 @@ export default function DashboardView({
             {/* RAM Memory Usage */}
             <div className="telemetry-row">
               <div className="telemetry-meta">
-                <span className="meta-name">RAM Heap Allocation</span>
-                <span className="meta-val">342 MB / 1024 MB</span>
+                <span className="meta-name">Memory</span>
+                <span className="meta-val">342 MB</span>
               </div>
               <div className="metric-progress-track">
                 <div className="metric-progress-bar bar-purple" style={{ width: '34%' }} />
               </div>
             </div>
 
-            {/* MongoDB Pool */}
+            {/* Database */}
             <div className="telemetry-row">
               <div className="telemetry-meta">
-                <span className="meta-name">MongoDB Connection Pool</span>
-                <span className="meta-val">Connected • 8 active</span>
+                <span className="meta-name">Database</span>
+                <span className="meta-val">8 Active Conn</span>
               </div>
               <div className="metric-progress-track">
-                <div className="metric-progress-bar bar-amber" style={{ width: '18%' }} />
+                <div className="metric-progress-bar bar-amber" style={{ width: '22%' }} />
               </div>
             </div>
           </div>
@@ -395,27 +377,26 @@ export default function DashboardView({
           <div className="telemetry-quick-actions">
             <div className="quick-info-pill">
               <span>🌐</span>
-              <span>CDN: Global Edge Active</span>
+              <span>Edge CDN: Active</span>
             </div>
             <div className="quick-info-pill">
               <span>🛡️</span>
-              <span>WAF Shield: Protected</span>
+              <span>Shield: Protected</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Subgrid: Live Event Feed & Category Breakdown */}
+      {/* Subgrid: Live Activity & Categories */}
       <div className="overview-subgrid">
-        {/* Live Event Stream */}
+        {/* Live Activity Stream */}
         <div className="glass-panel activity-stream-panel">
           <div className="panel-header">
             <div>
               <h2 className="panel-title">
                 <span style={{ color: 'var(--accent-amber)' }}>📡</span>
-                <span>Live Event Stream</span>
+                <span>Live Activity</span>
               </h2>
-              <span className="panel-subtitle">Real-time socket broadcasts & player events</span>
             </div>
 
             <div className="chart-toggle-group">
@@ -441,7 +422,7 @@ export default function DashboardView({
           </div>
 
           <div className="activity-feed-list">
-            {filteredActivities.slice(0, 6).map((act) => (
+            {filteredActivities.slice(0, 5).map((act) => (
               <div key={act.id || Math.random()} className="activity-feed-item">
                 <div className="activity-icon-bubble">
                   {act.icon || '⚡'}
@@ -464,23 +445,22 @@ export default function DashboardView({
             <div>
               <h2 className="panel-title">
                 <span style={{ color: 'var(--accent-cyan)' }}>🏷️</span>
-                <span>Catalog Taxonomy Breakdown</span>
+                <span>Categories</span>
               </h2>
-              <span className="panel-subtitle">Games distribution by genre</span>
             </div>
             <button className="header-btn" onClick={() => onNavigateTab('categories')}>
-              Manage Categories →
+              Manage →
             </button>
           </div>
 
           <div className="category-bars-list">
-            {Object.entries(categoryCounts).map(([cat, count]) => {
+            {Object.entries(categoryCounts).slice(0, 5).map(([cat, count]) => {
               const pct = games.length > 0 ? Math.round((count / games.length) * 100) : 0;
               return (
                 <div key={cat} className="category-bar-row">
                   <div className="category-bar-info">
                     <span className="category-name-tag">{cat}</span>
-                    <span className="category-count-val">{count} games ({pct}%)</span>
+                    <span className="category-count-val">{count} ({pct}%)</span>
                   </div>
                   <div className="metric-progress-track">
                     <div className="metric-progress-bar bar-blue" style={{ width: `${pct}%` }} />
@@ -498,13 +478,12 @@ export default function DashboardView({
           <div>
             <h2 className="panel-title">
               <span style={{ color: '#fbbf24' }}>🏆</span>
-              <span>Top Trending & Most Played Games</span>
+              <span>Top Games</span>
             </h2>
-            <span className="panel-subtitle">Ranked by lifetime player engagement and user ratings</span>
           </div>
 
           <button className="header-btn" onClick={() => onNavigateTab('games')}>
-            View Full Catalog ({games.length} Games) →
+            View All ({games.length}) →
           </button>
         </div>
 
@@ -512,11 +491,11 @@ export default function DashboardView({
           <table className="admin-table modern-table">
             <thead>
               <tr>
-                <th style={{ width: '70px' }}>Rank</th>
-                <th>Game Title & Info</th>
+                <th style={{ width: '60px' }}>#</th>
+                <th>Game</th>
                 <th>Category</th>
-                <th>Total Plays</th>
-                <th>Platform Share</th>
+                <th>Plays</th>
+                <th>Share</th>
                 <th>Rating</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
@@ -548,7 +527,7 @@ export default function DashboardView({
                             <div className="game-table-title">{game.title}</div>
                             {game.featured && (
                               <span className="featured-star-pill">
-                                ⭐ Featured Spotlight
+                                ⭐ Featured
                               </span>
                             )}
                           </div>
@@ -588,8 +567,8 @@ export default function DashboardView({
                           {game.gameUrl && (
                             <button
                               className="icon-action-btn"
-                              title="Live Play Test"
-                              onClick={() => setActivePlayTestUrl(game.gameUrl)}
+                              title="Play Test"
+                              onClick={() => setActivePlayGame(game)}
                             >
                               🕹️
                             </button>
@@ -611,26 +590,13 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* Live Play Test Modal */}
-      {activePlayTestUrl && (
-        <div className="modal-overlay" onClick={() => setActivePlayTestUrl(null)}>
-          <div className="modal-content sandbox-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">🕹️ Live Game Play Sandbox</h2>
-              <button className="close-btn" onClick={() => setActivePlayTestUrl(null)}>&times;</button>
-            </div>
-            <div className="sandbox-iframe-wrapper">
-              <iframe
-                src={activePlayTestUrl}
-                title="Live Game Sandbox"
-                scrolling="no"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
-                allowFullScreen={true}
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock allow-modals"
-              />
-            </div>
-          </div>
-        </div>
+      {/* Modern Game Sandbox Live Display */}
+      {activePlayGame && (
+        <GameSandboxModal
+          gameUrl={activePlayGame.gameUrl}
+          gameTitle={activePlayGame.title}
+          onClose={() => setActivePlayGame(null)}
+        />
       )}
     </div>
   );

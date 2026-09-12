@@ -205,21 +205,34 @@ function App() {
     };
 
     const handleGameCreated = (newGame) => {
-      setGames(prev => [newGame, ...prev.filter(g => g.id !== newGame.id)]);
+      setGames(prev => {
+        const next = [newGame, ...prev.filter(g => g.id !== newGame.id)];
+        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        return next;
+      });
     };
 
     const handleGameUpdated = (updatedGame) => {
-      setGames(prev => prev.map(g => (g.id === updatedGame.id || (g._id && g._id === updatedGame._id)) ? updatedGame : g));
+      setGames(prev => {
+        const next = prev.map(g => (g.id === updatedGame.id || (g._id && g._id === updatedGame._id)) ? updatedGame : g);
+        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        return next;
+      });
       setSelectedGame(prev => (prev && (prev.id === updatedGame.id || prev._id === updatedGame._id)) ? updatedGame : prev);
     };
 
     const handleGameDeleted = (data) => {
-      setGames(prev => prev.filter(g => g.id !== data.id && g._id !== data.id));
+      setGames(prev => {
+        const next = prev.filter(g => g.id !== data.id && g._id !== data.id);
+        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        return next;
+      });
       setSelectedGame(prev => (prev && (prev.id === data.id || prev._id === data.id)) ? null : prev);
     };
 
     const handleAllGamesDeleted = () => {
       setGames([]);
+      try { localStorage.removeItem('sky_cached_games'); } catch { }
       setSelectedGame(null);
     };
 

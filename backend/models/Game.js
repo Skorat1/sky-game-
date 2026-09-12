@@ -13,10 +13,12 @@ const gameSchema = new mongoose.Schema({
   rating: { type: Number, default: 4.8 },
   plays: { type: Number, default: 0 },
   featured: { type: Boolean, default: false },
+  tileSize: { type: String, default: '1x1' },
   status: { type: String, default: 'active', enum: ['active', 'maintenance', 'draft'] },
   createdAt: { type: String, default: () => new Date().toISOString().split('T')[0] }
 }, {
-  timestamps: true
+  timestamps: true,
+  strict: false
 });
 
 export const Game = mongoose.model('Game', gameSchema);

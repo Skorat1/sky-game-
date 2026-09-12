@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   X,
   Maximize2,
@@ -126,9 +126,17 @@ export default function GameModal({
     setUseBuiltInEngine(!hasUrl);
   }, [game?.id, game?.gameUrl]);
 
-  // Handle ESC key to exit
+  // Handle ESC key to exit and prevent arrow/space scrolling
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Prevent browser from scrolling on game keys
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Spacebar', 'PageUp', 'PageDown'].includes(e.key)) {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== 'input' && activeTag !== 'textarea' && !document.activeElement?.isContentEditable) {
+          e.preventDefault();
+        }
+      }
+
       if (e.key === 'Escape') {
         if (isFullscreen) {
           toggleFullscreen();
@@ -137,7 +145,7 @@ export default function GameModal({
         }
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, onClose]);
 
@@ -516,9 +524,70 @@ export default function GameModal({
     }
   };
 
-  const relatedGames = allGames
-    .filter(g => g.id !== game.id)
-    .slice(0, 8);
+  const relatedGames = useMemo(() => {
+    if (!allGames || !allGames.length) return [];
+    const currentId = game?.id || game?._id;
+    const currentCat = (game?.category || '').toLowerCase().trim();
+
+    const rawTags = Array.isArray(game?.tags)
+      ? game.tags
+      : typeof game?.tags === 'string'
+        ? game.tags.split(',')
+        : [];
+    const currentTags = rawTags
+      .map(t => String(t).toLowerCase().trim())
+      .filter(Boolean);
+    const currentTagSet = new Set(currentTags);
+
+    const candidates = allGames.filter(g => {
+      if (!g) return false;
+      const gId = g.id || g._id;
+      return gId && gId !== currentId && g.id !== game?.id && g._id !== game?.id && g.id !== game?._id;
+    });
+
+    const scoredCandidates = candidates.map(cand => {
+      let score = 0;
+      const candCat = (cand.category || '').toLowerCase().trim();
+      const candRawTags = Array.isArray(cand.tags)
+        ? cand.tags
+        : typeof cand.tags === 'string'
+          ? cand.tags.split(',')
+          : [];
+      const candTags = candRawTags
+        .map(t => String(t).toLowerCase().trim())
+        .filter(Boolean);
+      const candTagSet = new Set(candTags);
+
+      // 1. Matching tags (+12 points each)
+      currentTagSet.forEach(tag => {
+        if (candTagSet.has(tag)) score += 12;
+      });
+
+      // 2. Matching category (+15 points exact, +6 points partial)
+      if (currentCat && candCat) {
+        if (currentCat === candCat) {
+          score += 15;
+        } else if (currentCat.includes(candCat) || candCat.includes(currentCat)) {
+          score += 6;
+        }
+      }
+
+      // 3. Cross matching
+      if (currentCat && candTagSet.has(currentCat)) score += 8;
+      if (candCat && currentTagSet.has(candCat)) score += 8;
+
+      // 4. Rating & popularity bonus
+      const rating = Number(cand.rating) || 0;
+      const plays = Number(cand.plays) || 0;
+      score += rating * 0.1;
+      score += Math.min(plays / 100000, 1);
+
+      return { game: cand, score };
+    });
+
+    scoredCandidates.sort((a, b) => b.score - a.score);
+    return scoredCandidates.map(item => item.game).slice(0, 10);
+  }, [allGames, game]);
 
   const getCleanGameUrl = (rawUrl) => {
     if (!rawUrl) return '';
@@ -769,11 +838,21 @@ export default function GameModal({
                 title={game.title}
                 className="sky-game-frame"
                 width="100%"
-                height="600"
+                height="100%"
+                scrolling="no"
+                seamless="seamless"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
                 allowFullScreen={true}
                 loading="eager"
                 referrerPolicy="no-referrer-when-downgrade"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  outline: 'none',
+                  overflow: 'hidden',
+                  display: 'block'
+                }}
               />
             </div>
           )}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GameSandboxModal from '../components/GameSandboxModal';
 
 export default function GamesManagementView({
   games = [],
@@ -14,7 +15,7 @@ export default function GamesManagementView({
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [sortBy, setSortBy] = useState('plays-desc');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
-  const [activePlayUrl, setActivePlayUrl] = useState(null);
+  const [activePlayGame, setActivePlayGame] = useState(null);
 
   // Filter and Sort Logic
   const filteredGames = games.filter((game) => {
@@ -178,7 +179,7 @@ export default function GamesManagementView({
                       <button
                         className="admin-btn primary"
                         style={{ padding: '8px 14px', fontSize: '0.8rem' }}
-                        onClick={() => setActivePlayUrl(game.gameUrl)}
+                        onClick={() => setActivePlayGame(game)}
                       >
                         🕹️ Play Test
                       </button>
@@ -344,7 +345,7 @@ export default function GamesManagementView({
                           <button
                             className="icon-action-btn"
                             title="Play Test"
-                            onClick={() => setActivePlayUrl(game.gameUrl)}
+                            onClick={() => setActivePlayGame(game)}
                           >
                             🕹️
                           </button>
@@ -377,26 +378,13 @@ export default function GamesManagementView({
         </div>
       )}
 
-      {/* Live Play Sandbox Modal */}
-      {activePlayUrl && (
-        <div className="modal-overlay" onClick={() => setActivePlayUrl(null)}>
-          <div className="modal-content sandbox-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">🕹️ Live Game Play Sandbox</h2>
-              <button className="close-btn" onClick={() => setActivePlayUrl(null)}>&times;</button>
-            </div>
-            <div className="sandbox-iframe-wrapper">
-              <iframe
-                src={activePlayUrl}
-                title="Game Sandbox Preview"
-                scrolling="no"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
-                allowFullScreen={true}
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock allow-modals"
-              />
-            </div>
-          </div>
-        </div>
+      {/* Modern Game Sandbox Live Display */}
+      {activePlayGame && (
+        <GameSandboxModal
+          gameUrl={activePlayGame.gameUrl}
+          gameTitle={activePlayGame.title}
+          onClose={() => setActivePlayGame(null)}
+        />
       )}
     </div>
   );

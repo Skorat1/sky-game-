@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import GameSandboxModal from '../components/GameSandboxModal';
 
 export default function SubmissionsView({ submissions = [], onApprove, onReject }) {
-  const [activePreviewUrl, setActivePreviewUrl] = useState(null);
+  const [activePreviewGame, setActivePreviewGame] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
 
   const filteredSubs = submissions.filter(s => {
@@ -115,7 +116,7 @@ export default function SubmissionsView({ submissions = [], onApprove, onReject 
                           <button
                             className="header-btn"
                             style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                            onClick={() => setActivePreviewUrl(sub.gameUrl)}
+                            onClick={() => setActivePreviewGame(sub)}
                           >
                             🕹️ Test Play
                           </button>
@@ -149,26 +150,13 @@ export default function SubmissionsView({ submissions = [], onApprove, onReject 
         </div>
       </div>
 
-      {/* Test Play Sandbox Modal */}
-      {activePreviewUrl && (
-        <div className="modal-overlay" onClick={() => setActivePreviewUrl(null)}>
-          <div className="modal-content sandbox-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">🕹️ Developer Game Live Play Sandbox</h2>
-              <button className="close-btn" onClick={() => setActivePreviewUrl(null)}>&times;</button>
-            </div>
-            <div className="sandbox-iframe-wrapper">
-              <iframe
-                src={activePreviewUrl}
-                title="Developer Game Preview"
-                scrolling="no"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
-                allowFullScreen={true}
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock allow-modals"
-              />
-            </div>
-          </div>
-        </div>
+      {/* Modern Game Sandbox Live Display */}
+      {activePreviewGame && (
+        <GameSandboxModal
+          gameUrl={activePreviewGame.gameUrl}
+          gameTitle={activePreviewGame.title}
+          onClose={() => setActivePreviewGame(null)}
+        />
       )}
     </div>
   );

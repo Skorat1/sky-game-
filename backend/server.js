@@ -54,6 +54,42 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
+// --- GAME EMBED PROXY (CORS / CSP Bypass for XML & Google Gadget iframes) ---
+app.get(['/game-proxy/*', '/game-proxy'], async (req, res) => {
+  try {
+    let targetUrl = req.query.url;
+    if (!targetUrl) {
+      const pathSuffix = req.originalUrl.replace(/^\/game-proxy/, '');
+      if (pathSuffix.startsWith('/gadgets/ifr')) {
+        targetUrl = `https://opensocial.googleusercontent.com${pathSuffix}`;
+      } else if (pathSuffix.startsWith('http://') || pathSuffix.startsWith('https://')) {
+        targetUrl = pathSuffix;
+      }
+    }
+
+    if (!targetUrl) {
+      return res.status(400).send('Missing target game URL for proxy');
+    }
+
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': '*/*'
+      }
+    });
+
+    const contentType = response.headers.get('content-type') || 'text/html';
+    res.setHeader('Content-Type', contentType);
+    res.removeHeader('X-Frame-Options');
+    res.removeHeader('Content-Security-Policy');
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    res.status(502).send(`Proxy Error: ${err.message}`);
+  }
+});
+
 const activeVisitors = new Set();
 const gameActivePlayers = new Map();
 const recentActivities = [];
@@ -315,12 +351,27 @@ let localStore = {
   }
 };
 
+function sanitizeGameUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  let clean = url.trim();
+  clean = clean.replace(/^https?:\/\/"https?:\/\//i, 'https://');
+  clean = clean.replace(/^"|"$/g, '').trim();
+  clean = clean.replace(/&amp;/g, '&');
+  return clean;
+}
+
 function initStore() {
   try {
     if (fs.existsSync(STORE_FILE)) {
       const data = fs.readFileSync(STORE_FILE, 'utf-8');
       localStore = { ...localStore, ...JSON.parse(data) };
       if (!Array.isArray(localStore.users)) localStore.users = [];
+      if (Array.isArray(localStore.games)) {
+        localStore.games = localStore.games.map(g => ({
+          ...g,
+          gameUrl: sanitizeGameUrl(g.gameUrl)
+        }));
+      }
 
       // Ensure seed users with valid passwords are present in localStore
       for (const seedUser of SEED_USERS) {
@@ -678,6 +729,10 @@ app.post('/api/games/detect-metadata', async (req, res) => {
         console.warn('HTML fetch error:', err.message);
       }
     }
+
+    if (detected.thumbnail) detected.thumbnail = detected.thumbnail.replace(/&amp;/g, '&').trim();
+    if (detected.banner) detected.banner = detected.banner.replace(/&amp;/g, '&').trim();
+    if (detected.gameUrl) detected.gameUrl = detected.gameUrl.replace(/&amp;/g, '&').trim();
 
     return res.json({
       success: Boolean(detected.thumbnail || detected.title),
@@ -1191,13 +1246,15 @@ app.patch('/api/users/:id', async (req, res) => {
 });
 
 // --- GAMES API ---
-// Get all games
+// Get all games (Always fresh - no stale cache)
 app.get('/api/games', async (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   try {
     if (mongoose.connection.readyState === 1) {
       const games = await Game.find().sort({ createdAt: -1 });
-      return res.json(games || []);
+      if (games && games.length > 0) return res.json(games);
     }
     res.json(localStore.games || []);
   } catch (err) {
@@ -1225,7 +1282,10 @@ app.get('/api/games/:id', async (req, res) => {
 // Create game
 app.post('/api/games', async (req, res) => {
   try {
-    const gameData = req.body;
+    const gameData = { ...req.body };
+    if (gameData.gameUrl) {
+      gameData.gameUrl = sanitizeGameUrl(gameData.gameUrl);
+    }
     if (!gameData.id) {
       gameData.id = (gameData.title || 'game').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString().slice(-4);
     }
@@ -1252,13 +1312,17 @@ app.post('/api/games', async (req, res) => {
 // Update game
 app.put('/api/games/:id', async (req, res) => {
   try {
+    const bodyData = { ...req.body };
+    if (bodyData.gameUrl) {
+      bodyData.gameUrl = sanitizeGameUrl(bodyData.gameUrl);
+    }
     const idx = localStore.games.findIndex(g => g.id === req.params.id);
     let updated;
     if (idx !== -1) {
-      updated = { ...localStore.games[idx], ...req.body };
+      updated = { ...localStore.games[idx], ...bodyData };
       localStore.games[idx] = updated;
     } else {
-      updated = { id: req.params.id, ...req.body };
+      updated = { id: req.params.id, ...bodyData };
       localStore.games.unshift(updated);
     }
     persistStore();
@@ -1266,7 +1330,7 @@ app.put('/api/games/:id', async (req, res) => {
     if (mongoose.connection.readyState === 1) {
       await Game.findOneAndUpdate(
         { id: req.params.id },
-        { $set: req.body },
+        { $set: bodyData },
         { new: true, upsert: true }
       ).catch(() => { });
     }
@@ -1438,6 +1502,7 @@ app.get('/api/analytics/live', async (req, res) => {
 
 // --- BANNER API ---
 app.get('/api/banner', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   try {
     if (mongoose.connection.readyState === 1) {
       const b = await Banner.findOne();
@@ -1489,6 +1554,7 @@ app.delete('/api/banner', async (req, res) => {
 
 // --- CATEGORIES API ---
 app.get('/api/categories', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   try {
     if (mongoose.connection.readyState === 1) {
       const categories = await Category.find();
@@ -1679,6 +1745,7 @@ app.delete('/api/messages/:id', async (req, res) => {
 
 // --- SETTINGS API ---
 app.get('/api/settings', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   try {
     if (mongoose.connection.readyState === 1) {
       const s = await Setting.findOne();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Maximize2,
   Minimize2,
@@ -277,9 +277,17 @@ export default function GamePlayerView({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [game?.id, game?.gameUrl]);
 
-  // Handle ESC key to exit fullscreen / lights off / theater
+  // Handle keyboard events (prevent page scrolling on Arrow/Space keys during gameplay, ESC for fullscreen)
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Prevent browser from scrolling up/down/sideways on game keys
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Spacebar', 'PageUp', 'PageDown'].includes(e.key)) {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== 'input' && activeTag !== 'textarea' && !document.activeElement?.isContentEditable) {
+          e.preventDefault();
+        }
+      }
+
       if (e.key === 'Escape') {
         if (isFullscreen) {
           if (document.exitFullscreen) document.exitFullscreen().catch(() => { });
@@ -290,7 +298,7 @@ export default function GamePlayerView({
         }
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, isLightsOff, isTheaterMode]);
 
@@ -672,17 +680,108 @@ export default function GamePlayerView({
     }
   };
 
-  const sideGames = (allGames || [])
-    .filter(g => g && (g.id || g._id) && (g.id !== game?.id && g._id !== game?.id && g.id !== game?._id))
-    .slice(0, 8);
+  const { sideGames, moreRelatedGames } = useMemo(() => {
+    if (!allGames || !allGames.length) {
+      return { sideGames: [], moreRelatedGames: [] };
+    }
 
-  const moreRelatedGames = (allGames || [])
-    .filter(g => g && (g.id || g._id) && (g.id !== game?.id && g._id !== game?.id && g.id !== game?._id))
-    .slice(8, 24);
+    const currentId = game?.id || game?._id;
+    const currentCat = (game?.category || '').toLowerCase().trim();
+
+    // Parse and normalize current game tags
+    const rawTags = Array.isArray(game?.tags)
+      ? game.tags
+      : typeof game?.tags === 'string'
+        ? game.tags.split(',')
+        : [];
+    const currentTags = rawTags
+      .map(t => String(t).toLowerCase().trim())
+      .filter(Boolean);
+    const currentTagSet = new Set(currentTags);
+
+    // Candidates excluding the current game
+    const candidates = allGames.filter(g => {
+      if (!g) return false;
+      const gId = g.id || g._id;
+      return gId && gId !== currentId && g.id !== game?.id && g._id !== game?.id && g.id !== game?._id;
+    });
+
+    // Score candidates based on category, tag relevance and popularity
+    const scoredCandidates = candidates.map(cand => {
+      let score = 0;
+      let matchedTagsCount = 0;
+
+      const candCat = (cand.category || '').toLowerCase().trim();
+      const candRawTags = Array.isArray(cand.tags)
+        ? cand.tags
+        : typeof cand.tags === 'string'
+          ? cand.tags.split(',')
+          : [];
+      const candTags = candRawTags
+        .map(t => String(t).toLowerCase().trim())
+        .filter(Boolean);
+      const candTagSet = new Set(candTags);
+
+      // 1. Tag overlap (high priority: +12 points per matching tag)
+      currentTagSet.forEach(tag => {
+        if (candTagSet.has(tag)) {
+          score += 12;
+          matchedTagsCount++;
+        }
+      });
+
+      // 2. Category matching
+      if (currentCat && candCat) {
+        if (currentCat === candCat) {
+          // Exact same category (+15 points)
+          score += 15;
+        } else if (currentCat.includes(candCat) || candCat.includes(currentCat)) {
+          // Partial category match (+6 points)
+          score += 6;
+        }
+      }
+
+      // 3. Cross matching: Current category matches candidate tag or candidate category matches current tag
+      if (currentCat && candTagSet.has(currentCat)) {
+        score += 8;
+      }
+      if (candCat && currentTagSet.has(candCat)) {
+        score += 8;
+      }
+
+      // 4. Quality & Popularity tie-breaker
+      const rating = Number(cand.rating) || 0;
+      const plays = Number(cand.plays) || 0;
+      score += rating * 0.1;
+      score += Math.min(plays / 100000, 1);
+
+      return {
+        game: cand,
+        score,
+        matchedTagsCount,
+        categoryMatch: Boolean(currentCat && candCat === currentCat)
+      };
+    });
+
+    // Sort descending by relevance score
+    scoredCandidates.sort((a, b) => b.score - a.score);
+
+    const sortedGames = scoredCandidates.map(item => item.game);
+
+    return {
+      sideGames: sortedGames.slice(0, 8),
+      moreRelatedGames: sortedGames.slice(8, 28)
+    };
+  }, [allGames, game]);
 
   const getCleanGameUrl = (rawUrl) => {
     if (!rawUrl) return '';
     let finalUrl = rawUrl.trim();
+
+    // Remove any accidental outer quotes or double protocol patterns (e.g., https://"https://...)
+    finalUrl = finalUrl.replace(/^https?:\/\/"https?:\/\//i, 'https://');
+    finalUrl = finalUrl.replace(/^"|"$/g, '').trim();
+    finalUrl = finalUrl.replace(/&amp;/g, '&');
 
     // 1. Extract src from <iframe> snippet if present
     const iframeMatch = finalUrl.match(/src=["']([^"']+)["']/i);
@@ -817,13 +916,24 @@ export default function GamePlayerView({
                   title={game.title}
                   className="crazy-game-iframe"
                   width="100%"
-                  height="600"
+                  height="100%"
+                  scrolling="no"
+                  seamless="seamless"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"
                   allowFullScreen={true}
                   loading="eager"
                   referrerPolicy="no-referrer-when-downgrade"
                   onLoad={() => setIframeLoaded(true)}
-                  style={{ opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    outline: 'none',
+                    overflow: 'hidden',
+                    display: 'block',
+                    opacity: iframeLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease'
+                  }}
                 />
               </div>
             )}
@@ -986,7 +1096,9 @@ export default function GamePlayerView({
         <div className="crazy-more-games-section">
           <div className="more-games-header">
             <div className="more-title-left">
-              <Layers size={20} color="#00f2fe" />
+              <div className="more-title-icon-wrapper">
+                <Layers size={19} />
+              </div>
               <h3>More Games You Might Like</h3>
             </div>
             <button

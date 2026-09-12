@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { Heart } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
@@ -22,24 +22,64 @@ function getGamePreviewVideo(game) {
   return null;
 }
 
+export function optimizeThumbUrl(url, targetWidth = 360) {
+  if (!url || typeof url !== 'string') {
+    return `https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=${targetWidth}&auto=format&fit=crop&q=75`;
+  }
+
+  // Clean XML-escaped entities like &amp; commonly found in RSS / feeds
+  let clean = url.replace(/&amp;/g, '&').trim();
+
+  // Optimize Unsplash images for instant WebP delivery with small filesize
+  if (clean.includes('images.unsplash.com')) {
+    clean = clean.replace(/w=\d+/g, `w=${targetWidth}`);
+    if (!clean.includes('auto=format')) clean += '&auto=format&fit=crop';
+    if (!clean.includes('q=')) clean += '&q=75';
+    return clean;
+  }
+
+  // Optimize Poki CDN dimensions & compression
+  if (clean.includes('img.poki.com/cdn-cgi/image/')) {
+    clean = clean
+      .replace(/quality=\d+/g, 'quality=75')
+      .replace(/width=\d+/g, `width=${targetWidth}`)
+      .replace(/height=\d+/g, `height=${targetWidth}`);
+    return clean;
+  }
+
+  return clean;
+}
+
 const GameCard = memo(function GameCard({
   game,
   onPlay,
   isFavorite = false,
   onToggleFavorite,
-  sizeVariant = '1x1'
+  sizeVariant = '1x1',
+  priority = false
 }) {
-  const currentThumb = game.thumbnail || game.thumbnailUrl || game.image || game.imageUrl || game.cover || game.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600';
-  const [imgSrc, setImgSrc] = useState(currentThumb);
+  if (!game) return null;
+  const targetWidth = sizeVariant === '2x2' ? 500 : 360;
+  const rawThumb = game?.thumbnail || game?.thumbnailUrl || game?.image || game?.imageUrl || game?.cover || game?.banner;
+  const optimizedThumb = optimizeThumbUrl(rawThumb, targetWidth);
+
+  const [imgSrc, setImgSrc] = useState(optimizedThumb);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef(null);
+  const imgRef = useRef(null);
 
-  React.useEffect(() => {
-    setImgSrc(currentThumb);
-    setImgLoaded(false);
-  }, [currentThumb]);
+  useEffect(() => {
+    const nextThumb = optimizeThumbUrl(rawThumb, targetWidth);
+    setImgSrc(nextThumb);
+    // If the image was already cached in browser memory, show immediately
+    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
+      setImgLoaded(true);
+    } else {
+      setImgLoaded(false);
+    }
+  }, [rawThumb, targetWidth]);
 
   const previewVideoUrl = !videoError ? getGamePreviewVideo(game) : null;
 
@@ -61,7 +101,7 @@ const GameCard = memo(function GameCard({
   };
 
   const handleImageError = () => {
-    setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80');
+    setImgSrc(`https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=${targetWidth}&auto=format&fit=crop&q=70`);
     setImgLoaded(true);
   };
 
@@ -77,16 +117,18 @@ const GameCard = memo(function GameCard({
       title={game.title}
     >
       <div className={`card-thumb-container ${!imgLoaded ? 'skeleton' : ''}`}>
-        {/* Main Static Thumbnail */}
+        {/* Main Static Thumbnail with instant cache detection & priority loading */}
         <img
+          ref={imgRef}
           src={imgSrc}
           alt={game.title}
           className="card-thumb-img"
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
           onLoad={() => setImgLoaded(true)}
           onError={handleImageError}
-          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.25s ease' }}
+          style={{ opacity: imgLoaded ? 1 : 0.4, transition: 'opacity 0.2s ease' }}
         />
 
         {/* Hover Video Preview (Smooth Playback) */}
@@ -134,8 +176,6 @@ const GameCard = memo(function GameCard({
           </button>
         </div>
 
-
-
         {/* Card Bottom Meta */}
         <div className="card-bottom-info">
           <h3 className="card-game-title">{game.title}</h3>
@@ -146,5 +186,3 @@ const GameCard = memo(function GameCard({
 });
 
 export default GameCard;
-
-

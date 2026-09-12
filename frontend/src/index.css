@@ -1632,8 +1632,19 @@ select,
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: #f1f5f9;
+  background: #111827;
   border-radius: 20px;
+}
+
+.card-thumb-container.skeleton {
+  background: linear-gradient(90deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* Diagonal Glossy Shimmer Light Sweep on Hover */
@@ -1665,11 +1676,13 @@ select,
   object-fit: cover;
   display: block;
   border-radius: 20px;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
 }
 
 .sky-game-card:hover .card-thumb-img {
-  transform: scale(1.08);
+  transform: scale(1.08) translateZ(0);
 }
 
 .card-overlay-gradient {
@@ -2078,6 +2091,8 @@ select,
   margin: 0;
   border-radius: 20px 20px 0 0;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden !important;
+  user-select: none;
 }
 
 .crazy-screen-viewport.is-fullscreen::before {
@@ -2115,27 +2130,65 @@ select,
   z-index: 9999999;
   border-radius: 0;
   filter: saturate(1.24);
+  overflow: hidden !important;
 }
 
 .crazy-iframe-container {
   width: 100%;
   height: 100%;
+  position: relative;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
   background: #000000;
-  overflow: hidden;
+  overflow: hidden !important;
+  border-radius: inherit;
 }
 
 .crazy-game-iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border: none !important;
+  display: block !important;
+  background: #000000;
+  outline: none !important;
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.crazy-game-iframe::-webkit-scrollbar,
+.crazy-iframe-container::-webkit-scrollbar,
+.crazy-screen-viewport::-webkit-scrollbar,
+.sky-iframe-container::-webkit-scrollbar,
+.sky-game-frame::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.sky-iframe-container {
   width: 100%;
   height: 100%;
-  min-width: 100%;
-  min-height: 100%;
-  border: none;
-  display: block;
+  position: relative;
+  overflow: hidden !important;
   background: #000000;
-  outline: none;
+  border-radius: 12px;
+}
+
+.sky-game-frame {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border: none !important;
+  display: block !important;
+  outline: none !important;
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 /* Built-in Arcade Engine Layout */
@@ -2725,13 +2778,14 @@ select,
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 15px;
+  margin-top: 24px;
 }
 
 .more-games-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 2px 2px;
 }
 
 .more-title-left {
@@ -2740,33 +2794,51 @@ select,
   gap: 10px;
 }
 
+.more-title-icon-wrapper {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
 .more-title-left h3 {
-  font-family: var(--font-main);
+  font-family: var(--font-main, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   font-size: 1.3rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #0f172a;
   margin: 0;
-  letter-spacing: 0.3px;
+  letter-spacing: -0.02em;
 }
 
 .view-all-btn {
-  background: rgba(184, 93, 245, 0.15);
-  border: 1px solid rgba(184, 93, 245, 0.35);
-  color: #00f2fe;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #2563eb;
   padding: 6px 14px;
   border-radius: 999px;
+  font-family: var(--font-main, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   font-size: 0.82rem;
   font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .view-all-btn:hover {
-  background: #00f2fe;
-  color: #0b0216;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
 }
 
 .crazy-related-grid {

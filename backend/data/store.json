@@ -11,7 +11,7 @@
       "role": "admin",
       "status": "active",
       "createdAt": "2026-09-01T10:00:00.000Z",
-      "lastLogin": "2026-09-11T13:41:24.612Z"
+      "lastLogin": "2026-09-12T05:15:25.227Z"
     },
     {
       "id": "usr-gamer-2",
@@ -55,6 +55,164 @@
   ],
   "games": [
     {
+      "id": "mini-car-racing-4226",
+      "title": "Mini Car Racing",
+      "category": "racing",
+      "description": "",
+      "thumbnail": "https://img.gamepix.com/games/mini-car/cover/mini-car.png?w=320&ar=16:10",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "previewVideo": "",
+      "gameUrl": "https://h5.gamepix.com/CE13Q6/2vkIcqipup87rrpFYEXXtSVgroY/index.html?lang=en&namespace=mini-car",
+      "tags": [
+        "Arcade",
+        "Racing",
+        "Truck",
+        "Driving",
+        "Car",
+        "Addictive"
+      ],
+      "featured": false,
+      "tileSize": "1x1",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "2026-09-12"
+    },
+    {
+      "id": "yummy-tales-6785",
+      "title": "Yummy-Tales",
+      "category": "puzzle",
+      "description": "",
+      "thumbnail": "https://img.gamedistribution.com/7c7ddcd49b254b238d75a2518f56c622-512x384.jpeg",
+      "banner": "https://img.gamedistribution.com/7c7ddcd49b254b238d75a2518f56c622-512x384.jpeg",
+      "previewVideo": "",
+      "gameUrl": "https://html5.gamedistribution.com/7c7ddcd49b254b238d75a2518f56c622/",
+      "tags": [
+        "Puzzel",
+        "Retro",
+        "Cyber"
+      ],
+      "featured": false,
+      "tileSize": "1x1",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "2026-09-12"
+    },
+    {
+      "id": "1942-pacific-front-0946",
+      "title": "1942 Pacific Front",
+      "category": "arcade",
+      "description": "",
+      "thumbnail": "https://img.gamepix.com/games/1942-pacific-front/cover/1942-pacific-front.png?w=400&amp;ar=16:10",
+      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
+      "previewVideo": "",
+      "gameUrl": "https://h5.gamepix.com/28N4TP/2mEfZJg0M4L6GSt9xxZvyxfSFmj/index.html?lang=en&namespace=1942-pacific-front",
+      "tags": [
+        "War",
+        "Strategy",
+        "Tanks",
+        "Mobile",
+        "Action"
+      ],
+      "featured": false,
+      "tileSize": "2x2",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "2026-09-12"
+    },
+    {
+      "id": "crazy-shooters-2-7629",
+      "title": "Crazy Shooters 2",
+      "category": "shooting",
+      "description": "",
+      "thumbnail": "https://img.gamedistribution.com/5fb9c72b2cbd458c9ad4865f036dcc27-512x384.jpeg",
+      "banner": "https://img.gamedistribution.com/5fb9c72b2cbd458c9ad4865f036dcc27-512x384.jpeg",
+      "previewVideo": "",
+      "gameUrl": "https://html5.gamedistribution.com/5fb9c72b2cbd458c9ad4865f036dcc27/",
+      "tags": [
+        "Action",
+        "Run",
+        "Gun"
+      ],
+      "featured": false,
+      "tileSize": "2x1",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "2026-09-12",
+      "_id": "6aa4df318bbf54f1db790357",
+      "updatedAt": "2026-09-12T05:31:13.775Z",
+      "__v": 0
+    },
+    {
+      "id": "4-colors-multiplayer-8891",
+      "title": "4 COLORS MULTIPLAYER",
+      "category": "puzzle",
+      "description": "",
+      "thumbnail": "https://img.gamepix.com/games/4-colors-multiplayer/cover/4-colors-multiplayer.png?w=320&amp;ar=16:10",
+      "banner": "https://h5.gamepix.com/77A7L/3B9rtqL5XDzl1XrQF6RG7XOsn87/favicon.ico",
+      "previewVideo": "",
+      "gameUrl": "https://h5.gamepix.com/77A7L/3B9rtqL5XDzl1XrQF6RG7XOsn87/index.html?lang=en&namespace=4-colors-multiplayer",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "Cyber"
+      ],
+      "featured": false,
+      "tileSize": "4x2",
+      "status": "active",
+      "plays": 2,
+      "rating": 5,
+      "createdAt": "2026-09-12"
+    },
+    {
+      "id": "sort-balls-2803",
+      "title": "Sort Balls",
+      "category": "arcade",
+      "description": "",
+      "thumbnail": "data:image/jpeg;base64,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",
+      "banner": "https://h5.gamepix.com/AO2C9O/3ATXtFSEIKThwSPhR7LREnBVFNH/TemplateData/favicon.ico",
+      "previewVideo": "",
+      "gameUrl": "https://h5.gamepix.com/AO2C9O/3ATXtFSEIKThwSPhR7LREnBVFNH/index.html?lang=en&namespace=sort-balls-cones",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "Cyber"
+      ],
+      "featured": false,
+      "tileSize": "2x2",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "2026-09-12"
+    },
+    {
+      "id": "stickman-fighting-----play-now-on-gamepix-6323",
+      "title": "Stickman Fighting 🕹️ Play Now on GamePix",
+      "category": "arcade",
+      "description": "Want to Play Stickman Fighting? 🕹️ On GamePix You Can Play Stickman Fighting for Free. Start Playing Now!",
+      "thumbnail": "https://img.gamepix.com/games/stickman-fighting/cover/stickman-fighting.png?w=1200&ar=16:10",
+      "banner": "https://img.gamepix.com/games/stickman-fighting/cover/stickman-fighting.png?w=1200&ar=16:10",
+      "previewVideo": "",
+      "gameUrl": "https://h5.gamepix.com/NMI0I/7094624693608513536/index.html?lang=en&namespace=stickman-fighting",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "Cyber"
+      ],
+      "featured": false,
+      "tileSize": "auto",
+      "status": "active",
+      "plays": 7,
+      "rating": 5,
+      "createdAt": "2026-09-12",
+      "_id": "6aa4d60213a4c9a4b44e82c9",
+      "updatedAt": "2026-09-12T00:00:00.000Z",
+      "__v": 0
+    },
+    {
       "id": "island-of-treasures-1379",
       "title": "Island of Treasures",
       "category": "arcade",
@@ -62,18 +220,20 @@
       "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9SKkPsnWELtUwOZipn8Z45tV1WYDx43eBXtAZ5nEZtg&s",
       "banner": "https://files.crazygames.com/island-of-treasures-bpn/23/.png",
       "previewVideo": "",
-      "gameUrl": "https://files.crazygames.com/island-of-treasures-bpn/23/index.html?isNewUser=false&amp;__nextLocale=en-US&amp;czyExpClientAdsDummyAA=disabled&amp;czyExpClientVastVideoCache=local_cache_prebid_url&amp;czyExpClientAdsConsentGate=enabled&amp;czyExpClientLiveIntent=enabled&amp;czyExpClientGooglePPID=enabled&amp;czyExpClientContentSignals=disabled&amp;czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&amp;czyExpGamePageReco_CZY_19213=enabled&amp;czyExpNewSaveProgressNotice_CZY_19240=enabled&amp;czyExpClientSideLogging_CZY_19610=enabled&amp;czyExpSuprsendInAppNotifications=enabled&amp;czyExpGameThumbHover_CZY_19482=enabled&amp;czyExpProgressSaveNudge_CZY_18842=enabled&amp;czyExpRenderResolution_CZY_20444=enabled&amp;czyExpMetaPixel=enabled&amp;czyExpSuprsendInAppNotificationsConnect=enabled&amp;czyExpModelGamePage=knn_v5_expl_cpu_fallback",
+      "gameUrl": "https://files.crazygames.com/island-of-treasures-bpn/23/index.html?isNewUser=false&__nextLocale=en-US&czyExpClientAdsDummyAA=disabled&czyExpClientVastVideoCache=local_cache_prebid_url&czyExpClientAdsConsentGate=enabled&czyExpClientLiveIntent=enabled&czyExpClientGooglePPID=enabled&czyExpClientContentSignals=disabled&czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&czyExpGamePageReco_CZY_19213=enabled&czyExpNewSaveProgressNotice_CZY_19240=enabled&czyExpClientSideLogging_CZY_19610=enabled&czyExpSuprsendInAppNotifications=enabled&czyExpGameThumbHover_CZY_19482=enabled&czyExpProgressSaveNudge_CZY_18842=enabled&czyExpRenderResolution_CZY_20444=enabled&czyExpMetaPixel=enabled&czyExpSuprsendInAppNotificationsConnect=enabled&czyExpModelGamePage=knn_v5_expl_cpu_fallback",
       "tags": [
-        "Arcade",
-        "Runing",
-        "Cyber"
+        "running",
+        "arcade"
       ],
       "featured": false,
-      "tileSize": "auto",
+      "tileSize": "2x2",
       "status": "active",
       "plays": 0,
       "rating": 5,
-      "createdAt": "2026-09-11"
+      "createdAt": "2026-09-11",
+      "_id": "6aa4073b1461e9e52a5eea09",
+      "updatedAt": "2026-09-11T00:00:00.000Z",
+      "__v": 0
     },
     {
       "id": "jetpack-joyride-7388",
@@ -83,18 +243,21 @@
       "thumbnail": "data:image/jpeg;base64,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",
       "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
       "previewVideo": "",
-      "gameUrl": "https://\"https://jetpack-joyride-pcp.game-files.crazygames.com/jetpack-joyride-pcp/15/index.html?czyExpClientAdsDummyAA=disabled&amp;czyExpClientVastVideoCache=local_cache_prebid_url&amp;czyExpClientAdsConsentGate=enabled&amp;czyExpClientLiveIntent=enabled&amp;czyExpClientGooglePPID=enabled&amp;czyExpClientContentSignals=disabled&amp;czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&amp;czyExpGamePageReco_CZY_19213=enabled&amp;czyExpNewSaveProgressNotice_CZY_19240=enabled&amp;czyExpClientSideLogging_CZY_19610=enabled&amp;czyExpSuprsendInAppNotifications=enabled&amp;czyExpGameThumbHover_CZY_19482=enabled&amp;czyExpProgressSaveNudge_CZY_18842=enabled&amp;czyExpRenderResolution_CZY_20444=enabled&amp;czyExpMetaPixel=enabled&amp;czyExpSuprsendInAppNotificationsConnect=enabled&amp;czyExpModelGamePage=knn_v5_expl_cpu_fallback",
+      "gameUrl": "https://jetpack-joyride-pcp.game-files.crazygames.com/jetpack-joyride-pcp/15/index.html?czyExpClientAdsDummyAA=disabled&czyExpClientVastVideoCache=local_cache_prebid_url&czyExpClientAdsConsentGate=enabled&czyExpClientLiveIntent=enabled&czyExpClientGooglePPID=enabled&czyExpClientContentSignals=disabled&czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&czyExpGamePageReco_CZY_19213=enabled&czyExpNewSaveProgressNotice_CZY_19240=enabled&czyExpClientSideLogging_CZY_19610=enabled&czyExpSuprsendInAppNotifications=enabled&czyExpGameThumbHover_CZY_19482=enabled&czyExpProgressSaveNudge_CZY_18842=enabled&czyExpRenderResolution_CZY_20444=enabled&czyExpMetaPixel=enabled&czyExpSuprsendInAppNotificationsConnect=enabled&czyExpModelGamePage=knn_v5_expl_cpu_fallback",
       "tags": [
         "Arcade",
         "Retro",
         "Cyber"
       ],
       "featured": false,
-      "tileSize": "2x1",
+      "tileSize": "1x2",
       "status": "active",
       "plays": 0,
       "rating": 5,
-      "createdAt": "2026-09-11"
+      "createdAt": "2026-09-11",
+      "_id": "6aa4016f814f790e57868329",
+      "updatedAt": "2026-09-11T00:00:00.000Z",
+      "__v": 0
     },
     {
       "id": "only-up-balls-game-1172",
@@ -104,7 +267,7 @@
       "thumbnail": "data:image/jpeg;base64,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",
       "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
       "previewVideo": "",
-      "gameUrl": "https://only-up-balls.game-files.crazygames.com/gameframe/up-aps/aps-script-1.4.21.html?game_slug=only-up-balls&amp;apsType=unity&amp;unityRawIDBId=https://only-up-balls.game-files.crazygames.com/unity/unity2020",
+      "gameUrl": "https://only-up-balls.game-files.crazygames.com/gameframe/up-aps/aps-script-1.4.21.html?game_slug=only-up-balls&apsType=unity&unityRawIDBId=https://only-up-balls.game-files.crazygames.com/unity/unity2020",
       "tags": [
         "Arcade",
         "Retro",
@@ -113,7 +276,7 @@
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 0,
+      "plays": 1,
       "rating": 5,
       "createdAt": "2026-09-11"
     },
@@ -125,7 +288,7 @@
       "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeWnMPNwH4IAB0xwkay83Snya92adaJOtnzBDJ5NNEig&s=10",
       "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
       "previewVideo": "",
-      "gameUrl": "https://games.crazygames.com/en_US/piece-of-cake-merge-and-bake/index.html?czyExpClientAdsDummyAA=disabled&amp;czyExpClientVastVideoCache=local_cache_prebid_url&amp;czyExpClientAdsConsentGate=enabled&amp;czyExpClientLiveIntent=enabled&amp;czyExpClientGooglePPID=enabled&amp;czyExpClientContentSignals=disabled&amp;czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&amp;czyExpGamePageReco_CZY_19213=enabled&amp;czyExpNewSaveProgressNotice_CZY_19240=enabled&amp;czyExpClientSideLogging_CZY_19610=enabled&amp;czyExpSuprsendInAppNotifications=enabled&amp;czyExpGameThumbHover_CZY_19482=enabled&amp;czyExpProgressSaveNudge_CZY_18842=enabled&amp;czyExpRenderResolution_CZY_20444=enabled&amp;czyExpMetaPixel=enabled&amp;czyExpSuprsendInAppNotificationsConnect=enabled&amp;czyExpModelGamePage=knn_v5_expl_cpu_fallback&amp;v=2.9",
+      "gameUrl": "https://games.crazygames.com/en_US/piece-of-cake-merge-and-bake/index.html?czyExpClientAdsDummyAA=disabled&czyExpClientVastVideoCache=local_cache_prebid_url&czyExpClientAdsConsentGate=enabled&czyExpClientLiveIntent=enabled&czyExpClientGooglePPID=enabled&czyExpClientContentSignals=disabled&czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&czyExpGamePageReco_CZY_19213=enabled&czyExpNewSaveProgressNotice_CZY_19240=enabled&czyExpClientSideLogging_CZY_19610=enabled&czyExpSuprsendInAppNotifications=enabled&czyExpGameThumbHover_CZY_19482=enabled&czyExpProgressSaveNudge_CZY_18842=enabled&czyExpRenderResolution_CZY_20444=enabled&czyExpMetaPixel=enabled&czyExpSuprsendInAppNotificationsConnect=enabled&czyExpModelGamePage=knn_v5_expl_cpu_fallback&v=2.9",
       "tags": [
         "Arcade",
         "Retro",
@@ -178,12 +341,12 @@
       ],
       "featured": false,
       "tileSize": "auto",
-      "status": "active",
+      "status": "maintenance",
       "plays": 17,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c193990a82e5b89cc182",
-      "updatedAt": "2026-09-11T10:20:22.420Z",
+      "updatedAt": "2026-09-11T13:43:01.982Z",
       "__v": 0
     },
     {
@@ -194,7 +357,7 @@
       "thumbnail": "data:image/jpeg;base64,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",
       "banner": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/rescue-the-fish.png",
       "previewVideo": "https://videos.crazygames.com/games/space-waves/cover-16x9.mp4",
-      "gameUrl": "https://games.poki.com/458768/67df49dd-cb33-4eb4-8c07-381bd587f7b1?tag=pg-0da6f4e4757ccab74c70ce5cbf8db42d64ca701b&amp;site_id=3&amp;iso_lang=en&amp;country=IN&amp;poki_url=https://poki.com/en/g/rescue-the-fish&amp;hoist=yes&amp;nonPersonalized=n&amp;cloudsavegames=n&amp;familyFriendly=n&amp;device=desktop&amp;categories=6,7,72,404&amp;special_condition=landing&amp;user_id=apvRklbBkUggAbNuTIJ82A",
+      "gameUrl": "https://games.poki.com/458768/67df49dd-cb33-4eb4-8c07-381bd587f7b1?tag=pg-0da6f4e4757ccab74c70ce5cbf8db42d64ca701b&site_id=3&iso_lang=en&country=IN&poki_url=https://poki.com/en/g/rescue-the-fish&hoist=yes&nonPersonalized=n&cloudsavegames=n&familyFriendly=n&device=desktop&categories=6,7,72,404&special_condition=landing&user_id=apvRklbBkUggAbNuTIJ82A",
       "tags": [
         "Arcade",
         "Retro",
@@ -218,7 +381,7 @@
       "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHc_JyxtM7vw3IJ1X5FzfhSjExor6InBeh5w9lzWAoCQ&s",
       "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
       "previewVideo": "",
-      "gameUrl": "https://files.crazygames.com/runestone-isles/2/index.html?isNewUser=false&amp;__nextLocale=en-US&amp;czyExpClientAdsDummyAA=disabled&amp;czyExpClientVastVideoCache=local_cache_prebid_url&amp;czyExpClientAdsConsentGate=enabled&amp;czyExpClientLiveIntent=enabled&amp;czyExpClientGooglePPID=enabled&amp;czyExpClientContentSignals=disabled&amp;czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&amp;czyExpGamePageReco_CZY_19213=enabled&amp;czyExpNewSaveProgressNotice_CZY_19240=enabled&amp;czyExpClientSideLogging_CZY_19610=enabled&amp;czyExpSuprsendInAppNotifications=enabled&amp;czyExpGameThumbHover_CZY_19482=enabled&amp;czyExpProgressSaveNudge_CZY_18842=enabled&amp;czyExpRenderResolution_CZY_20444=enabled&amp;czyExpMetaPixel=enabled&amp;czyExpSuprsendInAppNotificationsConnect=enabled&amp;czyExpModelGamePage=knn_v5_expl_cpu_fallback",
+      "gameUrl": "https://files.crazygames.com/runestone-isles/2/index.html?isNewUser=false&__nextLocale=en-US&czyExpClientAdsDummyAA=disabled&czyExpClientVastVideoCache=local_cache_prebid_url&czyExpClientAdsConsentGate=enabled&czyExpClientLiveIntent=enabled&czyExpClientGooglePPID=enabled&czyExpClientContentSignals=disabled&czyExpDisableInterstitialsFirst12h_CZY_18471=disabled&czyExpGamePageReco_CZY_19213=enabled&czyExpNewSaveProgressNotice_CZY_19240=enabled&czyExpClientSideLogging_CZY_19610=enabled&czyExpSuprsendInAppNotifications=enabled&czyExpGameThumbHover_CZY_19482=enabled&czyExpProgressSaveNudge_CZY_18842=enabled&czyExpRenderResolution_CZY_20444=enabled&czyExpMetaPixel=enabled&czyExpSuprsendInAppNotificationsConnect=enabled&czyExpModelGamePage=knn_v5_expl_cpu_fallback",
       "tags": [
         "Arcade",
         "Retro",
@@ -249,24 +412,24 @@
         "Cyber"
       ],
       "featured": false,
-      "tileSize": "auto",
-      "status": "active",
-      "plays": 36,
+      "tileSize": "2x3",
+      "status": "maintenance",
+      "plays": 42,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c0b1990a82e5b89cc178",
-      "updatedAt": "2026-09-11T10:35:11.501Z",
+      "updatedAt": "2026-09-12T05:08:22.904Z",
       "__v": 0
     },
     {
       "id": "gfds-3022",
       "title": "Traffic Ride",
-      "category": "sports",
+      "category": "racing",
       "description": "",
       "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWTXqAg7m8DjNkRGeFv0k2opg62N_aE7dQUx18N4avPQ&s",
       "banner": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/blocky-blast-puzzletraffic-ride.png",
       "previewVideo": "",
-      "gameUrl": "https://\"https://traffic-rider-vvq.game-files.crazygames.com/gameframe/up-aps/aps-script-1.4.21.html?game_slug=traffic-rider-vvq&amp;apsType=unity&amp;unityRawIDBId=https://traffic-rider-vvq.game-files.crazygames.com/unity/unity2020",
+      "gameUrl": "https://traffic-rider-vvq.game-files.crazygames.com/gameframe/up-aps/aps-script-1.4.21.html?game_slug=traffic-rider-vvq&apsType=unity&unityRawIDBId=https://traffic-rider-vvq.game-files.crazygames.com/unity/unity2020",
       "tags": [
         "Arcade",
         "Retro",
@@ -277,7 +440,10 @@
       "status": "active",
       "plays": 11,
       "rating": 5,
-      "createdAt": "2026-09-11"
+      "createdAt": "2026-09-11",
+      "_id": "6aa3c04d990a82e5b89cc170",
+      "updatedAt": "2026-09-11T13:43:16.922Z",
+      "__v": 0
     },
     {
       "id": "sky-islands-6372",
@@ -294,14 +460,14 @@
       ],
       "featured": false,
       "status": "active",
-      "plays": 45,
+      "plays": 54,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa38c52313aaee4d591dad4",
-      "updatedAt": "2026-09-11T09:06:59.553Z",
+      "updatedAt": "2026-09-12T04:49:53.225Z",
       "__v": 0,
       "previewVideo": "",
-      "tileSize": "auto"
+      "tileSize": "2x2"
     },
     {
       "id": "crazy-runner-9384",
@@ -399,6 +565,20 @@
       "id": "adventure",
       "name": "adventure",
       "icon": "🃏",
+      "count": 0,
+      "color": "#00f2fe"
+    },
+    {
+      "id": "racing",
+      "name": "Racing",
+      "icon": "🚗",
+      "count": 0,
+      "color": "#00f2fe"
+    },
+    {
+      "id": "shooting",
+      "name": "Shooting",
+      "icon": "🎯",
       "count": 0,
       "color": "#00f2fe"
     }

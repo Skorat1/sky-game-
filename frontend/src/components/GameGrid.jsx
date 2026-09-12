@@ -1,7 +1,6 @@
 import React, { useState, useMemo, memo } from 'react';
 import {
   Gamepad2,
-  SlidersHorizontal,
   ChevronDown
 } from 'lucide-react';
 import GameCard from './GameCard';
@@ -35,23 +34,12 @@ const GameGrid = memo(function GameGrid({
   onFocusSearch,
   user
 }) {
-  const [sortBy, setSortBy] = useState('popular');
   const [visibleLimit, setVisibleLimit] = useState(INITIAL_BATCH_SIZE);
 
-  const sortedList = useMemo(() => {
+  const displayedGames = useMemo(() => {
     if (!games || games.length === 0) return [];
-    const list = [...games];
-    if (sortBy === 'popular') {
-      return list.sort((a, b) => parseFloat(b.plays || 0) - parseFloat(a.plays || 0));
-    } else if (sortBy === 'rating') {
-      return list.sort((a, b) => (b.rating || 4.8) - (a.rating || 4.8));
-    } else if (sortBy === 'newest') {
-      return list.sort((a, b) => new Date(b.createdAt || '2026-01-01') - new Date(a.createdAt || '2026-01-01'));
-    } else if (sortBy === 'az') {
-      return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-    }
-    return list;
-  }, [games, sortBy]);
+    return games.slice(0, visibleLimit);
+  }, [games, visibleLimit]);
 
   const isHomeView = activePage === 'home' && !activeCategory && !searchQuery;
 
@@ -70,8 +58,7 @@ const GameGrid = memo(function GameGrid({
     );
   }
 
-  const displayedGames = sortedList.slice(0, visibleLimit);
-  const hasMore = visibleLimit < sortedList.length;
+  const hasMore = visibleLimit < games.length;
 
   const handleLoadMore = () => {
     sounds.playClick();
@@ -111,45 +98,19 @@ const GameGrid = memo(function GameGrid({
             )}
           </h2>
         </div>
-
-        {/* Sort Controls */}
-        <div className="grid-controls-group">
-          <div className="sort-dropdown-wrapper">
-            <SlidersHorizontal size={14} className="sort-icon" />
-            <select
-              value={sortBy}
-              onChange={(e) => {
-                sounds.playClick();
-                setSortBy(e.target.value);
-              }}
-              className="sort-select"
-            >
-              <option value="popular">Most Popular 🔥</option>
-              <option value="rating">Top Rated ⭐</option>
-              <option value="newest">New Releases ⚡</option>
-              <option value="az">A to Z 🔤</option>
-            </select>
-          </div>
-        </div>
       </div>
 
-      {/* Main Game Cards Dense Poki Mosaic Grid */}
+      {/* Main Game Cards Mosaic Grid */}
       <div className="game-cards-masonry-grid poki-masonry-grid">
         {displayedGames.map((game, index) => {
-          // Priority 1: Exact size configured in Admin (1x1, 2x2, 2x1, 1x2)
-          let sizeVariant = game.tileSize;
-
-          // Priority 2: If size is 'auto' or not set, use intelligent Poki mosaic distribution
-          if (!sizeVariant || sizeVariant === 'auto') {
-            if (game.featured || index === 0) {
-              sizeVariant = '2x2';
-            } else if (index === 5 || index === 14 || index === 25 || index === 36) {
-              sizeVariant = '2x1';
-            } else if (index === 8 || index === 19 || index === 31) {
-              sizeVariant = '2x2';
-            } else {
-              sizeVariant = '1x1';
-            }
+          // Strictly use the exact tile size configured in Admin Panel
+          let sizeVariant = '1x1';
+          if (game.tileSize && game.tileSize !== 'auto') {
+            sizeVariant = String(game.tileSize).toLowerCase().trim();
+          } else if (game.featured) {
+            sizeVariant = '2x2';
+          } else {
+            sizeVariant = '1x1';
           }
 
           return (
@@ -160,6 +121,7 @@ const GameGrid = memo(function GameGrid({
               isFavorite={(favorites || []).includes(game.id || game._id)}
               onToggleFavorite={onToggleFavorite}
               sizeVariant={sizeVariant}
+              priority={index < 12}
             />
           );
         })}
@@ -187,14 +149,14 @@ const GameGrid = memo(function GameGrid({
               transition: 'all 0.2s ease'
             }}
           >
-            <span>Show More Games ({sortedList.length - visibleLimit} Remaining)</span>
+            <span>Show More Games ({games.length - visibleLimit} Remaining)</span>
             <ChevronDown size={18} />
           </button>
         </div>
       )}
 
       {/* Search / Filter Empty State */}
-      {sortedList.length === 0 && (
+      {games.length === 0 && (
         <div className="empty-grid-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
           <div className="empty-icon-circle" style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid rgba(245, 45, 126, 0.25)' }}>
             <Gamepad2 size={36} color="#f52d7e" />

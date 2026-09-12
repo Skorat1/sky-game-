@@ -199,7 +199,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
       gameUrl: cleanedGameUrl,
       tags: processedTags,
       featured: formData.featured,
-      tileSize: formData.tileSize || (formData.featured ? '2x2' : 'auto'),
+      tileSize: formData.tileSize || (formData.featured ? '2x2' : '1x1'),
       status: formData.status,
       plays: game ? game.plays : 0,
       rating: game ? game.rating : 5.0,
@@ -209,7 +209,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay">
       <div 
         className="modal-content" 
         onClick={(e) => e.stopPropagation()} 

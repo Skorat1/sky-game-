@@ -336,7 +336,7 @@ export default function UsersView({
 
       {/* Add / Edit User Modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>
+        <div className="modal-overlay">
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">{editingUser ? '✏️ Edit User Profile' : '➕ Create New User'}</h2>
