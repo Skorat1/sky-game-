@@ -186,10 +186,13 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
     setIsDetecting(true);
     try {
-      const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+      const adminToken = localStorage.getItem('sky_admin_token') || '';
       const res = await fetch(`${API_BASE}/api/games/detect-metadata`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+        },
         body: JSON.stringify({ url: raw })
       });
 

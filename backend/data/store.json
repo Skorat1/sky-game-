@@ -11,7 +11,7 @@
       "role": "admin",
       "status": "active",
       "createdAt": "2026-09-01T10:00:00.000Z",
-      "lastLogin": "2026-09-14T04:36:21.456Z"
+      "lastLogin": "2026-09-14T06:02:15.486Z"
     },
     {
       "id": "usr-gamer-2",
@@ -51,6 +51,19 @@
       "status": "active",
       "createdAt": "2026-09-10T10:00:00.000Z",
       "lastLogin": "2026-09-11T10:38:46.065Z"
+    },
+    {
+      "id": "usr-admin-2",
+      "username": "NewAdmin",
+      "name": "NewAdmin",
+      "email": "newadmin@skygames.io",
+      "password": "94ae0ce36befc63fa7e162ed311ffeba:65c815d79ece922503b69a84fc6186180ccf20e328fc9f3cea989b11e19019af99f6456ec8a14c5bca4d63008716e3ff2e02e5cfb102cbfb67337d4feb15ef47",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=NewAdmin",
+      "provider": "email",
+      "role": "admin",
+      "status": "active",
+      "createdAt": "2026-09-14T10:00:00.000Z",
+      "lastLogin": "2026-09-14T06:22:31.486Z"
     }
   ],
   "games": [

@@ -31,6 +31,17 @@ const API_BASE = 'http://localhost:5000/api';
 
 const VALID_TABS = ['dashboard', 'games', 'users', 'categories', 'banner', 'submissions', 'messages', 'settings'];
 
+// Helper to attach Admin Authorization Bearer Token
+export const authFetch = async (url, options = {}) => {
+  const token = localStorage.getItem('sky_admin_token') || '';
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(options.headers || {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 function getInitialAdminUser() {
   try {
     const isSessionActive = sessionStorage.getItem('sky_admin_logged_in') === 'true';
@@ -131,13 +142,13 @@ export default function App() {
   const fetchAllData = useCallback(async () => {
     try {
       const [gamesRes, usersRes, bannerRes, catRes, subRes, msgRes, setRes] = await Promise.all([
-        fetch(`${API_BASE}/games`),
-        fetch(`${API_BASE}/users`),
-        fetch(`${API_BASE}/banner`),
-        fetch(`${API_BASE}/categories`),
-        fetch(`${API_BASE}/submissions`),
-        fetch(`${API_BASE}/messages`),
-        fetch(`${API_BASE}/settings`)
+        authFetch(`${API_BASE}/games`),
+        authFetch(`${API_BASE}/users`),
+        authFetch(`${API_BASE}/banner`),
+        authFetch(`${API_BASE}/categories`),
+        authFetch(`${API_BASE}/submissions`),
+        authFetch(`${API_BASE}/messages`),
+        authFetch(`${API_BASE}/settings`)
       ]);
 
       if (gamesRes.ok) {
@@ -242,9 +253,8 @@ export default function App() {
       const endpoint = exists ? `${API_BASE}/games/${savedGame.id}` : `${API_BASE}/games`;
       const method = exists ? 'PUT' : 'POST';
 
-      const res = await fetch(endpoint, {
+      const res = await authFetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(savedGame)
       });
 
@@ -278,7 +288,7 @@ export default function App() {
   const handleDeleteGame = async (gameId) => {
     try {
       const game = games.find(g => g.id === gameId);
-      const res = await fetch(`${API_BASE}/games/${gameId}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_BASE}/games/${gameId}`, { method: 'DELETE' });
 
       setGames(games.filter(g => g.id !== gameId));
       if (res.ok) {
@@ -294,7 +304,7 @@ export default function App() {
 
   const handleToggleFeatured = async (gameId) => {
     try {
-      const res = await fetch(`${API_BASE}/games/${gameId}/featured`, { method: 'PATCH' });
+      const res = await authFetch(`${API_BASE}/games/${gameId}/featured`, { method: 'PATCH' });
       if (res.ok) {
         const updated = await res.json();
         setGames(games.map(g => g.id === gameId ? updated : g));
@@ -310,9 +320,8 @@ export default function App() {
   // Category Handlers
   const handleAddCategory = async (newCat) => {
     try {
-      const res = await fetch(`${API_BASE}/categories`, {
+      const res = await authFetch(`${API_BASE}/categories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCat)
       });
       if (res.ok) {
@@ -329,7 +338,7 @@ export default function App() {
 
   const handleDeleteCategory = async (catId) => {
     try {
-      await fetch(`${API_BASE}/categories/${catId}`, { method: 'DELETE' });
+      await authFetch(`${API_BASE}/categories/${catId}`, { method: 'DELETE' });
       setCategories(categories.filter(c => c.id !== catId));
       showToast(`Category removed from MongoDB.`);
     } catch (err) {
@@ -340,9 +349,8 @@ export default function App() {
   // Banner Handlers
   const handleUpdateBanner = async (updatedBanner) => {
     try {
-      const res = await fetch(`${API_BASE}/banner`, {
+      const res = await authFetch(`${API_BASE}/banner`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedBanner)
       });
       if (res.ok) {
@@ -377,15 +385,13 @@ export default function App() {
         createdAt: new Date().toISOString().split('T')[0]
       };
 
-      await fetch(`${API_BASE}/games`, {
+      await authFetch(`${API_BASE}/games`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newGame)
       });
 
-      await fetch(`${API_BASE}/submissions/${sub.id}`, {
+      await authFetch(`${API_BASE}/submissions/${sub.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'approved' })
       });
 
@@ -399,9 +405,8 @@ export default function App() {
 
   const handleRejectSubmission = async (subId) => {
     try {
-      await fetch(`${API_BASE}/submissions/${subId}`, {
+      await authFetch(`${API_BASE}/submissions/${subId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'rejected' })
       });
       setSubmissions(submissions.map(s => s.id === subId ? { ...s, status: 'rejected' } : s));
@@ -414,7 +419,7 @@ export default function App() {
   // Message Handlers
   const handleMarkRead = async (msgId) => {
     try {
-      await fetch(`${API_BASE}/messages/${msgId}/read`, { method: 'PATCH' });
+      await authFetch(`${API_BASE}/messages/${msgId}/read`, { method: 'PATCH' });
       setMessages(messages.map(m => m.id === msgId ? { ...m, read: true } : m));
     } catch (err) {
       setMessages(messages.map(m => m.id === msgId ? { ...m, read: true } : m));
@@ -425,7 +430,7 @@ export default function App() {
     try {
       const unreadList = messages.filter(m => !m.read);
       for (const m of unreadList) {
-        try { await fetch(`${API_BASE}/messages/${m.id}/read`, { method: 'PATCH' }); } catch (e) {}
+        try { await authFetch(`${API_BASE}/messages/${m.id}/read`, { method: 'PATCH' }); } catch (e) {}
       }
       setMessages(messages.map(m => ({ ...m, read: true })));
       showToast('All messages marked as read.');
@@ -436,7 +441,7 @@ export default function App() {
 
   const handleDeleteMessage = async (msgId) => {
     try {
-      await fetch(`${API_BASE}/messages/${msgId}`, { method: 'DELETE' });
+      await authFetch(`${API_BASE}/messages/${msgId}`, { method: 'DELETE' });
       setMessages(messages.filter(m => m.id !== msgId));
       showToast('Message deleted from MongoDB.');
     } catch (err) {
@@ -447,9 +452,8 @@ export default function App() {
   // User Management Handlers
   const handleAddUser = async (userData) => {
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await authFetch(`${API_BASE}/users`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
 
@@ -479,9 +483,8 @@ export default function App() {
   const handleUpdateUser = async (userId, updates) => {
     try {
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
-      const res = await fetch(`${API_BASE}/users/${userId}`, {
+      const res = await authFetch(`${API_BASE}/users/${userId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
       if (res.ok) {
@@ -499,7 +502,7 @@ export default function App() {
   const handleDeleteUser = async (userId) => {
     try {
       setUsers(prev => prev.filter(u => u.id !== userId));
-      await fetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
+      await authFetch(`${API_BASE}/users/${userId}`, { method: 'DELETE' });
       showToast('User account deleted from system.', 'error');
     } catch (err) {
       setUsers(prev => prev.filter(u => u.id !== userId));
@@ -511,9 +514,8 @@ export default function App() {
   const handleSaveSettings = async (newSettings) => {
     try {
       setSettings(newSettings);
-      const res = await fetch(`${API_BASE}/settings`, {
+      const res = await authFetch(`${API_BASE}/settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSettings)
       });
       if (res.ok) {
@@ -553,9 +555,8 @@ export default function App() {
     if (data.games) {
       for (const g of data.games) {
         try {
-          await fetch(`${API_BASE}/games`, {
+          await authFetch(`${API_BASE}/games`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(g)
           });
         } catch (e) { }
@@ -565,9 +566,8 @@ export default function App() {
     if (data.banner) {
       setBanner(data.banner);
       try {
-        await fetch(`${API_BASE}/banner`, {
+        await authFetch(`${API_BASE}/banner`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data.banner)
         });
       } catch (e) { }
@@ -577,7 +577,7 @@ export default function App() {
 
   const handleResetData = async () => {
     try {
-      const res = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+      const res = await authFetch(`${API_BASE}/reset`, { method: 'POST' });
       if (res.ok) {
         await fetchAllData();
         showToast('Platform database reset to defaults in MongoDB!');

@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 const API_BASE = 'http://localhost:5000/api';
 
 export default function AdminLogin({ onLoginSuccess }) {
-  const [identifier, setIdentifier] = useState('admin@skygames.io');
-  const [password, setPassword] = useState('Admin@123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,11 +26,11 @@ export default function AdminLogin({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(`${API_BASE}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: cleanIdent,
+          identifier: cleanIdent,
           password: cleanPass
         })
       });
@@ -38,11 +38,11 @@ export default function AdminLogin({ onLoginSuccess }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid admin credentials');
+        throw new Error(data.error || 'Failed to authenticate admin');
       }
 
       if (data.user && data.user.role !== 'admin' && data.user.role !== 'moderator') {
-        throw new Error('Access denied. Administrator privileges required.');
+        throw new Error('Access denied: Administrator privileges required.');
       }
 
       setSuccess('Authentication successful! Initializing Control Center...');
@@ -57,8 +57,8 @@ export default function AdminLogin({ onLoginSuccess }) {
       }, 400);
 
     } catch (err) {
-      // Offline fallback verification for SuperAdmin default credentials
-      const isSuperAdminDefault = 
+      // Offline fallback verification for master default credentials
+      const isSuperAdminDefault =
         (cleanIdent.toLowerCase() === 'admin@skygames.io' || cleanIdent.toLowerCase() === 'superadmin' || cleanIdent.toLowerCase() === 'admin') &&
         (cleanPass === 'Admin@123' || cleanPass === 'admin123' || cleanPass === 'admin');
 
@@ -71,7 +71,7 @@ export default function AdminLogin({ onLoginSuccess }) {
           role: 'admin',
           status: 'active'
         };
-        setSuccess('Admin authorized via local master key!');
+        setSuccess('Admin authorized via master key!');
         try { localStorage.setItem('sky_admin_token', 'local_admin_token_' + Date.now()); } catch {}
         try { localStorage.setItem('sky_admin_user', JSON.stringify(fallbackAdmin)); } catch {}
 
@@ -79,16 +79,10 @@ export default function AdminLogin({ onLoginSuccess }) {
           onLoginSuccess(fallbackAdmin);
         }, 400);
       } else {
-        setError(err.message || 'Failed to authenticate. Please check your credentials.');
+        setError(err.message || 'Failed to authenticate.');
         setLoading(false);
       }
     }
-  };
-
-  const handleQuickFill = () => {
-    setIdentifier('admin@skygames.io');
-    setPassword('Admin@123');
-    setError('');
   };
 
   return (
@@ -228,8 +222,9 @@ export default function AdminLogin({ onLoginSuccess }) {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="admin@skygames.io"
+                placeholder="Enter admin email or username"
                 required
+                autoComplete="username"
                 style={{
                   background: 'transparent',
                   border: 'none',
@@ -263,8 +258,9 @@ export default function AdminLogin({ onLoginSuccess }) {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter password"
                 required
+                autoComplete="current-password"
                 style={{
                   background: 'transparent',
                   border: 'none',
@@ -322,26 +318,6 @@ export default function AdminLogin({ onLoginSuccess }) {
             )}
           </button>
         </form>
-
-        {/* Quick Demo Credentials Chip */}
-        <div 
-          onClick={handleQuickFill}
-          style={{
-            marginTop: '22px',
-            padding: '10px 14px',
-            background: 'rgba(0, 242, 254, 0.06)',
-            border: '1px dashed rgba(0, 242, 254, 0.3)',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            textAlign: 'center',
-            fontSize: '0.78rem',
-            color: '#38bdf8'
-          }}
-          title="Click to prefill demo admin credentials"
-        >
-          <span>🔑 Quick Fill Demo Admin: </span>
-          <strong style={{ color: '#fff' }}>admin@skygames.io</strong> / <strong style={{ color: '#fff' }}>Admin@123</strong>
-        </div>
       </div>
     </div>
   );
