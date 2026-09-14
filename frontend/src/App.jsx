@@ -450,11 +450,16 @@ function App() {
 
     if (activeCategory) {
       const catKey = activeCategory.toLowerCase();
+      const is2p = catKey === 'multiplayer' || catKey === '2-player' || catKey === '2player';
       list = list.filter(g => {
         if (!g) return false;
         const c = (g.category || '').toLowerCase();
         const tags = Array.isArray(g.tags) ? g.tags.map(t => (typeof t === 'string' ? t.toLowerCase() : '')) : [];
-        return c.includes(catKey) || tags.includes(catKey) || (catKey === 'multiplayer' && (c.includes('2') || tags.includes('2-player')));
+        const matches2p = is2p && (
+          c.includes('2') || c.includes('multiplayer') || c.includes('two') ||
+          tags.some(t => t.includes('2') || t.includes('multiplayer') || t.includes('two'))
+        );
+        return c === catKey || c.includes(catKey) || tags.some(t => t.includes(catKey)) || matches2p;
       });
     }
 

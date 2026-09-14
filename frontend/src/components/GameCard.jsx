@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, ThumbsUp } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import { getGamePreviewVideo, parseVideoSource } from '../utils/videoHelper';
+
+function formatCompactCount(num) {
+  if (!num || isNaN(num)) return '0';
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString();
+}
 
 const BADGE_COLORS = {
   'HOT': '#ef4444',
@@ -13,14 +21,6 @@ const BADGE_COLORS = {
   'STRATEGY': '#14b8a6',
   'FEATURED': '#6366f1'
 };
-
-function getGamePreviewVideo(game) {
-  if (game?.previewVideo) return game.previewVideo;
-  if (!game?.gameUrl) return null;
-  const cg = game.gameUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
-  if (cg) return `https://videos.crazygames.com/games/${cg[1]}/cover-16x9.mp4`;
-  return null;
-}
 
 export function optimizeThumbUrl(url, targetWidth = 360) {
   if (!url || typeof url !== 'string') {
@@ -81,22 +81,29 @@ const GameCard = memo(function GameCard({
     }
   }, [rawThumb, targetWidth]);
 
-  const previewVideoUrl = !videoError ? getGamePreviewVideo(game) : null;
+  const rawVideoUrl = getGamePreviewVideo(game);
+  const videoSource = !videoError ? parseVideoSource(rawVideoUrl) : null;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    if (videoRef.current && previewVideoUrl) {
-      videoRef.current.play().catch(() => { });
+    if (videoRef.current && videoSource?.type === 'direct') {
+      try {
+        videoRef.current.currentTime = 0;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
+        }
+      } catch {}
     }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    if (videoRef.current) {
+    if (videoRef.current && videoSource?.type === 'direct') {
       videoRef.current.pause();
       try {
         videoRef.current.currentTime = 0;
-      } catch { }
+      } catch {}
     }
   };
 
@@ -128,20 +135,42 @@ const GameCard = memo(function GameCard({
           decoding="async"
           onLoad={() => setImgLoaded(true)}
           onError={handleImageError}
-          style={{ opacity: imgLoaded ? 1 : 0.4, transition: 'opacity 0.2s ease' }}
+          style={{ 
+            opacity: imgLoaded ? 1 : 0.4, 
+            transition: 'opacity 0.2s ease, transform 0.35s ease',
+            display: 'block'
+          }}
         />
 
-        {/* Hover Video Preview (Smooth Playback) */}
-        {previewVideoUrl && (
+        {/* Hover Video Preview (Direct MP4/WebM Video or YouTube/Vimeo iframe) */}
+        {videoSource?.type === 'direct' && (
           <video
             ref={videoRef}
-            src={previewVideoUrl}
+            src={videoSource.url}
             className={`card-hover-preview-video ${isHovered ? 'video-active' : ''}`}
             muted
             loop
             playsInline
-            preload="none"
+            preload="auto"
             onError={() => setVideoError(true)}
+          />
+        )}
+
+        {isHovered && (videoSource?.type === 'youtube' || videoSource?.type === 'vimeo') && (
+          <iframe
+            src={videoSource.embedUrl}
+            title={game.title}
+            className="card-hover-preview-video video-active"
+            allow="autoplay; encrypted-media"
+            loading="eager"
+            style={{
+              border: 0,
+              pointerEvents: 'none',
+              width: '100%',
+              height: '100%',
+              transform: 'scale(1.25)',
+              transformOrigin: 'center center'
+            }}
           />
         )}
 
@@ -179,6 +208,22 @@ const GameCard = memo(function GameCard({
         {/* Card Bottom Meta */}
         <div className="card-bottom-info">
           <h3 className="card-game-title">{game.title}</h3>
+          <div className="card-stats-row">
+            <span className="card-likes-count" title={`${(game.likes || 0).toLocaleString()} Likes`}>
+              <ThumbsUp size={10} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <span>{formatCompactCount(game.likes || 0)}</span>
+            </span>
+            <span className="card-rating-stat" title={`Rating: ${Number(game.rating || 4.8).toFixed(1)} / 5.0`}>
+              <span style={{ color: '#fbbf24' }}>★</span>
+              <span>{Number(game.rating || 4.8).toFixed(1)}</span>
+            </span>
+            {(game.plays || 0) > 0 && (
+              <span className="card-plays-count" title={`${game.plays.toLocaleString()} Plays`}>
+                <span>🎮</span>
+                <span>{formatCompactCount(game.plays)}</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

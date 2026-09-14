@@ -367,10 +367,19 @@ function initStore() {
       localStore = { ...localStore, ...JSON.parse(data) };
       if (!Array.isArray(localStore.users)) localStore.users = [];
       if (Array.isArray(localStore.games)) {
-        localStore.games = localStore.games.map(g => ({
-          ...g,
-          gameUrl: sanitizeGameUrl(g.gameUrl)
-        }));
+        localStore.games = localStore.games.map(g => {
+          const rawLikes = typeof g.likes === 'number' ? g.likes : Math.max(12, Math.floor((g.plays || 5) * 8.5) + 120);
+          const rawDislikes = typeof g.dislikes === 'number' ? g.dislikes : Math.max(1, Math.floor(rawLikes * 0.035));
+          const totalVotes = rawLikes + rawDislikes;
+          const computedRating = totalVotes > 0 ? Number(((rawLikes / totalVotes) * 5).toFixed(1)) : 4.8;
+          return {
+            ...g,
+            likes: rawLikes,
+            dislikes: rawDislikes,
+            rating: g.rating || computedRating,
+            gameUrl: sanitizeGameUrl(g.gameUrl)
+          };
+        });
       }
 
       // Ensure seed users with valid passwords are present in localStore
@@ -556,14 +565,30 @@ app.post('/api/games/detect-metadata', async (req, res) => {
       'Accept-Language': 'en-US,en;q=0.9'
     };
 
+    // Heuristic 0: YouTube & Shorts URLs
+    const ytMatch = targetUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+    if (ytMatch) {
+      const vidId = ytMatch[1];
+      detected.thumbnail = `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`;
+      detected.banner = detected.thumbnail;
+      detected.previewVideo = targetUrl;
+    }
+
     // Heuristic 1: CrazyGames URLs (Direct High-Res 16:9 Cover & Video Teaser)
-    const cgMatch = targetUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
+    const cgMatch = targetUrl.match(/crazygames\.com\/(?:game|embed|en_US)\/([a-zA-Z0-9-]+)/i) ||
+                    targetUrl.match(/https?:\/\/([a-zA-Z0-9-]+)\.game-files\.crazygames\.com/i) ||
+                    targetUrl.match(/https?:\/\/files\.crazygames\.com\/([a-zA-Z0-9-]+)/i);
     if (cgMatch) {
       const slug = cgMatch[1];
       detected.thumbnail = `https://images.crazygames.com/games/${slug}/cover-16x9.png`;
       detected.previewVideo = `https://videos.crazygames.com/games/${slug}/cover-16x9.mp4`;
       detected.banner = detected.thumbnail;
       detected.title = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    // Direct video file
+    if (/\.(mp4|webm|ogg)($|\?)/i.test(targetUrl) && !detected.previewVideo) {
+      detected.previewVideo = targetUrl;
     }
 
     // Heuristic 2: Poki URLs
@@ -1424,6 +1449,77 @@ app.post('/api/games/:id/play', async (req, res) => {
     recordActivity('game_play', 'Game Played', `"${title}" was launched. Total plays: ${plays.toLocaleString()}`);
     res.json({ id: req.params.id, plays });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cast or change live game vote (like / dislike)
+app.post('/api/games/:id/vote', async (req, res) => {
+  try {
+    const { vote, previousVote } = req.body || {};
+    const gameId = req.params.id;
+    const idx = localStore.games.findIndex(g => g.id === gameId || (g._id && String(g._id) === gameId));
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Game not found' });
+    }
+
+    const game = localStore.games[idx];
+    let likes = typeof game.likes === 'number' ? game.likes : 100;
+    let dislikes = typeof game.dislikes === 'number' ? game.dislikes : 4;
+
+    // Undo previous vote if any
+    if (previousVote === 'like') {
+      likes = Math.max(0, likes - 1);
+    } else if (previousVote === 'dislike') {
+      dislikes = Math.max(0, dislikes - 1);
+    }
+
+    // Apply new vote
+    if (vote === 'like') {
+      likes += 1;
+    } else if (vote === 'dislike') {
+      dislikes += 1;
+    }
+
+    const totalVotes = likes + dislikes;
+    const rating = totalVotes > 0 ? Number(((likes / totalVotes) * 5).toFixed(1)) : 4.8;
+
+    const updatedGame = {
+      ...game,
+      likes,
+      dislikes,
+      rating
+    };
+
+    localStore.games[idx] = updatedGame;
+    persistStore();
+
+    if (mongoose.connection.readyState === 1) {
+      await Game.findOneAndUpdate(
+        { $or: [{ id: gameId }, { _id: gameId }] },
+        { $set: { likes, dislikes, rating } },
+        { new: true }
+      ).catch(() => { });
+    }
+
+    io.emit('game:updated', updatedGame);
+    io.emit('game:voted', { id: updatedGame.id, likes, dislikes, rating, vote });
+
+    if (vote === 'like') {
+      recordActivity('game_like', 'Game Liked', `Someone liked "${updatedGame.title}". Total likes: ${likes.toLocaleString()}`);
+    }
+
+    res.json({
+      success: true,
+      game: updatedGame,
+      id: updatedGame.id,
+      likes,
+      dislikes,
+      rating,
+      vote
+    });
+  } catch (err) {
+    console.error('Vote error:', err);
     res.status(500).json({ error: err.message });
   }
 });

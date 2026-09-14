@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { parseVideoSource, getGamePreviewVideo } from '../utils/videoHelper';
 
 function sanitizeGameUrl(input) {
   if (!input) return '';
@@ -22,30 +23,78 @@ function sanitizeGameUrl(input) {
   return url;
 }
 
-// Quick heuristic thumbnail detection
-function getQuickClientThumbnail(rawInput) {
-  if (!rawInput) return '';
+// Quick heuristic metadata & video detection
+function getQuickClientMetadata(rawInput) {
+  if (!rawInput) return {};
   let target = rawInput.trim();
   const iframeMatch = target.match(/src=["']([^"']+)["']/i);
   if (iframeMatch) target = iframeMatch[1];
 
-  if (/\.(png|jpg|jpeg|webp|gif)($|\?)/i.test(target)) {
-    return target;
+  // 1. YouTube & Shorts
+  const ytMatch = target.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+  if (ytMatch) {
+    const vidId = ytMatch[1];
+    return {
+      thumbnail: `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`,
+      banner: `https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`,
+      previewVideo: target
+    };
   }
 
-  const cg = target.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
-  if (cg) return `https://images.crazygames.com/games/${cg[1]}/cover-16x9.png`;
+  // 2. CrazyGames URL matching (game, embed, en_US, files, subdomains)
+  const cgMatch = target.match(/crazygames\.com\/(?:game|embed|en_US)\/([a-zA-Z0-9-]+)/i) ||
+                  target.match(/https?:\/\/([a-zA-Z0-9-]+)\.game-files\.crazygames\.com/i) ||
+                  target.match(/https?:\/\/files\.crazygames\.com\/([a-zA-Z0-9-]+)/i);
+  if (cgMatch) {
+    const slug = cgMatch[1];
+    const cleanTitle = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return {
+      thumbnail: `https://images.crazygames.com/games/${slug}/cover-16x9.png`,
+      banner: `https://images.crazygames.com/games/${slug}/cover-16x9.png`,
+      previewVideo: `https://videos.crazygames.com/games/${slug}/cover-16x9.mp4`,
+      title: cleanTitle
+    };
+  }
 
+  // 3. Poki URLs
   const poki = target.match(/poki\.com\/(?:[a-zA-Z-]+\/)?g\/([a-zA-Z0-9-]+)/i);
-  if (poki) return `https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/${poki[1]}.png`;
+  if (poki) {
+    const slug = poki[1];
+    const cleanTitle = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return {
+      thumbnail: `https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/${slug}.png`,
+      banner: `https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/${slug}.png`,
+      title: cleanTitle
+    };
+  }
 
+  // 4. GameMonetize
   const gm = target.match(/gamemonetize\.(?:com|co)\/([a-zA-Z0-9]+)/i) || target.match(/html5\.gamemonetize\.com\/([a-zA-Z0-9]+)/i);
-  if (gm) return `https://img.gamemonetize.com/${gm[1]}/512x384.jpg`;
+  if (gm) {
+    return {
+      thumbnail: `https://img.gamemonetize.com/${gm[1]}/512x384.jpg`,
+      banner: `https://img.gamemonetize.com/${gm[1]}/512x384.jpg`
+    };
+  }
 
+  // 5. GameDistribution
   const gd = target.match(/html5\.gamedistribution\.com\/([a-zA-Z0-9]+)/i);
-  if (gd) return `https://img.gamedistribution.com/${gd[1]}-512x384.jpeg`;
+  if (gd) {
+    return {
+      thumbnail: `https://img.gamedistribution.com/${gd[1]}-512x384.jpeg`,
+      banner: `https://img.gamedistribution.com/${gd[1]}-512x384.jpeg`
+    };
+  }
 
-  return '';
+  // 6. Direct image or video
+  if (/\.(png|jpg|jpeg|webp|gif)($|\?)/i.test(target)) {
+    return { thumbnail: target, banner: target };
+  }
+  if (/\.(mp4|webm|ogg)($|\?)/i.test(target)) {
+    return { previewVideo: target };
+  }
+
+  return {};
 }
 
 const TILE_SIZES = [
@@ -77,10 +126,13 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectStatus, setDetectStatus] = useState(null);
+  const [isModalHovered, setIsModalHovered] = useState(false);
+  const modalVideoRef = useRef(null);
   const debounceTimerRef = useRef(null);
 
   useEffect(() => {
     setDetectStatus(null);
+    setIsModalHovered(false);
     if (game) {
       setFormData({
         title: game.title || '',
@@ -120,14 +172,16 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
       return;
     }
 
-    const quickThumb = getQuickClientThumbnail(raw);
-    if (quickThumb) {
+    const quick = getQuickClientMetadata(raw);
+    if (quick.thumbnail || quick.previewVideo || quick.title) {
       setFormData(prev => ({
         ...prev,
-        thumbnail: quickThumb,
-        banner: quickThumb
+        thumbnail: quick.thumbnail || prev.thumbnail,
+        banner: quick.banner || quick.thumbnail || prev.banner,
+        previewVideo: quick.previewVideo || prev.previewVideo,
+        title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && quick.title ? quick.title : prev.title
       }));
-      setDetectStatus({ type: 'success', text: 'Thumbnail detected!' });
+      setDetectStatus({ type: 'success', text: 'Details auto-detected!' });
     }
 
     setIsDetecting(true);
@@ -144,13 +198,13 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
         const { thumbnail, banner, previewVideo, title, description } = json.data;
         setFormData(prev => ({
           ...prev,
-          thumbnail: thumbnail || quickThumb || prev.thumbnail,
-          banner: banner || thumbnail || quickThumb || prev.banner,
-          previewVideo: previewVideo || prev.previewVideo || '',
+          thumbnail: thumbnail || quick.thumbnail || prev.thumbnail,
+          banner: banner || thumbnail || quick.banner || prev.banner,
+          previewVideo: previewVideo || quick.previewVideo || prev.previewVideo || '',
           title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && title ? title : prev.title,
           description: (!prev.description || prev.description.trim() === '') && description ? description : prev.description
         }));
-        setDetectStatus({ type: 'success', text: 'Game details auto-detected!' });
+        setDetectStatus({ type: 'success', text: 'Game details & video auto-detected!' });
       }
     } catch (err) {
       console.error('Detection error:', err);
@@ -162,13 +216,21 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
   const handleGameUrlChange = (e) => {
     const val = e.target.value;
-    setFormData(prev => ({ ...prev, gameUrl: val }));
+    const quick = getQuickClientMetadata(val);
+    setFormData(prev => ({
+      ...prev,
+      gameUrl: val,
+      thumbnail: quick.thumbnail || prev.thumbnail,
+      banner: quick.banner || quick.thumbnail || prev.banner,
+      previewVideo: quick.previewVideo || prev.previewVideo,
+      title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && quick.title ? quick.title : prev.title
+    }));
 
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     if (val.trim().length > 10) {
       debounceTimerRef.current = setTimeout(() => {
         handleAutoDetectImage(val);
-      }, 700);
+      }, 600);
     }
   };
 
@@ -346,12 +408,12 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem', display: 'flex', justifyContent: 'space-between' }}>
                     <span>🎥 Hover Video URL</span>
-                    <span style={{ fontSize: '0.68rem', color: '#00f2fe' }}>Optional</span>
+                    <span style={{ fontSize: '0.68rem', color: '#00f2fe' }}>Optional (MP4, WebM, YouTube, Shorts, Vimeo)</span>
                   </label>
                   <input
                     type="url"
                     className="form-input"
-                    placeholder="https://... (.mp4, .webm)"
+                    placeholder="e.g. https://...mp4 or https://youtube.com/shorts/..."
                     value={formData.previewVideo}
                     onChange={(e) => setFormData({ ...formData, previewVideo: e.target.value })}
                   />
@@ -370,85 +432,123 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
               </div>
 
               {/* Live Preview Card */}
-              <div style={{
-                background: 'rgba(10, 16, 36, 0.7)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '14px',
-                padding: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>
-                  🕹️ Live Card Preview (Hover to Test)
-                </div>
+              {(() => {
+                const activeVideoUrl = formData.previewVideo || getGamePreviewVideo({ gameUrl: formData.gameUrl, previewVideo: formData.previewVideo });
+                const modalVideoSrc = parseVideoSource(activeVideoUrl);
+                return (
+                  <div style={{
+                    background: 'rgba(10, 16, 36, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '14px',
+                    padding: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                      🕹️ Live Card Preview (Hover to Test)
+                    </div>
 
-                <div
-                  onMouseEnter={() => {
-                    const vid = document.getElementById('simple-modal-video');
-                    if (vid) vid.play().catch(() => {});
-                  }}
-                  onMouseLeave={() => {
-                    const vid = document.getElementById('simple-modal-video');
-                    if (vid) {
-                      vid.pause();
-                      try { vid.currentTime = 0; } catch {}
-                    }
-                  }}
-                  style={{
-                    position: 'relative',
-                    width: '120px',
-                    height: '120px',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    border: '2px solid rgba(0, 242, 254, 0.4)',
-                    background: '#000000',
-                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <img
-                    src={formData.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}
-                    alt="Preview"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'; }}
-                  />
-
-                  {formData.previewVideo && (
-                    <video
-                      id="simple-modal-video"
-                      src={formData.previewVideo}
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        opacity: 0,
-                        transition: 'opacity 0.25s ease'
+                    <div
+                      onMouseEnter={() => {
+                        setIsModalHovered(true);
+                        if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
+                          try {
+                            modalVideoRef.current.currentTime = 0;
+                            const p = modalVideoRef.current.play();
+                            if (p !== undefined) p.catch(() => {});
+                          } catch {}
+                        }
                       }}
-                      onPlay={(e) => { e.target.style.opacity = '1'; }}
-                      onPause={(e) => { e.target.style.opacity = '0'; }}
-                    />
-                  )}
-                </div>
+                      onMouseLeave={() => {
+                        setIsModalHovered(false);
+                        if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
+                          modalVideoRef.current.pause();
+                          try { modalVideoRef.current.currentTime = 0; } catch {}
+                        }
+                      }}
+                      style={{
+                        position: 'relative',
+                        width: '120px',
+                        height: '120px',
+                        borderRadius: '20px',
+                        overflow: 'hidden',
+                        border: '2px solid rgba(0, 242, 254, 0.4)',
+                        background: '#000000',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <img
+                        src={formData.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}
+                        alt="Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'; }}
+                      />
 
-                <span style={{ fontSize: '0.68rem', color: formData.previewVideo ? '#22c55e' : '#94a3b8' }}>
-                  {formData.previewVideo ? '● Video active on hover' : '○ Static thumbnail'}
-                </span>
-              </div>
+                      {modalVideoSrc?.type === 'direct' && (
+                        <video
+                          ref={modalVideoRef}
+                          src={modalVideoSrc.url}
+                          muted
+                          loop
+                          playsInline
+                          preload="auto"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            opacity: isModalHovered ? 1 : 0,
+                            transition: 'opacity 0.2s ease',
+                            pointerEvents: 'none',
+                            zIndex: 2
+                          }}
+                        />
+                      )}
+
+                      {isModalHovered && (modalVideoSrc?.type === 'youtube' || modalVideoSrc?.type === 'vimeo') && (
+                        <iframe
+                          src={modalVideoSrc.embedUrl}
+                          title="Video preview"
+                          allow="autoplay; encrypted-media"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            border: 0,
+                            pointerEvents: 'none',
+                            opacity: 1,
+                            zIndex: 2,
+                            transform: 'scale(1.25)',
+                            transformOrigin: 'center center'
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    <span style={{ fontSize: '0.68rem', color: activeVideoUrl ? '#22c55e' : '#94a3b8' }}>
+                      {activeVideoUrl
+                        ? (modalVideoSrc?.type === 'youtube'
+                            ? '● YouTube video on hover'
+                            : modalVideoSrc?.type === 'vimeo'
+                            ? '● Vimeo video on hover'
+                            : '● Video active on hover (CrazyGames style)')
+                        : '○ Static thumbnail'}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Row 4: Card Size & Publication Status */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px', alignItems: 'center' }}>
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>📐 Website Card Size (Poki Grid)</span>
+                  <span>📐 Website Card Size </span>
                   <span style={{ fontSize: '0.72rem', color: '#00f2fe', fontWeight: 600 }}>{formData.tileSize || 'auto'}</span>
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginBottom: '8px' }}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function UsersView({
   users = [],
@@ -335,8 +336,8 @@ export default function UsersView({
       </div>
 
       {/* Add / Edit User Modal */}
-      {isModalOpen && (
-        <div className="modal-overlay">
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
+        <div className="modal-overlay" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">{editingUser ? '✏️ Edit User Profile' : '➕ Create New User'}</h2>
@@ -423,7 +424,8 @@ export default function UsersView({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

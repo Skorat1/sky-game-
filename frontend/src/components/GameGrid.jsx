@@ -43,21 +43,6 @@ const GameGrid = memo(function GameGrid({
 
   const isHomeView = activePage === 'home' && !activeCategory && !searchQuery;
 
-  // If no games exist on the platform
-  if (!games || games.length === 0) {
-    return (
-      <div className="empty-grid-state" style={{ minHeight: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '60px 20px', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', margin: '20px 0' }}>
-        <div className="empty-icon-circle" style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', border: '1px solid rgba(245, 45, 126, 0.25)' }}>
-          <Gamepad2 size={44} color="#f52d7e" />
-        </div>
-        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '10px' }}>No games available</h3>
-        <p style={{ color: '#64748b', maxWidth: '440px', fontSize: '0.95rem', lineHeight: '1.6', margin: '0 auto 20px' }}>
-          There are currently no games published. Add games through the <strong>Admin Control Panel</strong> to display them here live.
-        </p>
-      </div>
-    );
-  }
-
   const hasMore = visibleLimit < games.length;
 
   const handleLoadMore = () => {
@@ -155,20 +140,55 @@ const GameGrid = memo(function GameGrid({
         </div>
       )}
 
-      {/* Search / Filter Empty State */}
+      {/* Search / Filter Empty State (Categories remain accessible above) */}
       {games.length === 0 && (
-        <div className="empty-grid-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
-          <div className="empty-icon-circle" style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(245, 45, 126, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid rgba(245, 45, 126, 0.25)' }}>
-            <Gamepad2 size={36} color="#f52d7e" />
+        <div className="empty-grid-state" style={{ 
+          padding: '50px 24px', 
+          textAlign: 'center', 
+          background: '#ffffff', 
+          borderRadius: '24px', 
+          border: '1.5px dashed #cbd5e1', 
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
+          margin: '10px 0 30px'
+        }}>
+          <div className="empty-icon-circle" style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid rgba(37, 99, 235, 0.2)' }}>
+            <Gamepad2 size={38} color="#2563eb" />
           </div>
-          <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '8px', fontWeight: '800' }}>
-            {searchQuery ? 'No games found' : 'No games in this category yet'}
+          <h3 style={{ fontSize: '1.35rem', color: '#0f172a', marginBottom: '8px', fontWeight: '800' }}>
+            {searchQuery 
+              ? `No games found for "${searchQuery}"` 
+              : activeCategory 
+              ? `No games in "${activeCategory.toUpperCase()}" yet` 
+              : 'No games available'}
           </h3>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+          <p style={{ color: '#64748b', fontSize: '0.92rem', maxWidth: '420px', margin: '0 auto 20px', lineHeight: '1.5' }}>
             {searchQuery
-              ? 'Try searching for another keyword or selecting a different category from the pills above.'
-              : 'Add games under this category from the Admin Control Panel.'}
+              ? 'Try searching with another keyword or click any category pill above to explore more games.'
+              : 'Games under this category will be available soon. Select another category above or view all games.'}
           </p>
+          <button
+            onClick={() => {
+              sounds.playClick();
+              if (onSelectCategory) onSelectCategory('');
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 24px',
+              background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
+              border: 'none',
+              borderRadius: '50px',
+              color: '#0a1024',
+              fontSize: '0.88rem',
+              fontWeight: '800',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(0, 242, 254, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>🎮 View All Games</span>
+          </button>
         </div>
       )}
     </section>

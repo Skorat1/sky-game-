@@ -1,5 +1,192 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import GameSandboxModal from '../components/GameSandboxModal';
+import { parseVideoSource, getGamePreviewVideo } from '../utils/videoHelper';
+
+function AdminGameCardItem({
+  game,
+  onPlay,
+  onToggleFeatured,
+  onEditGame,
+  onDeleteGame
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef(null);
+
+  const rawVideo = game.previewVideo || getGamePreviewVideo(game);
+  const videoSource = parseVideoSource(rawVideo);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && videoSource?.type === 'direct') {
+      try {
+        videoRef.current.currentTime = 0;
+        const p = videoRef.current.play();
+        if (p !== undefined) p.catch(() => {});
+      } catch {}
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current && videoSource?.type === 'direct') {
+      videoRef.current.pause();
+      try { videoRef.current.currentTime = 0; } catch {}
+    }
+  };
+
+  return (
+    <div
+      className="game-admin-card"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="game-card-media" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600'}
+          alt={game.title}
+          className="game-card-thumb"
+        />
+
+        {videoSource?.type === 'direct' && (
+          <video
+            ref={videoRef}
+            src={videoSource.url}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: isHovered ? 1 : 0,
+              transition: 'opacity 0.2s ease',
+              pointerEvents: 'none',
+              zIndex: 1
+            }}
+          />
+        )}
+
+        {isHovered && (videoSource?.type === 'youtube' || videoSource?.type === 'vimeo') && (
+          <iframe
+            src={videoSource.embedUrl}
+            title={game.title}
+            allow="autoplay; encrypted-media"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              border: 0,
+              pointerEvents: 'none',
+              opacity: 1,
+              zIndex: 1,
+              transform: 'scale(1.25)',
+              transformOrigin: 'center center'
+            }}
+          />
+        )}
+        
+        <div className="game-card-badge-top" style={{ zIndex: 2 }}>
+          <span className={`status-badge ${game.status || 'active'}`}>
+            {game.status || 'active'}
+          </span>
+          {game.featured && (
+            <span className="featured-star-pill">
+              ⭐ Spotlight
+            </span>
+          )}
+        </div>
+
+        {game.gameUrl && (
+          <div className="game-card-quick-play" style={{ zIndex: 3 }}>
+            <button
+              className="admin-btn primary"
+              style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+              onClick={() => onPlay(game)}
+            >
+              🕹️ Play Test
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="game-card-body">
+        <div className="game-card-title-row">
+          <div className="game-card-title">{game.title}</div>
+          <div className="rating-badge-inline">
+            <span className="rating-star">★</span>
+            <span>{game.rating || 5.0}</span>
+          </div>
+        </div>
+
+        <div className="game-card-meta-row">
+          <span className="category-pill-tag">
+            {game.category || 'Arcade'}
+          </span>
+          <span style={{ fontSize: '0.72rem', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
+            📏 {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
+          </span>
+          {rawVideo && (
+            <span style={{ fontSize: '0.72rem', background: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
+              🎥 Video
+            </span>
+          )}
+          <span style={{ fontSize: '0.72rem', background: 'rgba(56, 189, 248, 0.12)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
+            👍 {(game.likes || 0).toLocaleString()}
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff' }}>
+            {(game.plays || 0).toLocaleString()} Plays
+          </span>
+        </div>
+
+        {game.tags && game.tags.length > 0 && (
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 2 }}>
+            {game.tags.slice(0, 3).map((tag, i) => (
+              <span key={i} style={{ fontSize: '0.68rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: 4 }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="game-card-actions">
+          <button
+            className="header-btn"
+            style={{ fontSize: '0.75rem', padding: '4px 8px', color: game.featured ? '#fbbf24' : 'var(--text-muted)' }}
+            onClick={() => onToggleFeatured(game.id)}
+            title="Toggle Featured Spotlight"
+          >
+            {game.featured ? '⭐ Featured' : '☆ Feature'}
+          </button>
+
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              className="icon-action-btn edit"
+              title="Edit Game"
+              onClick={() => onEditGame(game)}
+            >
+              ✏️
+            </button>
+            <button
+              className="icon-action-btn delete"
+              title="Delete Game"
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete "${game.title}"?`)) {
+                  onDeleteGame(game.id);
+                }
+              }}
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function GamesManagementView({
   games = [],
@@ -155,107 +342,14 @@ export default function GamesManagementView({
             </div>
           ) : (
             filteredGames.map((game) => (
-              <div key={game.id} className="game-admin-card">
-                <div className="game-card-media">
-                  <img
-                    src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600'}
-                    alt={game.title}
-                    className="game-card-thumb"
-                  />
-                  
-                  <div className="game-card-badge-top">
-                    <span className={`status-badge ${game.status || 'active'}`}>
-                      {game.status || 'active'}
-                    </span>
-                    {game.featured && (
-                      <span className="featured-star-pill">
-                        ⭐ Spotlight
-                      </span>
-                    )}
-                  </div>
-
-                  {game.gameUrl && (
-                    <div className="game-card-quick-play">
-                      <button
-                        className="admin-btn primary"
-                        style={{ padding: '8px 14px', fontSize: '0.8rem' }}
-                        onClick={() => setActivePlayGame(game)}
-                      >
-                        🕹️ Play Test
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="game-card-body">
-                  <div className="game-card-title-row">
-                    <div className="game-card-title">{game.title}</div>
-                    <div className="rating-badge-inline">
-                      <span className="rating-star">★</span>
-                      <span>{game.rating || 5.0}</span>
-                    </div>
-                  </div>
-
-                  <div className="game-card-meta-row">
-                    <span className="category-pill-tag">
-                      {game.category || 'Arcade'}
-                    </span>
-                    <span style={{ fontSize: '0.72rem', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
-                      📏 {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
-                    </span>
-                    {game.previewVideo && (
-                      <span style={{ fontSize: '0.72rem', background: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
-                        🎥 Video
-                      </span>
-                    )}
-                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff' }}>
-                      {(game.plays || 0).toLocaleString()} Plays
-                    </span>
-                  </div>
-
-                  {game.tags && game.tags.length > 0 && (
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 2 }}>
-                      {game.tags.slice(0, 3).map((tag, i) => (
-                        <span key={i} style={{ fontSize: '0.68rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: 4 }}>
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="game-card-actions">
-                    <button
-                      className="header-btn"
-                      style={{ fontSize: '0.75rem', padding: '4px 8px', color: game.featured ? '#fbbf24' : 'var(--text-muted)' }}
-                      onClick={() => onToggleFeatured(game.id)}
-                      title="Toggle Featured Spotlight"
-                    >
-                      {game.featured ? '⭐ Featured' : '☆ Feature'}
-                    </button>
-
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button
-                        className="icon-action-btn edit"
-                        title="Edit Game"
-                        onClick={() => onEditGame(game)}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="icon-action-btn delete"
-                        title="Delete Game"
-                        onClick={() => {
-                          if (window.confirm(`Are you sure you want to delete "${game.title}"?`)) {
-                            onDeleteGame(game.id);
-                          }
-                        }}
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <AdminGameCardItem
+                key={game.id}
+                game={game}
+                onPlay={setActivePlayGame}
+                onToggleFeatured={onToggleFeatured}
+                onEditGame={onEditGame}
+                onDeleteGame={onDeleteGame}
+              />
             ))
           )}
         </div>

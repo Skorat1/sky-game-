@@ -32,15 +32,8 @@ import {
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
 import { socket } from '../utils/socket';
+import { getGamePreviewVideo, parseVideoSource } from '../utils/videoHelper';
 import GameCard from './GameCard';
-
-function getSidebarPreviewVideo(game) {
-  if (game?.previewVideo) return game.previewVideo;
-  if (!game?.gameUrl) return null;
-  const cg = game.gameUrl.match(/crazygames\.com\/(?:game|embed)\/([a-zA-Z0-9-]+)/i);
-  if (cg) return `https://videos.crazygames.com/games/${cg[1]}/cover-16x9.mp4`;
-  return null;
-}
 
 function SidebarGameTile({ game, onPlay, isFirst }) {
   const currentThumb = game?.thumbnail || game?.thumbnailUrl || game?.image || game?.imageUrl || game?.cover || game?.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400';
@@ -55,18 +48,25 @@ function SidebarGameTile({ game, onPlay, isFirst }) {
     setImgLoaded(false);
   }, [currentThumb]);
 
-  const previewVideoUrl = !videoError ? getSidebarPreviewVideo(game) : null;
+  const rawVideoUrl = getGamePreviewVideo(game);
+  const videoSource = !videoError ? parseVideoSource(rawVideoUrl) : null;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    if (videoRef.current && previewVideoUrl) {
-      videoRef.current.play().catch(() => { });
+    if (videoRef.current && videoSource?.type === 'direct') {
+      try {
+        videoRef.current.currentTime = 0;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => { });
+        }
+      } catch { }
     }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    if (videoRef.current) {
+    if (videoRef.current && videoSource?.type === 'direct') {
       videoRef.current.pause();
       try {
         videoRef.current.currentTime = 0;
@@ -95,19 +95,40 @@ function SidebarGameTile({ game, onPlay, isFirst }) {
           setImgSrc('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80');
           setImgLoaded(true);
         }}
+        style={{
+          display: 'block'
+        }}
       />
 
-      {/* Hover Video Preview (CrazyGames Style) */}
-      {previewVideoUrl && (
+      {/* Hover Video Preview (Direct MP4/WebM Video or YouTube/Vimeo iframe) */}
+      {videoSource?.type === 'direct' && (
         <video
           ref={videoRef}
-          src={previewVideoUrl}
+          src={videoSource.url}
           className={`card-hover-preview-video ${isHovered ? 'video-active' : ''}`}
           muted
           loop
           playsInline
-          preload="none"
+          preload="auto"
           onError={() => setVideoError(true)}
+        />
+      )}
+
+      {isHovered && (videoSource?.type === 'youtube' || videoSource?.type === 'vimeo') && (
+        <iframe
+          src={videoSource.embedUrl}
+          title={game.title}
+          className="card-hover-preview-video video-active"
+          allow="autoplay; encrypted-media"
+          loading="eager"
+          style={{
+            border: 0,
+            pointerEvents: 'none',
+            width: '100%',
+            height: '100%',
+            transform: 'scale(1.25)',
+            transformOrigin: 'center center'
+          }}
         />
       )}
 
@@ -177,9 +198,19 @@ export default function GamePlayerView({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isLightsOff, setIsLightsOff] = useState(false);
-  const [likes, setLikes] = useState(() => Math.floor(Math.random() * 800) + 1240);
-  const [dislikes, setDislikes] = useState(() => Math.floor(Math.random() * 30) + 12);
-  const [userVote, setUserVote] = useState(null);
+  const [likes, setLikes] = useState(() => {
+    return typeof game?.likes === 'number' ? game.likes : 120;
+  });
+  const [dislikes, setDislikes] = useState(() => {
+    return typeof game?.dislikes === 'number' ? game.dislikes : 4;
+  });
+  const [userVote, setUserVote] = useState(() => {
+    try {
+      return localStorage.getItem(`sky_vote_${game?.id}`) || null;
+    } catch {
+      return null;
+    }
+  });
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -220,7 +251,7 @@ export default function GamePlayerView({
     };
   }, []);
 
-  // Real-time socket room join, leave, play increment, and live reactions
+  // Real-time socket room join, leave, play increment, live reactions & live likes sync
   useEffect(() => {
     if (!game?.id) return;
 
@@ -251,10 +282,29 @@ export default function GamePlayerView({
     };
     socket.on('game:reaction:broadcast', handleReactionBroadcast);
 
+    // Listen for real-time live vote / like updates from server
+    const handleGameVoted = (data) => {
+      if (data?.id === game.id) {
+        if (typeof data.likes === 'number') setLikes(data.likes);
+        if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
+      }
+    };
+    socket.on('game:voted', handleGameVoted);
+
+    const handleGameUpdated = (updated) => {
+      if (updated?.id === game.id) {
+        if (typeof updated.likes === 'number') setLikes(updated.likes);
+        if (typeof updated.dislikes === 'number') setDislikes(updated.dislikes);
+      }
+    };
+    socket.on('game:updated', handleGameUpdated);
+
     return () => {
       socket.emit('game:leave', game.id);
       socket.off('game:players:count', handlePlayerCount);
       socket.off('game:reaction:broadcast', handleReactionBroadcast);
+      socket.off('game:voted', handleGameVoted);
+      socket.off('game:updated', handleGameUpdated);
     };
   }, [game?.id]);
 
@@ -263,9 +313,17 @@ export default function GamePlayerView({
     socket.emit('game:reaction', { gameId: game.id, emoji });
   };
 
-  // Reset states on game change
+  // Reset & sync states on game change
   useEffect(() => {
-    setUserVote(null);
+    if (game) {
+      if (typeof game.likes === 'number') setLikes(game.likes);
+      if (typeof game.dislikes === 'number') setDislikes(game.dislikes);
+      try {
+        setUserVote(localStorage.getItem(`sky_vote_${game.id}`) || null);
+      } catch {
+        setUserVote(null);
+      }
+    }
     setUserRating(0);
     setCopiedLink(false);
     setGameOver(false);
@@ -614,28 +672,76 @@ export default function GamePlayerView({
 
   if (!game) return null;
 
-  const handleLike = () => {
+  const handleLike = async () => {
     sounds.playPowerup();
-    if (userVote === 'like') {
+    const prevVote = userVote;
+    const nextVote = prevVote === 'like' ? 'none' : 'like';
+
+    // Optimistic UI updates
+    if (prevVote === 'like') {
       setUserVote(null);
-      setLikes(l => l - 1);
+      setLikes(l => Math.max(0, l - 1));
+      try { localStorage.removeItem(`sky_vote_${game?.id}`); } catch { }
     } else {
-      if (userVote === 'dislike') setDislikes(d => d - 1);
+      if (prevVote === 'dislike') {
+        setDislikes(d => Math.max(0, d - 1));
+      }
       setUserVote('like');
       setLikes(l => l + 1);
+      try { localStorage.setItem(`sky_vote_${game?.id}`, 'like'); } catch { }
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+    }
+
+    // Call live backend API to persist & broadcast
+    try {
+      const res = await fetch(`http://localhost:5000/api/games/${game.id}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vote: nextVote, previousVote: prevVote || 'none' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.likes === 'number') setLikes(data.likes);
+        if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
+      }
+    } catch (err) {
+      console.error('Vote API error:', err);
     }
   };
 
-  const handleDislike = () => {
+  const handleDislike = async () => {
     sounds.playClick();
-    if (userVote === 'dislike') {
+    const prevVote = userVote;
+    const nextVote = prevVote === 'dislike' ? 'none' : 'dislike';
+
+    // Optimistic UI updates
+    if (prevVote === 'dislike') {
       setUserVote(null);
-      setDislikes(d => d - 1);
+      setDislikes(d => Math.max(0, d - 1));
+      try { localStorage.removeItem(`sky_vote_${game?.id}`); } catch { }
     } else {
-      if (userVote === 'like') setLikes(l => l - 1);
+      if (prevVote === 'like') {
+        setLikes(l => Math.max(0, l - 1));
+      }
       setUserVote('dislike');
       setDislikes(d => d + 1);
+      try { localStorage.setItem(`sky_vote_${game?.id}`, 'dislike'); } catch { }
+    }
+
+    // Call live backend API to persist & broadcast
+    try {
+      const res = await fetch(`http://localhost:5000/api/games/${game.id}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vote: nextVote, previousVote: prevVote || 'none' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.likes === 'number') setLikes(data.likes);
+        if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
+      }
+    } catch (err) {
+      console.error('Vote API error:', err);
     }
   };
 
@@ -778,7 +884,6 @@ export default function GamePlayerView({
     if (!rawUrl) return '';
     let finalUrl = rawUrl.trim();
 
-    // Remove any accidental outer quotes or double protocol patterns (e.g., https://"https://...)
     finalUrl = finalUrl.replace(/^https?:\/\/"https?:\/\//i, 'https://');
     finalUrl = finalUrl.replace(/^"|"$/g, '').trim();
     finalUrl = finalUrl.replace(/&amp;/g, '&');
@@ -789,12 +894,10 @@ export default function GamePlayerView({
       finalUrl = iframeMatch[1];
     }
 
-    // 2. Automatically wrap Google Gadget .xml files with proxy
-    if (finalUrl.endsWith('.xml') || finalUrl.includes('.xml?')) {
-      return `/game-proxy/gadgets/ifr?url=${encodeURIComponent(finalUrl)}`;
-    }
+   
 
-    // 3. Route Google opensocial gadgets via backend proxy for CORS/CSP bypass
+
+    // 4. Route Google opensocial gadgets via backend proxy for CORS/CSP bypass
     if (finalUrl.includes('opensocial.googleusercontent.com/gadgets/ifr')) {
       const subIdx = finalUrl.indexOf('/gadgets/ifr');
       if (subIdx !== -1) {
@@ -802,7 +905,7 @@ export default function GamePlayerView({
       }
     }
 
-    // 4. Add protocol if missing
+    // 5. Add protocol if missing
     if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('//') && !finalUrl.startsWith('/')) {
       finalUrl = 'https://' + finalUrl;
     }
@@ -815,7 +918,6 @@ export default function GamePlayerView({
   return (
     <div className={`crazy-game-page-container ${isLightsOff ? 'lights-off-active' : ''}`}>
 
-      {/* Lights-off Cinematic Dark Backdrop */}
       {isLightsOff && (
         <div
           className="crazy-lights-off-overlay"
@@ -824,7 +926,7 @@ export default function GamePlayerView({
         />
       )}
 
-      {/* 2. Main Game Player Stage (Split: Left Main Game Player Screen + Right Recommended Games Column) */}
+      {/* 2. Main Game Player Stage (: Left Main Game Player Screen + Right Recommended Games Column) */}
       <div className={`crazy-stage-wrapper ${isTheaterMode ? 'theater-expanded' : ''}`}>
 
         {/* Left/Center Main Game Player Column */}
@@ -835,20 +937,6 @@ export default function GamePlayerView({
             ref={screenWrapperRef}
             className={`crazy-screen-viewport game-screen-wrapper ${isFullscreen ? 'is-fullscreen' : ''} ${isTheaterMode ? 'is-theater' : ''}`}
           >
-            {/* Real-time Floating Reactions Overlay */}
-            {floatingReactions.length > 0 && (
-              <div className="live-reactions-floating-overlay">
-                {floatingReactions.map((r) => (
-                  <div
-                    key={r.id}
-                    className="floating-emoji-bubble"
-                    style={{ left: `${r.left}%` }}
-                  >
-                    <span>{r.emoji}</span>
-                  </div>
-                ))}
-              </div>
-            )}
 
             {useBuiltInEngine || !cleanUrl ? (
               /* Built-in Arcade Engine */
@@ -962,16 +1050,8 @@ export default function GamePlayerView({
               </div>
             </div>
 
-            {/* Right: sky Actions + Real-time Reaction Picker + Engine Switcher + Reload + Fullscreen */}
+            {/* Right: sky Actions + Engine Switcher + Reload + Fullscreen */}
             <div className="sky-ctrl-right">
-              {/* Live Emoji Quick Reactions */}
-              <div className="live-reaction-picker" title="Send live reaction to all players">
-                <button className="emoji-react-btn" onClick={() => sendReaction('🔥')} title="Fire">🔥</button>
-                <button className="emoji-react-btn" onClick={() => sendReaction('⚡')} title="Lightning">⚡</button>
-                <button className="emoji-react-btn" onClick={() => sendReaction('👏')} title="Clap">👏</button>
-                <button className="emoji-react-btn" onClick={() => sendReaction('🏆')} title="Trophy">🏆</button>
-              </div>
-
               {/* Thumbs Up */}
               <button
                 className={`sky-action-btn ${userVote === 'like' ? 'voted-like' : ''}`}

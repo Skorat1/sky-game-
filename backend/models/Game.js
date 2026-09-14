@@ -11,6 +11,8 @@ const gameSchema = new mongoose.Schema({
   gameUrl: { type: String, default: '' },
   tags: [{ type: String }],
   rating: { type: Number, default: 4.8 },
+  likes: { type: Number, default: 0 },
+  dislikes: { type: Number, default: 0 },
   plays: { type: Number, default: 0 },
   featured: { type: Boolean, default: false },
   tileSize: { type: String, default: '1x1' },

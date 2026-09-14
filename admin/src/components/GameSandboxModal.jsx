@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandbox', onClose }) {
   const [iframeKey, setIframeKey] = useState(0);
@@ -59,7 +60,7 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
 
   if (!gameUrl) return null;
 
-  return (
+  const modalNode = (
     <div className="modal-overlay sandbox-overlay" onClick={onClose}>
       <div 
         ref={containerRef}
@@ -142,4 +143,6 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalNode, document.body) : modalNode;
 }
