@@ -108,66 +108,72 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                   </td>
                 </tr>
               ) : (
-                filteredMessages.map((msg) => (
-                  <tr 
-                    key={msg.id} 
-                    style={{ 
-                      cursor: 'pointer',
-                      background: selectedMessage?.id === msg.id 
-                        ? 'rgba(0, 242, 254, 0.08)' 
-                        : !msg.read 
-                          ? 'rgba(0, 242, 254, 0.03)' 
-                          : 'transparent'
-                    }}
-                    onClick={() => {
-                      setSelectedMessage(msg);
-                      if (!msg.read && onRead) onRead(msg.id);
-                    }}
-                  >
-                    <td>
-                      <div>
-                        <div style={{ fontWeight: msg.read ? 600 : 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
-                          {!msg.read && <span style={{ color: 'var(--accent-cyan)', fontSize: '0.8rem' }}>●</span>}
-                          <span>{msg.name}</span>
+                filteredMessages.map((msg) => {
+                  const msgId = msg.id || msg._id;
+                  const isSelected = selectedMessage && (selectedMessage.id === msgId || selectedMessage._id === msgId);
+                  const displayDate = msg.date || (msg.createdAt ? new Date(msg.createdAt).toISOString().replace('T', ' ').slice(0, 16) : '');
+
+                  return (
+                    <tr 
+                      key={msgId} 
+                      style={{ 
+                        cursor: 'pointer',
+                        background: isSelected 
+                          ? 'rgba(0, 242, 254, 0.08)' 
+                          : !msg.read 
+                            ? 'rgba(0, 242, 254, 0.03)' 
+                            : 'transparent'
+                      }}
+                      onClick={() => {
+                        setSelectedMessage(msg);
+                        if (!msg.read && onRead) onRead(msgId);
+                      }}
+                    >
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: msg.read ? 600 : 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {!msg.read && <span style={{ color: 'var(--accent-cyan)', fontSize: '0.8rem' }}>●</span>}
+                            <span>{msg.name}</span>
+                          </div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{msg.email}</div>
                         </div>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{msg.email}</div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td>
-                      <span className={`status-badge ${msg.type === 'Bug Report' ? 'rejected' : 'active'}`}>
-                        {msg.type}
-                      </span>
-                    </td>
+                      <td>
+                        <span className={`status-badge ${msg.type === 'Bug Report' ? 'rejected' : 'active'}`}>
+                          {msg.type}
+                        </span>
+                      </td>
 
-                    <td>
-                      <span style={{ fontWeight: msg.read ? 500 : 700, color: '#fff', fontSize: '0.84rem' }}>
-                        {msg.subject}
-                      </span>
-                    </td>
+                      <td>
+                        <span style={{ fontWeight: msg.read ? 500 : 700, color: '#fff', fontSize: '0.84rem' }}>
+                          {msg.subject}
+                        </span>
+                      </td>
 
-                    <td>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {msg.date}
-                      </span>
-                    </td>
+                      <td>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                          {displayDate}
+                        </span>
+                      </td>
 
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="action-btn-group" style={{ justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
-                        <button
-                          className="icon-action-btn delete"
-                          title="Delete message"
-                          onClick={() => {
-                            if (selectedMessage && selectedMessage.id === msg.id) setSelectedMessage(null);
-                            onDeleteMessage(msg.id);
-                          }}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="action-btn-group" style={{ justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
+                          <button
+                            className="icon-action-btn delete"
+                            title="Delete message"
+                            onClick={() => {
+                              if (isSelected) setSelectedMessage(null);
+                              onDeleteMessage(msgId);
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -194,7 +200,7 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                 {selectedMessage.type}
               </span>
               <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                {selectedMessage.date}
+                {selectedMessage.date || (selectedMessage.createdAt ? new Date(selectedMessage.createdAt).toISOString().replace('T', ' ').slice(0, 16) : '')}
               </span>
             </div>
 

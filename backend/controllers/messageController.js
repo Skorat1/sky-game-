@@ -7,11 +7,23 @@ export async function getMessages(req, res) {
   try {
     if (mongoose.connection.readyState === 1) {
       const messages = await Message.find().sort({ createdAt: -1 }).lean();
-      if (messages) return res.json(messages);
+      if (Array.isArray(messages)) {
+        const mapped = messages.map(m => ({
+          ...m,
+          id: m.id || (m._id ? String(m._id) : `msg-${Date.now()}`),
+          date: m.date || (m.createdAt ? new Date(m.createdAt).toISOString().replace('T', ' ').slice(0, 16) : '')
+        }));
+        return res.json(mapped);
+      }
     }
-    res.json(localStore.messages);
+    const localMapped = (localStore.messages || []).map(m => ({
+      ...m,
+      id: m.id || (m._id ? String(m._id) : `msg-${Date.now()}`),
+      date: m.date || (m.createdAt ? new Date(m.createdAt).toISOString().replace('T', ' ').slice(0, 16) : '')
+    }));
+    res.json(localMapped);
   } catch (err) {
-    res.json(localStore.messages);
+    res.json(localStore.messages || []);
   }
 }
 
@@ -20,6 +32,7 @@ export async function createMessage(req, res) {
     const msg = { ...req.body };
     if (!msg.id) msg.id = 'msg-' + Date.now().toString().slice(-6);
     if (!msg.createdAt) msg.createdAt = new Date().toISOString();
+    if (!msg.date) msg.date = new Date().toISOString().replace('T', ' ').slice(0, 16);
     msg.read = false;
 
     localStore.messages.unshift(msg);
@@ -51,10 +64,14 @@ export async function markMessageRead(req, res) {
     }
 
     if (mongoose.connection.readyState === 1) {
-      await Message.findOneAndUpdate(
-        { $or: [{ id: rawId }, { _id: mongoose.isValidObjectId(rawId) ? rawId : null }] },
-        { $set: { read: true } },
-        { new: true }
+      await Message.updateMany(
+        {
+          $or: [
+            { id: rawId },
+            ...(mongoose.isValidObjectId(rawId) ? [{ _id: rawId }] : [])
+          ]
+        },
+        { $set: { read: true } }
       ).catch(() => { });
     }
 
@@ -86,6 +103,10 @@ export async function markAllMessagesRead(req, res) {
 export async function deleteMessage(req, res) {
   try {
     const rawId = req.params.id;
+    if (!rawId || rawId === 'undefined') {
+      return res.status(400).json({ error: 'Invalid message ID' });
+    }
+
     localStore.messages = (localStore.messages || []).filter(
       m => m.id !== rawId && (m._id ? String(m._id) !== rawId : true)
     );
@@ -93,7 +114,10 @@ export async function deleteMessage(req, res) {
 
     if (mongoose.connection.readyState === 1) {
       await Message.deleteMany({
-        $or: [{ id: rawId }, { _id: mongoose.isValidObjectId(rawId) ? rawId : null }]
+        $or: [
+          { id: rawId },
+          ...(mongoose.isValidObjectId(rawId) ? [{ _id: rawId }] : [])
+        ]
       }).catch(() => { });
     }
 

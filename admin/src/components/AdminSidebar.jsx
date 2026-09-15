@@ -1,4 +1,5 @@
 import React from 'react';
+import { CONFIG } from '../config';
 
 export default function AdminSidebar({ 
   activeTab, 
@@ -33,7 +34,11 @@ export default function AdminSidebar({
     <aside className={`admin-sidebar ${isOpen ? 'open' : ''}`}>
       {/* Sidebar Top Header */}
       <div className="sidebar-header">
-        <div className="logo-badge">🎮</div>
+        <img
+          src="/sky-icon.png"
+          alt="SkyGames"
+          style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#fff', padding: '2px' }}
+        />
         <div className="brand-text">
           <h1>SKY<span>GAMES</span></h1>
           <div className="brand-tag">
@@ -86,7 +91,7 @@ export default function AdminSidebar({
       {/* Main Website Shortcut Button */}
       <div style={{ padding: '0 12px 10px' }}>
         <a
-          href="http://localhost:5173"
+          href={CONFIG.PORTAL_URL}
           target="_blank"
           rel="noreferrer"
           style={{

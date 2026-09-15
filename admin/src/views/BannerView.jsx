@@ -118,7 +118,7 @@ export default function BannerView({ banner, onUpdateBanner }) {
 
           <div className="form-group">
             <label className="form-label">Banner Border Accent Color</label>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 13, alignItems: 'center' }}>
               <input
                 type="color"
                 value={formData.borderColor || '#00f2fe'}

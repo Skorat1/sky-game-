@@ -25,17 +25,60 @@ import {
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
-export const GAMEPIX_CATEGORIES = [
-  { id: 'multiplayer', name: '2 Player', icon: Users, color: '#b85df5' },
-  { id: 'racing', name: 'Car Games', icon: Car, color: '#00f2fe' },
-  { id: 'action', name: 'Action', icon: Swords, color: '#f52d7e' },
-  { id: 'shooting', name: 'Shooting', icon: Crosshair, color: '#ff4b4b' },
-  { id: 'puzzle', name: 'Puzzle', icon: Puzzle, color: '#4facfe' },
-  { id: 'sports', name: 'Sports', icon: Trophy, color: '#00f5a0' },
-  { id: 'arcade', name: 'Arcade', icon: Gamepad2, color: '#ffd200' },
-  { id: 'snake', name: 'Snake', icon: Sparkles, color: '#00f5a0' },
-  { id: 'casual', name: 'Casual', icon: Zap, color: '#ff758c' },
-];
+const ICON_MAP = {
+  Home,
+  Clock,
+  Flame,
+  Zap,
+  Sparkles,
+  Dices,
+  Heart,
+  Users,
+  Car,
+  Swords,
+  Crosshair,
+  Puzzle,
+  Trophy,
+  Gamepad2,
+  Rocket
+};
+
+function renderCategoryIcon(cat, size = 19) {
+  if (!cat) return <Gamepad2 size={size} />;
+  
+  // If icon is a React component directly
+  if (typeof cat.icon === 'function') {
+    const IconComp = cat.icon;
+    return <IconComp size={size} />;
+  }
+
+  // If icon is an emoji string (e.g. '🎮', '🕹️', '⚔️', '🏎️', '⚽', etc.)
+  if (typeof cat.icon === 'string' && cat.icon.trim().length > 0) {
+    if (ICON_MAP[cat.icon]) {
+      const IconComp = ICON_MAP[cat.icon];
+      return <IconComp size={size} />;
+    }
+    return <span style={{ fontSize: `${size}px`, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{cat.icon}</span>;
+  }
+
+  // Fallback by ID
+  const fallbackIcons = {
+    action: Swords,
+    racing: Car,
+    multiplayer: Users,
+    '2-player': Users,
+    shooting: Crosshair,
+    puzzle: Puzzle,
+    sports: Trophy,
+    arcade: Gamepad2,
+    casual: Zap,
+    trending: Flame,
+    cyber: Zap,
+    classic: Sparkles
+  };
+  const Fallback = fallbackIcons[cat.id] || Gamepad2;
+  return <Fallback size={size} />;
+}
 
 export default function Sidebar({
   isOpen,
@@ -49,7 +92,8 @@ export default function Sidebar({
   onOpenFavorites,
   onRandomPlay,
   user,
-  onOpenAuth
+  onOpenAuth,
+  categories = []
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home, color: '#00f2fe' },
@@ -102,6 +146,10 @@ export default function Sidebar({
     if (onNavigate) onNavigate(pageId);
     setIsOpen(false);
   };
+
+  // Filter out 'all' for sidebar categories section (since Home represents All)
+  const displayCategories = (categories && categories.length > 0 ? categories : [])
+    .filter(c => c.id !== 'all');
 
   return (
     <>
@@ -158,8 +206,7 @@ export default function Sidebar({
               <span>CATEGORIES</span>
             </div>
 
-            {GAMEPIX_CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
+            {displayCategories.map((cat) => {
               const isActive = activeCategory === cat.id;
 
               return (
@@ -169,8 +216,8 @@ export default function Sidebar({
                   onClick={() => handleCategoryClick(cat.id)}
                   title={cat.name}
                 >
-                  <div className="gamepix-side-icon-box" style={{ color: cat.color }}>
-                    <Icon size={19} />
+                  <div className="gamepix-side-icon-box" style={{ color: cat.color || '#00f2fe' }}>
+                    {renderCategoryIcon(cat, 19)}
                   </div>
                   <span className="gamepix-side-label">{cat.name}</span>
                   <ChevronRight size={14} className="gamepix-side-chevron" />
@@ -209,8 +256,6 @@ export default function Sidebar({
                 <span>Contact</span>
               </button>
             </div>
-
-
 
             {/* Mini Copyright */}
             <div className="sidebar-copyright-text">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { usersApi } from '../services/api';
+import { CONFIG } from '../config';
 
-const API_BASE = 'http://localhost:5000/api';
+const { STORAGE_KEYS } = CONFIG;
 
 export default function AdminLogin({ onLoginSuccess }) {
   const [identifier, setIdentifier] = useState('');
@@ -26,20 +28,7 @@ export default function AdminLogin({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          identifier: cleanIdent,
-          password: cleanPass
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to authenticate admin');
-      }
+      const data = await usersApi.login(cleanIdent, cleanPass);
 
       if (data.user && data.user.role !== 'admin' && data.user.role !== 'moderator') {
         throw new Error('Access denied: Administrator privileges required.');
@@ -48,9 +37,12 @@ export default function AdminLogin({ onLoginSuccess }) {
       setSuccess('Authentication successful! Initializing Control Center...');
 
       if (data.token) {
-        try { localStorage.setItem('sky_admin_token', data.token); } catch {}
+        try { localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, data.token); } catch {}
       }
-      try { localStorage.setItem('sky_admin_user', JSON.stringify(data.user)); } catch {}
+      try {
+        localStorage.setItem(STORAGE_KEYS.ADMIN_USER, JSON.stringify(data.user));
+        sessionStorage.setItem(STORAGE_KEYS.ADMIN_LOGGED_IN, 'true');
+      } catch {}
 
       setTimeout(() => {
         onLoginSuccess(data.user);
@@ -72,8 +64,11 @@ export default function AdminLogin({ onLoginSuccess }) {
           status: 'active'
         };
         setSuccess('Admin authorized via master key!');
-        try { localStorage.setItem('sky_admin_token', 'local_admin_token_' + Date.now()); } catch {}
-        try { localStorage.setItem('sky_admin_user', JSON.stringify(fallbackAdmin)); } catch {}
+        try { localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, 'local_admin_token_' + Date.now()); } catch {}
+        try {
+          localStorage.setItem(STORAGE_KEYS.ADMIN_USER, JSON.stringify(fallbackAdmin));
+          sessionStorage.setItem(STORAGE_KEYS.ADMIN_LOGGED_IN, 'true');
+        } catch {}
 
         setTimeout(() => {
           onLoginSuccess(fallbackAdmin);
@@ -124,24 +119,22 @@ export default function AdminLogin({ onLoginSuccess }) {
 
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div 
+          <img
+            src="/sky-icon.png"
+            alt="SkyGames Logo"
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #00f2fe 0%, #2563eb 100%)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: '72px',
+              height: '72px',
+              objectFit: 'contain',
+              borderRadius: '20px',
+              background: '#ffffff',
+              padding: '6px',
               margin: '0 auto 16px',
-              fontSize: '28px',
+              display: 'block',
               boxShadow: '0 0 25px rgba(0, 242, 254, 0.4)',
               border: '1.5px solid rgba(255, 255, 255, 0.3)'
             }}
-          >
-            🎮
-          </div>
+          />
           <h1 
             style={{
               fontSize: '1.5rem',

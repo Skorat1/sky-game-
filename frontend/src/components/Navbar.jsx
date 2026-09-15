@@ -74,16 +74,11 @@ export default function Navbar({
               if (onNavigate) onNavigate('home');
             }}
           >
-            <div className="logo-icon-wrapper">
-              <Gamepad2 size={24} className="logo-icon" />
-              <span className="logo-glow"></span>
-            </div>
-            <div className="logo-text-group">
-              <span className="logo-title">
-                SKY<span className="gradient-highlight">GAMES</span>
-              </span>
-              <span className="logo-tagline">ARCADE</span>
-            </div>
+            <img
+              src="/skygames-logo.png"
+              alt="SkyGames"
+              style={{ height: '42px', width: 'auto', objectFit: 'contain', borderRadius: '8px', background: '#fff', padding: '2px 6px' }}
+            />
           </a>
         </div>
 

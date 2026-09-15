@@ -57,9 +57,10 @@ export default function CategoryBar({
 
       <div className="category-scroll-container" ref={scrollRef}>
         {categories.map((cat) => {
-          const IconComp = ICON_MAP[cat.icon] || Gamepad2;
           const isActive = activeCategory === cat.id;
           const count = gameCounts[cat.id] || 0;
+          const isEmoji = typeof cat.icon === 'string' && /\p{Emoji}/u.test(cat.icon);
+          const IconComp = ICON_MAP[cat.icon] || Gamepad2;
 
           return (
             <button
@@ -74,7 +75,11 @@ export default function CategoryBar({
               }}
             >
               <span className="pill-icon-box">
-                <IconComp size={16} />
+                {isEmoji ? (
+                  <span className="pill-emoji-icon" style={{ fontSize: '1rem', lineHeight: 1 }}>{cat.icon}</span>
+                ) : (
+                  <IconComp size={16} />
+                )}
               </span>
               <span className="pill-title">{cat.name}</span>
               {count > 0 && <span className="pill-count">{count}</span>}

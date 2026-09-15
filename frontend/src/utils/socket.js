@@ -1,12 +1,11 @@
 import { io } from 'socket.io-client';
+import { CONFIG } from '../config';
 
-const SOCKET_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000'
-  : window.location.origin;
+const { SOCKET_URL, STORAGE_KEYS } = CONFIG;
 
 function getStoredToken() {
   try {
-    return localStorage.getItem('sky_token') || '';
+    return localStorage.getItem(STORAGE_KEYS.TOKEN) || '';
   } catch {
     return '';
   }
@@ -15,7 +14,7 @@ function getStoredToken() {
 export const socket = io(SOCKET_URL, {
   autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 10,
+  reconnectionAttempts: 15,
   reconnectionDelay: 1000,
   transports: ['websocket', 'polling'],
   auth: {

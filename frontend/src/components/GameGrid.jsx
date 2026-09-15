@@ -6,15 +6,14 @@ import {
 import GameCard from './GameCard';
 import { sounds } from '../utils/audio';
 
-const QUICK_CATEGORIES = [
-  { id: '', name: 'All Games', icon: '🎮' },
-  { id: 'action', name: 'Action', icon: '⚔️' },
+const DEFAULT_QUICK_CATEGORIES = [
+  { id: 'all', name: 'All Games', icon: '🎮' },
   { id: 'arcade', name: 'Arcade', icon: '🕹️' },
+  { id: 'action', name: 'Action', icon: '⚔️' },
   { id: 'puzzle', name: 'Puzzle', icon: '🧩' },
-  { id: 'racing', name: 'Racing', icon: '🚗' },
-  { id: 'shooting', name: 'Shooting', icon: '🎯' },
+  { id: 'classic', name: 'Classic', icon: '👾' },
   { id: 'sports', name: 'Sports', icon: '⚽' },
-  { id: 'multiplayer', name: '2-Player', icon: '👥' },
+  { id: 'cyber', name: 'Cyberpunk', icon: '⚡' }
 ];
 
 const INITIAL_BATCH_SIZE = 28;
@@ -32,7 +31,8 @@ const GameGrid = memo(function GameGrid({
   searchQuery = '',
   onOpenAuth,
   onFocusSearch,
-  user
+  user,
+  categories = []
 }) {
   const [visibleLimit, setVisibleLimit] = useState(INITIAL_BATCH_SIZE);
 
@@ -50,22 +50,36 @@ const GameGrid = memo(function GameGrid({
     setVisibleLimit(prev => prev + BATCH_INCREMENT);
   };
 
+  const quickCatList = useMemo(() => {
+    if (categories && categories.length > 0) {
+      // Ensure 'all' is at the front
+      const hasAll = categories.some(c => c.id === 'all' || c.id === '');
+      if (!hasAll) {
+        return [{ id: 'all', name: 'All Games', icon: '🎮' }, ...categories];
+      }
+      return categories;
+    }
+    return DEFAULT_QUICK_CATEGORIES;
+  }, [categories]);
+
   return (
     <section className="gamepix-category-grid-section">
       {/* Quick Category Chips Bar */}
       <div className="quick-cat-scroll-bar">
-        {QUICK_CATEGORIES.map(cat => {
-          const isActive = (activeCategory === cat.id) || (!activeCategory && cat.id === '' && isHomeView);
+        {quickCatList.map(cat => {
+          const isAllCat = cat.id === 'all' || cat.id === '';
+          const isActive = (activeCategory === cat.id) || (isAllCat && (!activeCategory || activeCategory === 'all') && isHomeView);
+          
           return (
             <button
               key={cat.id || 'all'}
               className={`category-quick-pill ${isActive ? 'active' : ''}`}
               onClick={() => {
                 sounds.playClick();
-                if (onSelectCategory) onSelectCategory(cat.id);
+                if (onSelectCategory) onSelectCategory(isAllCat ? '' : cat.id);
               }}
             >
-              <span className="pill-emoji-icon">{cat.icon}</span>
+              <span className="pill-emoji-icon">{typeof cat.icon === 'string' ? cat.icon : '🎮'}</span>
               <span className="pill-name-text">{cat.name}</span>
             </button>
           );

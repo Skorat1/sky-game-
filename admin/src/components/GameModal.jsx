@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { parseVideoSource, getGamePreviewVideo } from '../utils/videoHelper';
+import { gamesApi } from '../services/api';
 
 function sanitizeGameUrl(input) {
   if (!input) return '';
@@ -186,17 +187,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
     setIsDetecting(true);
     try {
-      const adminToken = localStorage.getItem('sky_admin_token') || '';
-      const res = await fetch(`${API_BASE}/api/games/detect-metadata`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
-        },
-        body: JSON.stringify({ url: raw })
-      });
-
-      const json = await res.json();
+      const json = await gamesApi.detectMetadata(raw);
       if (json?.success && json?.data) {
         const { thumbnail, banner, previewVideo, title, description } = json.data;
         setFormData(prev => ({
@@ -210,7 +201,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
         setDetectStatus({ type: 'success', text: 'Game details & video auto-detected!' });
       }
     } catch (err) {
-      console.error('Detection error:', err);
+      console.warn('Detection fallback used:', err.message);
     } finally {
       setIsDetecting(false);
       setTimeout(() => setDetectStatus(null), 4000);
@@ -254,7 +245,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
     onSave({
       ...game,
-      id: game ? game.id : formData.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString().slice(-4),
+      id: game ? (game.id || game._id) : formData.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString().slice(-4),
       title: formData.title.trim(),
       category: formData.category,
       description: formData.description.trim(),
@@ -266,9 +257,9 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
       featured: formData.featured,
       tileSize: formData.tileSize || (formData.featured ? '2x2' : '1x1'),
       status: formData.status,
-      plays: game ? game.plays : 0,
-      rating: game ? game.rating : 5.0,
-      createdAt: game ? game.createdAt : new Date().toISOString().split('T')[0]
+      plays: game ? (game.plays || 0) : 0,
+      rating: game ? (game.rating || 5.0) : 5.0,
+      createdAt: game ? (game.createdAt || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0]
     });
     onClose();
   };

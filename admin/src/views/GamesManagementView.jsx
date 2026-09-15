@@ -156,7 +156,7 @@ function AdminGameCardItem({
           <button
             className="header-btn"
             style={{ fontSize: '0.75rem', padding: '4px 8px', color: game.featured ? '#fbbf24' : 'var(--text-muted)' }}
-            onClick={() => onToggleFeatured(game.id)}
+            onClick={() => onToggleFeatured(game.id || game._id)}
             title="Toggle Featured Spotlight"
           >
             {game.featured ? '⭐ Featured' : '☆ Feature'}
@@ -175,7 +175,7 @@ function AdminGameCardItem({
               title="Delete Game"
               onClick={() => {
                 if (window.confirm(`Are you sure you want to delete "${game.title}"?`)) {
-                  onDeleteGame(game.id);
+                  onDeleteGame(game.id || game._id);
                 }
               }}
             >
@@ -423,7 +423,7 @@ export default function GamesManagementView({
                       <button
                         className="header-btn"
                         style={{ fontSize: '0.75rem', padding: '4px 8px', color: game.featured ? '#fbbf24' : 'var(--text-muted)' }}
-                        onClick={() => onToggleFeatured(game.id)}
+                        onClick={() => onToggleFeatured(game.id || game._id)}
                       >
                         {game.featured ? '⭐ Yes' : 'No'}
                       </button>

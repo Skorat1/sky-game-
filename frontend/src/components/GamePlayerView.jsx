@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { gamesApi } from '../services/api';
 import {
   Maximize2,
   Minimize2,
@@ -251,19 +252,21 @@ export default function GamePlayerView({
     };
   }, []);
 
+  const gameId = game?.id || game?._id;
+
   // Real-time socket room join, leave, play increment, live reactions & live likes sync
   useEffect(() => {
-    if (!game?.id) return;
+    if (!gameId) return;
 
     // Join room
-    socket.emit('game:join', game.id);
+    socket.emit('game:join', gameId);
 
     // Increment play count via API
-    fetch(`http://localhost:5000/api/games/${game.id}/play`, { method: 'POST' }).catch(() => { });
+    gamesApi.recordPlay(gameId).catch(() => { });
 
     // Listen for room player counts
     const handlePlayerCount = (data) => {
-      if (data?.gameId === game.id) {
+      if (data?.gameId === gameId) {
         setRoomPlayersCount(data.count);
       }
     };
@@ -271,7 +274,7 @@ export default function GamePlayerView({
 
     // Listen for real-time live reactions from other players
     const handleReactionBroadcast = (data) => {
-      if (data?.gameId === game.id) {
+      if (data?.gameId === gameId) {
         const id = 'reac-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         const left = Math.floor(Math.random() * 70) + 15; // 15% to 85%
         setFloatingReactions(prev => [...prev.slice(-15), { id, emoji: data.emoji, left }]);
@@ -284,7 +287,7 @@ export default function GamePlayerView({
 
     // Listen for real-time live vote / like updates from server
     const handleGameVoted = (data) => {
-      if (data?.id === game.id) {
+      if (data?.id === gameId || (data?._id && String(data._id) === String(gameId))) {
         if (typeof data.likes === 'number') setLikes(data.likes);
         if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
       }
@@ -292,7 +295,7 @@ export default function GamePlayerView({
     socket.on('game:voted', handleGameVoted);
 
     const handleGameUpdated = (updated) => {
-      if (updated?.id === game.id) {
+      if (updated?.id === gameId || (updated?._id && String(updated._id) === String(gameId))) {
         if (typeof updated.likes === 'number') setLikes(updated.likes);
         if (typeof updated.dislikes === 'number') setDislikes(updated.dislikes);
       }
@@ -300,17 +303,19 @@ export default function GamePlayerView({
     socket.on('game:updated', handleGameUpdated);
 
     return () => {
-      socket.emit('game:leave', game.id);
+      socket.emit('game:leave', gameId);
       socket.off('game:players:count', handlePlayerCount);
       socket.off('game:reaction:broadcast', handleReactionBroadcast);
       socket.off('game:voted', handleGameVoted);
       socket.off('game:updated', handleGameUpdated);
     };
-  }, [game?.id]);
+  }, [gameId]);
 
   const sendReaction = (emoji) => {
     sounds.playPowerup();
-    socket.emit('game:reaction', { gameId: game.id, emoji });
+    if (gameId) {
+      socket.emit('game:reaction', { gameId, emoji });
+    }
   };
 
   // Reset & sync states on game change
@@ -319,7 +324,7 @@ export default function GamePlayerView({
       if (typeof game.likes === 'number') setLikes(game.likes);
       if (typeof game.dislikes === 'number') setDislikes(game.dislikes);
       try {
-        setUserVote(localStorage.getItem(`sky_vote_${game.id}`) || null);
+        setUserVote(localStorage.getItem(`sky_vote_${gameId}`) || null);
       } catch {
         setUserVote(null);
       }
@@ -333,7 +338,7 @@ export default function GamePlayerView({
     const hasUrl = Boolean(game?.gameUrl && game.gameUrl.trim().length > 5);
     setUseBuiltInEngine(!hasUrl);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [game?.id, game?.gameUrl]);
+  }, [gameId, game?.gameUrl]);
 
   // Handle keyboard events (prevent page scrolling on Arrow/Space keys during gameplay, ESC for fullscreen)
   useEffect(() => {
@@ -681,29 +686,22 @@ export default function GamePlayerView({
     if (prevVote === 'like') {
       setUserVote(null);
       setLikes(l => Math.max(0, l - 1));
-      try { localStorage.removeItem(`sky_vote_${game?.id}`); } catch { }
+      try { localStorage.removeItem(`sky_vote_${gameId}`); } catch { }
     } else {
       if (prevVote === 'dislike') {
         setDislikes(d => Math.max(0, d - 1));
       }
       setUserVote('like');
       setLikes(l => l + 1);
-      try { localStorage.setItem(`sky_vote_${game?.id}`, 'like'); } catch { }
+      try { localStorage.setItem(`sky_vote_${gameId}`, 'like'); } catch { }
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
     }
 
     // Call live backend API to persist & broadcast
     try {
-      const res = await fetch(`http://localhost:5000/api/games/${game.id}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote: nextVote, previousVote: prevVote || 'none' })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof data.likes === 'number') setLikes(data.likes);
-        if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
-      }
+      const data = await gamesApi.voteGame(gameId, nextVote, prevVote || 'none');
+      if (typeof data.likes === 'number') setLikes(data.likes);
+      if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
     } catch (err) {
       console.error('Vote API error:', err);
     }
@@ -718,28 +716,21 @@ export default function GamePlayerView({
     if (prevVote === 'dislike') {
       setUserVote(null);
       setDislikes(d => Math.max(0, d - 1));
-      try { localStorage.removeItem(`sky_vote_${game?.id}`); } catch { }
+      try { localStorage.removeItem(`sky_vote_${gameId}`); } catch { }
     } else {
       if (prevVote === 'like') {
         setLikes(l => Math.max(0, l - 1));
       }
       setUserVote('dislike');
       setDislikes(d => d + 1);
-      try { localStorage.setItem(`sky_vote_${game?.id}`, 'dislike'); } catch { }
+      try { localStorage.setItem(`sky_vote_${gameId}`, 'dislike'); } catch { }
     }
 
     // Call live backend API to persist & broadcast
     try {
-      const res = await fetch(`http://localhost:5000/api/games/${game.id}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote: nextVote, previousVote: prevVote || 'none' })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof data.likes === 'number') setLikes(data.likes);
-        if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
-      }
+      const data = await gamesApi.voteGame(game.id || gameId, nextVote, prevVote || 'none');
+      if (typeof data.likes === 'number') setLikes(data.likes);
+      if (typeof data.dislikes === 'number') setDislikes(data.dislikes);
     } catch (err) {
       console.error('Vote API error:', err);
     }

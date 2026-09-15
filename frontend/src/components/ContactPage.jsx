@@ -9,46 +9,76 @@ import {
   Clock,
   ShieldCheck,
   HelpCircle,
-  PhoneCall,
-  Flame,
-  Copy,
-  Check,
   Bug,
   Lightbulb,
   Briefcase,
-  Zap
+  Zap,
+  ChevronDown,
+  ChevronUp,
+  Headphones,
+  Globe2,
+  Lock,
+  ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
 
+import { messagesApi } from '../services/api';
+
 const TOPIC_PRESETS = [
-  { id: 'suggestion', label: '🎮 Game Suggestion', icon: Lightbulb },
-  { id: 'bug', label: '🐛 Bug Report', icon: Bug },
-  { id: 'partner', label: '🤝 Business / Partnership', icon: Briefcase },
-  { id: 'speed', label: '⚡ Performance Feedback', icon: Zap }
+  { id: 'suggestion', label: 'Game Suggestion', icon: Lightbulb },
+  { id: 'bug', label: 'Bug Report', icon: Bug },
+  { id: 'partner', label: 'Business & Partnership', icon: Briefcase },
+  { id: 'speed', label: 'Performance & Latency', icon: Zap },
+  { id: 'general', label: 'General Inquiry', icon: MessageSquare }
+];
+
+const CONTACT_FAQS = [
+  {
+    q: "How quickly does the SKYGAMES support team respond?",
+    a: "Our global engineering and support team reviews inquiries 24/7. Most player support requests and bug tickets are answered within 2 hours. Business partnerships and publisher inquiries are typically reviewed within 1 business day."
+  },
+  {
+    q: "Where should I report a game glitch, broken controls, or black screen?",
+    a: "Select the 'Bug Report' category in the contact form above and include the game title along with your device or browser. Our QA team will reproduce and roll out a hotfix promptly."
+  },
+  {
+    q: "How can indie game developers publish their games on SKYGAMES?",
+    a: "You can submit directly via our Developer Portal or select 'Business & Partnership' above. We offer generous revenue sharing, featured placement, and instant global distribution for high-quality HTML5/WebGL games."
+  },
+  {
+    q: "Is my personal data and email address kept private?",
+    a: "100% yes. We strictly adhere to GDPR, CCPA, and COPPA privacy standards. We never sell, rent, or share your contact details with any third parties or advertisers."
+  }
 ];
 
 export default function ContactPage({ onBackToHome }) {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [selectedTopic, setSelectedTopic] = useState('🎮 Game Suggestion');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    priority: 'Normal',
+    message: ''
+  });
+  const [selectedTopic, setSelectedTopic] = useState('Game Suggestion');
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
-  const [copiedEmail, setCopiedEmail] = useState('');
-
-  const handleCopy = (email) => {
-    sounds.playClick();
-    navigator.clipboard.writeText(email);
-    setCopiedEmail(email);
-    setTimeout(() => setCopiedEmail(''), 2000);
-  };
+  const [ticketId, setTicketId] = useState('');
+  const [openFaq, setOpenFaq] = useState(null);
 
   const handleTopicClick = (topic) => {
     sounds.playClick();
     setSelectedTopic(topic.label);
     setFormData(prev => ({
       ...prev,
-      subject: `[${topic.label.replace(/^[^\w]+/, '').trim()}] ${prev.subject ? prev.subject.replace(/^\[.*?\]\s*/, '') : ''}`
+      subject: `[${topic.label}] ${prev.subject ? prev.subject.replace(/^\[.*?\]\s*/, '') : ''}`
     }));
+  };
+
+  const toggleFaq = (index) => {
+    sounds.playClick();
+    setOpenFaq(openFaq === index ? null : index);
   };
 
   const handleSubmit = async (e) => {
@@ -56,19 +86,18 @@ export default function ContactPage({ onBackToHome }) {
     setSubmitting(true);
     sounds.playPowerup();
 
-    const subjectLine = formData.subject || `[${selectedTopic}] General Inquiry`;
+    const genTicket = `SKY-${Math.floor(100000 + Math.random() * 900000)}`;
+    setTicketId(genTicket);
+
+    const subjectLine = formData.subject || `[${selectedTopic}] Support Request`;
 
     try {
-      await fetch('http://localhost:5000/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          type: selectedTopic.includes('Bug') ? 'Bug Report' : selectedTopic.includes('Business') ? 'Partnership' : 'Inquiry',
-          subject: subjectLine,
-          message: formData.message
-        })
+      await messagesApi.sendMessage({
+        name: formData.name,
+        email: formData.email,
+        type: selectedTopic.includes('Bug') ? 'Bug Report' : selectedTopic.includes('Business') ? 'Partnership' : 'Inquiry',
+        subject: `${subjectLine} (${formData.priority} Priority - Ref: ${genTicket})`,
+        message: formData.message
       });
     } catch (err) {
       console.warn('Message sync fallback:', err);
@@ -77,208 +106,235 @@ export default function ContactPage({ onBackToHome }) {
     setSubmitting(false);
     setSent(true);
     confetti({
-      particleCount: 70,
+      particleCount: 75,
       spread: 80,
       origin: { y: 0.6 }
     });
   };
 
   return (
-    <div className="custom-static-page-container">
-      {/* Hero Showcase Card */}
-      <div className="static-hero-card">
-        <div className="static-hero-glow glow-crimson"></div>
-        <div className="static-hero-content">
-          <div className="static-badge badge-crimson">
-            <Mail size={15} className="text-crimson" />
-            <span>24/7 SUPPORT & COMMUNITY</span>
+    <div className="custom-static-page-container pro-contact-wrapper">
+      {/* Professional Hero Section */}
+      <div className="pro-contact-hero">
+        <div className="pro-contact-hero-glow"></div>
+        <div className="pro-contact-hero-content">
+          <div className="pro-hero-badge">
+            <ShieldCheck size={14} />
+            <span>OFFICIAL SUPPORT & OPERATIONS DESK</span>
           </div>
 
-          <div className="static-hero-icon-box crimson-border">
-            <MessageSquare size={38} className="text-crimson" />
-          </div>
-          <h1>Get In Touch with <span className="neon-text-gradient">SKYGAMES</span></h1>
-          <p className="static-hero-lead">
-            Have an awesome game suggestion, technical bug report, or business partnership idea? Our support engineering team responds within 2 hours.
+          <h1>Get in Touch with <span className="pro-gradient-text">SKYGAMES</span></h1>
+          <p className="pro-hero-subtitle">
+            Have a question, feedback, bug report, or business partnership proposal? Connect directly with our engineering and community support team.
           </p>
+
+          <div className="pro-sla-pill-row">
+            <div className="pro-sla-pill">
+              <Zap size={14} className="text-cyan" />
+              <span>&lt; 2 Hour Response SLA</span>
+            </div>
+            <div className="pro-sla-pill">
+              <Headphones size={14} className="text-purple" />
+              <span>Direct Human Support</span>
+            </div>
+            <div className="pro-sla-pill">
+              <span className="live-dot"></span>
+              <span>All Systems Operational (99.98% Uptime)</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Grid: Left Channel Info Cards + Right Interactive Form */}
-      <div className="contact-page-grid">
-        {/* Left Channels Column */}
-        <div className="contact-info-col">
-          <div className="contact-card-glass">
-            <div className="contact-icon-box bg-cyan-glass">
-              <Mail size={22} className="text-cyan" />
-            </div>
-            <div className="contact-channel-details">
-              <h4>Player Support & Help</h4>
-              <span className="contact-email">support@skygames.com</span>
-              <div className="channel-action-row">
-                <span className="contact-sub-badge">⚡ &lt; 2 Hour Response</span>
-                <button
-                  className="mini-copy-action-btn"
-                  onClick={() => handleCopy('support@skygames.com')}
-                  title="Copy email address"
-                >
-                  {copiedEmail === 'support@skygames.com' ? <Check size={14} color="#00f5a0" /> : <Copy size={14} />}
-                  <span>{copiedEmail === 'support@skygames.com' ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="contact-card-glass">
-            <div className="contact-icon-box bg-purple-glass">
-              <Sparkles size={22} className="text-purple" />
-            </div>
-            <div className="contact-channel-details">
-              <h4>Developer & Publisher Inquiries</h4>
-              <span className="contact-email">publishers@skygames.com</span>
-              <div className="channel-action-row">
-                <span className="contact-sub-badge">🚀 Game Monetization & Features</span>
-                <button
-                  className="mini-copy-action-btn"
-                  onClick={() => handleCopy('publishers@skygames.com')}
-                  title="Copy email address"
-                >
-                  {copiedEmail === 'publishers@skygames.com' ? <Check size={14} color="#00f5a0" /> : <Copy size={14} />}
-                  <span>{copiedEmail === 'publishers@skygames.com' ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="contact-card-glass">
-            <div className="contact-icon-box bg-emerald-glass">
-              <Clock size={22} className="text-emerald" />
-            </div>
-            <div className="contact-channel-details">
-              <h4>Operating Hours</h4>
-              <p className="contact-meta-desc">24/7 Global Live Operations</p>
-              <span className="contact-sub-badge">🟢 All Systems Operational</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Contact Form Card */}
-        <div className="contact-form-card">
+      {/* Main Form Centerpiece */}
+      <div className="pro-contact-main-grid pro-contact-centered-grid">
+        <div className="pro-form-card">
           {sent ? (
-            <div className="form-success-state">
-              <div className="success-icon-burst">
-                <CheckCircle2 size={64} color="#00f5a0" />
+            <div className="pro-form-success-box">
+              <div className="pro-success-icon-wrap">
+                <CheckCircle2 size={48} />
               </div>
-              <h2>Message Dispatched!</h2>
+              <span className="pro-ticket-badge">Ticket #{ticketId}</span>
+              <h2>Inquiry Dispatched Successfully</h2>
               <p>
-                Thank you for reaching out, <strong>{formData.name}</strong>. Our support team has logged your message and will follow up at <strong>{formData.email}</strong> shortly.
+                Thank you for reaching out, <strong>{formData.name}</strong>. Your ticket has been routed to the appropriate department. A confirmation has been logged for <strong>{formData.email}</strong> and our team will follow up shortly.
               </p>
-              <div className="success-action-row">
+              <div className="pro-success-actions">
                 <button
-                  className="static-cta-btn"
+                  className="pro-btn-primary"
                   onClick={() => {
                     setSent(false);
-                    setFormData({ name: '', email: '', subject: '', message: '' });
+                    setFormData({ name: '', email: '', subject: '', priority: 'Normal', message: '' });
                   }}
                 >
-                  Send Another Message
+                  <RefreshCw size={16} />
+                  <span>Submit Another Message</span>
                 </button>
                 <button
-                  className="crazy-back-btn"
+                  className="pro-btn-secondary"
                   onClick={() => {
                     sounds.playClick();
                     onBackToHome();
                   }}
                 >
-                  Back to Games
+                  <span>Return to Arcade</span>
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="contact-actual-form">
-              <div className="form-header-title">
-                <h3>Send Us a Direct Message</h3>
-                <p>Pick a topic or write directly to our engineering team.</p>
+            <form onSubmit={handleSubmit} className="pro-contact-form">
+              <div className="pro-form-header">
+                <div>
+                  <h3>Send a Direct Message</h3>
+                  <p>Choose an inquiry topic below to expedite routing to the right engineering lead.</p>
+                </div>
               </div>
 
-              {/* Topic Selector Pills */}
-              <div className="topic-selector-group">
-                <label>Select Category:</label>
-                <div className="topic-chips-row">
+              {/* Topic Selector Chips */}
+              <div className="pro-topic-section">
+                <label className="pro-field-label">Select Department / Category *</label>
+                <div className="pro-topic-grid">
                   {TOPIC_PRESETS.map((t) => {
                     const isSelected = selectedTopic === t.label;
+                    const IconComp = t.icon;
                     return (
                       <button
                         key={t.id}
                         type="button"
-                        className={`topic-pill-btn ${isSelected ? 'active' : ''}`}
+                        className={`pro-topic-chip ${isSelected ? 'active' : ''}`}
                         onClick={() => handleTopicClick(t)}
                       >
-                        <span>{t.label}</span>
+                        <IconComp size={16} />
+                        <span className="chip-text">{t.label}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Your Name *</label>
+              {/* Form 2-Column Fields */}
+              <div className="pro-form-grid-2">
+                <div className="pro-form-group">
+                  <label className="pro-field-label">Full Name *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Alex Walker"
+                    placeholder="e.g. Alex Morgan"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Email Address *</label>
+
+                <div className="pro-form-group">
+                  <label className="pro-field-label">Email Address *</label>
                   <input
                     type="email"
                     required
-                    placeholder="alex@example.com"
+                    placeholder="alex@company.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Subject / Topic *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Add 2-Player mode, Canvas Bug, Publisher deal"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                />
+              <div className="pro-form-grid-2">
+                <div className="pro-form-group">
+                  <label className="pro-field-label">Subject Line *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Partnership Proposal / Bug in Space Invaders"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  />
+                </div>
+
+                <div className="pro-form-group">
+                  <label className="pro-field-label">Priority Level</label>
+                  <select
+                    value={formData.priority}
+                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                    className="pro-select-input"
+                  >
+                    <option value="Normal">🟢 Normal (Standard Support)</option>
+                    <option value="High">🟡 High (Game Breaking Issue)</option>
+                    <option value="Urgent">🔴 Urgent (Publisher / Security)</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="form-group">
-                <div className="label-count-row">
-                  <label>Message Content *</label>
-                  <span className="char-count">{formData.message.length} chars</span>
+              {/* Message Content */}
+              <div className="pro-form-group">
+                <div className="pro-label-row">
+                  <label className="pro-field-label">Message Details *</label>
+                  <span className="pro-char-counter">{formData.message.length} characters</span>
                 </div>
                 <textarea
                   rows={5}
                   required
-                  placeholder="Type your message, feedback, or inquiry here in detail..."
+                  placeholder="Please provide comprehensive details, steps to reproduce (if bug), or your business scope..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />
               </div>
 
+              {/* Security & Privacy Reassurance */}
+              <div className="pro-privacy-assurance">
+                <Lock size={14} className="text-emerald" />
+                <span>Encrypted transmission. Your email is protected under our Privacy Policy and never shared.</span>
+              </div>
+
+              {/* Action Button */}
               <button
                 type="submit"
                 disabled={submitting}
-                className="contact-submit-btn"
+                className="pro-submit-btn"
               >
-                <Send size={18} />
-                <span>{submitting ? 'Transmitting Message...' : 'Send Message Now'}</span>
+                <Send size={17} />
+                <span>{submitting ? 'Dispatching Inquiry...' : 'Transmit Message'}</span>
               </button>
             </form>
           )}
+        </div>
+      </div>
+
+      {/* Frequently Asked Questions Accordion Section */}
+      <div className="pro-contact-faq-section">
+        <div className="pro-faq-header">
+          <div className="pro-badge-mini">
+            <HelpCircle size={14} />
+            <span>QUICK ANSWERS</span>
+          </div>
+          <h3>Frequently Asked Questions</h3>
+          <p>Quick resolutions to common inquiries before opening a ticket.</p>
+        </div>
+
+        <div className="pro-faq-list">
+          {CONTACT_FAQS.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div
+                key={idx}
+                className={`pro-faq-card ${isOpen ? 'expanded' : ''}`}
+                onClick={() => toggleFaq(idx)}
+              >
+                <div className="pro-faq-q-row">
+                  <div className="pro-faq-q-text">
+                    <span className="pro-faq-num">0{idx + 1}</span>
+                    <h4>{faq.q}</h4>
+                  </div>
+                  <div className="pro-faq-arrow">
+                    {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="pro-faq-a-row">
+                    <p>{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

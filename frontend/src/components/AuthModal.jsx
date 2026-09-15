@@ -5,8 +5,9 @@ import {
 } from 'lucide-react';
 import { sounds } from '../utils/audio';
 import { socket, authenticateSocket } from '../utils/socket';
+import { CONFIG } from '../config';
 
-const API_BASE = 'http://localhost:5000/api';
+const { API_BASE } = CONFIG;
 
 export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) {
   const [tab, setTab] = useState('register'); // 'register' | 'login' | 'forgot'

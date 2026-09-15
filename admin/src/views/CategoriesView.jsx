@@ -60,18 +60,19 @@ export default function CategoriesView({ categories = [], onAddCategory, onDelet
             </thead>
             <tbody>
               {categories.map((cat) => {
-                const count = cat.id === 'all' 
+                const catId = cat.id || cat._id;
+                const count = catId === 'all' 
                   ? games.length 
-                  : games.filter(g => g.category === cat.id).length;
+                  : games.filter(g => (g.category === cat.id || (cat.name && g.category && g.category.toLowerCase() === cat.name.toLowerCase()))).length;
 
                 return (
-                  <tr key={cat.id}>
+                  <tr key={catId}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <span style={{ fontSize: '1.4rem' }}>{cat.icon}</span>
                         <div>
                           <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.92rem' }}>{cat.name}</div>
-                          {cat.id === 'all' && (
+                          {catId === 'all' && (
                             <span style={{ fontSize: '0.68rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>System Default</span>
                           )}
                         </div>
@@ -103,18 +104,18 @@ export default function CategoriesView({ categories = [], onAddCategory, onDelet
 
                     <td>
                       <code style={{ background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: 4, fontSize: '0.78rem', color: 'var(--text-body)' }}>
-                        {cat.id}
+                        {catId}
                       </code>
                     </td>
 
                     <td style={{ textAlign: 'right' }}>
-                      {cat.id !== 'all' && (
+                      {catId !== 'all' && (
                         <button
                           className="icon-action-btn delete"
                           title="Delete Category"
                           onClick={() => {
                             if (window.confirm(`Delete category "${cat.name}"?`)) {
-                              onDeleteCategory(cat.id);
+                              onDeleteCategory(catId);
                             }
                           }}
                         >

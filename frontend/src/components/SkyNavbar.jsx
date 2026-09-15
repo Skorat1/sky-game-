@@ -68,15 +68,14 @@ const SkyNavbar = memo(function SkyNavbar({
               }}
               title="SkyGames Arcade - Home"
             >
-              <div className="sky-logo-badge">
-                <Gamepad2 size={24} className="sky-logo-badge-icon" />
-                <div className="sky-logo-badge-glow" />
-              </div>
-
+              <img
+                src="/sky-icon.png"
+                alt="SkyGames Icon"
+                className="sky-logo-badge-icon-img"
+              />
               <div className="sky-logo-text-box">
-                <span className="sky-text-sky">SKY</span>
-                <span className="sky-text-games">GAMES</span>
-                <div className="sky-logo-smile-curve" />
+                <span className="sky-text-sky">Sky</span>
+                <span className="sky-text-games">Games</span>
               </div>
             </div>
           </div>
@@ -122,7 +121,7 @@ const SkyNavbar = memo(function SkyNavbar({
                 </div>
                 {searchResults.map((game) => (
                   <div
-                    key={game.id}
+                    key={game.id || game._id}
                     className="sky-dropdown-item"
                     onMouseDown={() => {
                       sounds.playClick();
@@ -131,10 +130,14 @@ const SkyNavbar = memo(function SkyNavbar({
                     }}
                   >
                     <img
-                      src={game.thumb || game.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80'}
+                      src={game.thumbnail || game.thumbnailUrl || game.thumb || game.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80'}
                       alt={game.title}
                       className="sky-dropdown-thumb"
                       loading="lazy"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80';
+                      }}
                     />
                     <div className="sky-dropdown-info">
                       <span className="sky-dropdown-title">{game.title}</span>

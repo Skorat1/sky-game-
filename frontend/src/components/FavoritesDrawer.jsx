@@ -55,7 +55,7 @@ export default function FavoritesDrawer({
                       className="drawer-remove-btn"
                       onClick={() => {
                         sounds.playClick();
-                        onRemoveFavorite(game.id);
+                        onRemoveFavorite(game.id || game._id);
                       }}
                       title="Remove from favorites"
                     >

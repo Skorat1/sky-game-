@@ -22,6 +22,7 @@ export default function SkySearchBar({
   onSelectCategory,
   searchInputRef,
   games = [],
+  categories = [],
   onSelectGame,
   onOpenAuth,
   user,
@@ -142,18 +143,20 @@ export default function SkySearchBar({
 
       {/* Horizontal Scrolling Category Pills */}
       <div className="sky-category-pills-scroll">
-        {SKY_CATEGORIES.map((cat) => {
-          const isActive = (activeCategory === cat.id) || (!activeCategory && cat.id === 'all');
+        {(categories && categories.length > 0 ? categories : SKY_CATEGORIES).map((cat) => {
+          const catId = cat.id || cat._id;
+          const label = (cat.name || cat.label || catId || '').toUpperCase();
+          const isActive = (activeCategory === catId) || (!activeCategory && catId === 'all');
           return (
             <button
-              key={cat.id}
+              key={catId}
               className={`sky-pill-btn ${isActive ? 'active' : ''}`}
               onClick={() => {
                 sounds.playClick();
-                onSelectCategory(cat.id === 'all' ? '' : cat.id);
+                onSelectCategory(catId === 'all' ? '' : catId);
               }}
             >
-              {cat.label}
+              {label}
             </button>
           );
         })}

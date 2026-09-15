@@ -14,13 +14,24 @@ import {
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
 
-export default function DeveloperPortal({ onBackToHome }) {
+import { submissionsApi } from '../services/api';
+
+export default function DeveloperPortal({ onBackToHome, categories = [] }) {
+  const availableCategories = (categories && categories.length > 0 ? categories : [
+    { id: 'action', name: 'Action' },
+    { id: 'arcade', name: 'Arcade' },
+    { id: 'puzzle', name: 'Puzzle' },
+    { id: 'classic', name: 'Classic' },
+    { id: 'sports', name: 'Sports' },
+    { id: 'cyber', name: 'Cyberpunk' }
+  ]).filter(c => c.id !== 'all');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     gameTitle: '',
     gameUrl: '',
-    category: 'action',
+    category: availableCategories[0]?.id || 'action',
     description: '',
     engine: 'HTML5 / WebGL'
   });
@@ -30,18 +41,14 @@ export default function DeveloperPortal({ onBackToHome }) {
     e.preventDefault();
     sounds.playPowerup();
     try {
-      await fetch('http://localhost:5000/api/submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          developerName: formData.name,
-          email: formData.email,
-          gameTitle: formData.gameTitle,
-          gameUrl: formData.gameUrl,
-          category: formData.category,
-          description: formData.description,
-          thumbnailUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80'
-        })
+      await submissionsApi.submitGame({
+        developerName: formData.name,
+        email: formData.email,
+        gameTitle: formData.gameTitle,
+        gameUrl: formData.gameUrl,
+        category: formData.category,
+        description: formData.description,
+        thumbnailUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&auto=format&fit=crop&q=80'
       });
     } catch (err) {
       console.warn('API submission offline:', err);
@@ -167,14 +174,11 @@ export default function DeveloperPortal({ onBackToHome }) {
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   >
-                    <option value="action">Action</option>
-                    <option value="arcade">Arcade</option>
-                    <option value="puzzle">Puzzle</option>
-                    <option value="racing">Racing</option>
-                    <option value="shooting">Shooting</option>
-                    <option value="sports">Sports</option>
-                    <option value="multiplayer">2-Player</option>
-                    <option value="casual">Casual</option>
+                    {availableCategories.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

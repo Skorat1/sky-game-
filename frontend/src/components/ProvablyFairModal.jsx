@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, RefreshCw, CheckCircle, Copy, Check, Sparkles, X, Lock } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import { fairApi } from '../services/api';
 
 export default function ProvablyFairModal({ isOpen, onClose }) {
   const [serverSeed, setServerSeed] = useState('');
@@ -16,16 +17,9 @@ export default function ProvablyFairModal({ isOpen, onClose }) {
     setLoading(true);
     sounds.playPowerup();
     try {
-      const res = await fetch('http://localhost:5000/api/provably-fair/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientSeed, nonce })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setServerSeed(data.serverSeedPreview || data.serverHash);
-        setVerificationResult(null);
-      }
+      const data = await fairApi.generateSeed(clientSeed, nonce);
+      setServerSeed(data.serverSeedPreview || data.serverHash);
+      setVerificationResult(null);
     } catch (e) {
       console.warn('Backend provably fair endpoint unavailable, generating local cryptographic seed');
       setServerSeed('0x' + Math.random().toString(16).substr(2) + Math.random().toString(16).substr(2));
@@ -38,26 +32,8 @@ export default function ProvablyFairModal({ isOpen, onClose }) {
     setLoading(true);
     sounds.playPowerup();
     try {
-      const res = await fetch('http://localhost:5000/api/provably-fair/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serverSeed: serverSeed || '0x4f8a9e1234bc5678',
-          clientSeed,
-          nonce
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setVerificationResult(data);
-      } else {
-        // Local fallback calculation
-        setVerificationResult({
-          verified: true,
-          outcome: (Math.random() * 99 + 1).toFixed(2),
-          message: 'SHA-256 Hash matches deterministic mathematical outcome.'
-        });
-      }
+      const data = await fairApi.verifyRound(serverSeed || '0x4f8a9e1234bc5678', clientSeed, nonce);
+      setVerificationResult(data);
     } catch (e) {
       setVerificationResult({
         verified: true,

@@ -1,13 +1,10 @@
 import { io } from 'socket.io-client';
+import { CONFIG } from '../config';
 
-const SOCKET_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000'
-  : window.location.origin;
-
-export const socket = io(SOCKET_URL, {
+export const socket = io(CONFIG.SOCKET_URL, {
   autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 10,
+  reconnectionAttempts: 15,
   reconnectionDelay: 1000,
   transports: ['websocket', 'polling'],
   query: {

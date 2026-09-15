@@ -3,6 +3,8 @@ import { WEEKLY_ANALYTICS } from '../data/defaultData';
 import { socket } from '../utils/socket';
 import GameSandboxModal from '../components/GameSandboxModal';
 
+import { statsApi } from '../services/api';
+
 export default function DashboardView({
   games = [],
   users = [],
@@ -71,8 +73,7 @@ export default function DashboardView({
   ];
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/stats/online')
-      .then(res => res.json())
+    statsApi.getOnlineCount()
       .then(data => {
         if (typeof data?.count === 'number') setOnlineCount(data.count);
       })

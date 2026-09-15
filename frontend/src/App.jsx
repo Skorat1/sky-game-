@@ -14,10 +14,13 @@ const AboutPage = lazy(() => import('./components/AboutPage'));
 const ContactPage = lazy(() => import('./components/ContactPage'));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage'));
 
-import { GAMES as DEFAULT_STATIC_GAMES } from './data/games';
+import { GAMES as DEFAULT_STATIC_GAMES, CATEGORIES as DEFAULT_STATIC_CATEGORIES } from './data/games';
 import { sounds } from './utils/audio';
-
 import { socket } from './utils/socket';
+import { CONFIG } from './config';
+import { gamesApi, categoriesApi, bannerApi } from './services/api';
+
+const { STORAGE_KEYS } = CONFIG;
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -62,7 +65,8 @@ class ErrorBoundary extends Component {
             onClick={() => {
               this.setState({ hasError: false, error: null });
               try {
-                localStorage.removeItem('sky_cached_games');
+                localStorage.removeItem(STORAGE_KEYS.CACHED_GAMES);
+                localStorage.removeItem(STORAGE_KEYS.CACHED_CATEGORIES);
               } catch { }
               window.location.href = window.location.origin + window.location.pathname;
             }}
@@ -75,8 +79,6 @@ class ErrorBoundary extends Component {
     return this.props.children;
   }
 }
-
-const API_BASE = 'http://localhost:5000/api';
 
 function buildNavUrl(gameId, category, page, search) {
   try {
@@ -114,13 +116,25 @@ function App() {
   // Instant 0ms cached games initialization
   const [games, setGames] = useState(() => {
     try {
-      const cached = localStorage.getItem('sky_cached_games');
+      const cached = localStorage.getItem(STORAGE_KEYS.CACHED_GAMES);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch { }
     return DEFAULT_STATIC_GAMES;
+  });
+
+  // Dynamic live categories from backend/admin
+  const [categories, setCategories] = useState(() => {
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.CACHED_CATEGORIES);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch { }
+    return DEFAULT_STATIC_CATEGORIES;
   });
 
   const [banner, setBanner] = useState(null);
@@ -136,7 +150,7 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('sky_user');
+      const saved = localStorage.getItem(STORAGE_KEYS.USER);
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -148,7 +162,7 @@ function App() {
 
   const [recentlyPlayed, setRecentlyPlayed] = useState(() => {
     try {
-      const saved = localStorage.getItem('sky_recent');
+      const saved = localStorage.getItem(STORAGE_KEYS.RECENT);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -157,7 +171,7 @@ function App() {
 
   const [favorites, setFavorites] = useState(() => {
     try {
-      const saved = localStorage.getItem('sky_favorites') || localStorage.getItem('thop_favorites');
+      const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -171,24 +185,28 @@ function App() {
 
   const fetchLivePlatformData = useCallback(async () => {
     try {
-      const [gamesRes, bannerRes] = await Promise.all([
-        fetch(`${API_BASE}/games`),
-        fetch(`${API_BASE}/banner`)
+      const [liveGames, liveBanner, liveCats] = await Promise.all([
+        gamesApi.getLiveGames().catch(() => null),
+        bannerApi.getLiveBanner().catch(() => null),
+        categoriesApi.getLiveCategories().catch(() => null)
       ]);
 
-      if (gamesRes.ok) {
-        const liveGames = await gamesRes.json();
-        if (Array.isArray(liveGames) && liveGames.length > 0) {
-          setGames(liveGames);
-          try {
-            localStorage.setItem('sky_cached_games', JSON.stringify(liveGames));
-          } catch { }
-        }
+      if (Array.isArray(liveGames) && liveGames.length > 0) {
+        setGames(liveGames);
+        try {
+          localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(liveGames));
+        } catch { }
       }
 
-      if (bannerRes.ok) {
-        const liveBanner = await bannerRes.json();
+      if (liveBanner) {
         setBanner(liveBanner);
+      }
+
+      if (Array.isArray(liveCats) && liveCats.length > 0) {
+        setCategories(liveCats);
+        try {
+          localStorage.setItem(STORAGE_KEYS.CACHED_CATEGORIES, JSON.stringify(liveCats));
+        } catch { }
       }
     } catch (err) {
       // Offline fallback already loaded via cache
@@ -207,7 +225,7 @@ function App() {
     const handleGameCreated = (newGame) => {
       setGames(prev => {
         const next = [newGame, ...prev.filter(g => g.id !== newGame.id)];
-        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(next)); } catch { }
         return next;
       });
     };
@@ -215,7 +233,7 @@ function App() {
     const handleGameUpdated = (updatedGame) => {
       setGames(prev => {
         const next = prev.map(g => (g.id === updatedGame.id || (g._id && g._id === updatedGame._id)) ? updatedGame : g);
-        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(next)); } catch { }
         return next;
       });
       setSelectedGame(prev => (prev && (prev.id === updatedGame.id || prev._id === updatedGame._id)) ? updatedGame : prev);
@@ -224,7 +242,7 @@ function App() {
     const handleGameDeleted = (data) => {
       setGames(prev => {
         const next = prev.filter(g => g.id !== data.id && g._id !== data.id);
-        try { localStorage.setItem('sky_cached_games', JSON.stringify(next)); } catch { }
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(next)); } catch { }
         return next;
       });
       setSelectedGame(prev => (prev && (prev.id === data.id || prev._id === data.id)) ? null : prev);
@@ -232,7 +250,7 @@ function App() {
 
     const handleAllGamesDeleted = () => {
       setGames([]);
-      try { localStorage.removeItem('sky_cached_games'); } catch { }
+      try { localStorage.removeItem(STORAGE_KEYS.CACHED_GAMES); } catch { }
       setSelectedGame(null);
     };
 
@@ -242,7 +260,7 @@ function App() {
         if (!prevUser) return null;
         if (prevUser.id === updatedUser.id || (prevUser._id && prevUser._id === updatedUser._id)) {
           const merged = { ...prevUser, ...updatedUser };
-          try { localStorage.setItem('sky_user', JSON.stringify(merged)); } catch { }
+          try { localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(merged)); } catch { }
           return merged;
         }
         return prevUser;
@@ -250,18 +268,48 @@ function App() {
     };
 
     const handleLiveUserDeleted = (data) => {
-      if (!data) return;
+      const deletedId = typeof data === 'object' ? (data.id || data._id) : data;
       setUser(prevUser => {
         if (!prevUser) return null;
-        if (prevUser.id === data.id || (prevUser._id && prevUser._id === data.id)) {
+        if (prevUser.id === deletedId || prevUser._id === deletedId) {
           try {
-            localStorage.removeItem('sky_user');
-            localStorage.removeItem('sky_token');
+            localStorage.removeItem(STORAGE_KEYS.USER);
+            localStorage.removeItem(STORAGE_KEYS.TOKEN);
           } catch { }
           return null;
         }
         return prevUser;
       });
+    };
+
+    // Category Live WebSockets synchronization
+    const handleCategoryNew = (newCat) => {
+      if (!newCat) return;
+      setCategories(prev => {
+        if (prev.some(c => c.id === newCat.id)) return prev;
+        const next = [...prev, newCat];
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_CATEGORIES, JSON.stringify(next)); } catch { }
+        return next;
+      });
+    };
+
+    const handleCategoryUpdate = (updatedCat) => {
+      if (!updatedCat) return;
+      setCategories(prev => {
+        const next = prev.map(c => (c.id === updatedCat.id || (c._id && c._id === updatedCat._id)) ? { ...c, ...updatedCat } : c);
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_CATEGORIES, JSON.stringify(next)); } catch { }
+        return next;
+      });
+    };
+
+    const handleCategoryDelete = (catId) => {
+      if (!catId) return;
+      setCategories(prev => {
+        const next = prev.filter(c => c.id !== catId && c._id !== catId);
+        try { localStorage.setItem(STORAGE_KEYS.CACHED_CATEGORIES, JSON.stringify(next)); } catch { }
+        return next;
+      });
+      setActiveCategory(prev => (prev === catId ? '' : prev));
     };
 
     socket.on('banner:update', handleBannerUpdate);
@@ -272,6 +320,9 @@ function App() {
     socket.on('game:all_deleted', handleAllGamesDeleted);
     socket.on('user:updated', handleLiveUserUpdated);
     socket.on('user:deleted', handleLiveUserDeleted);
+    socket.on('category:new', handleCategoryNew);
+    socket.on('category:update', handleCategoryUpdate);
+    socket.on('category:delete', handleCategoryDelete);
 
     return () => {
       socket.off('banner:update', handleBannerUpdate);
@@ -282,9 +333,11 @@ function App() {
       socket.off('game:all_deleted', handleAllGamesDeleted);
       socket.off('user:updated', handleLiveUserUpdated);
       socket.off('user:deleted', handleLiveUserDeleted);
+      socket.off('category:new', handleCategoryNew);
+      socket.off('category:update', handleCategoryUpdate);
+      socket.off('category:delete', handleCategoryDelete);
     };
   }, [fetchLivePlatformData]);
-
 
   useEffect(() => {
     if (pendingGameId && games.length > 0) {
@@ -316,16 +369,15 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-
   useEffect(() => {
-    localStorage.setItem('sky_favorites', JSON.stringify(favorites));
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('sky_user', JSON.stringify(user));
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     } else {
-      localStorage.removeItem('sky_user');
+      localStorage.removeItem(STORAGE_KEYS.USER);
     }
   }, [user]);
 
@@ -333,17 +385,17 @@ function App() {
     if (games.length > 0) {
       setRecentlyPlayed(prev => {
         const filtered = prev.filter(r => games.some(g => g.id === r.id));
-        localStorage.setItem('sky_recent', JSON.stringify(filtered));
+        localStorage.setItem(STORAGE_KEYS.RECENT, JSON.stringify(filtered));
         return filtered;
       });
     } else {
       setRecentlyPlayed([]);
-      localStorage.removeItem('sky_recent');
+      localStorage.removeItem(STORAGE_KEYS.RECENT);
     }
   }, [games]);
 
   useEffect(() => {
-    localStorage.setItem('sky_recent', JSON.stringify(recentlyPlayed));
+    localStorage.setItem(STORAGE_KEYS.RECENT, JSON.stringify(recentlyPlayed));
   }, [recentlyPlayed]);
 
   useEffect(() => {
@@ -534,6 +586,7 @@ function App() {
           onRandomPlay={handleRandomPlay}
           user={user}
           onOpenAuth={() => setAuthModalOpen(true)}
+          categories={categories}
         />
 
         {/* Right Main Content Area */}
@@ -551,7 +604,10 @@ function App() {
               />
             ) : activePage === 'developers' ? (
               <Suspense fallback={<div className="loading-spinner" />}>
-                <DeveloperPortal onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }} />
+                <DeveloperPortal 
+                  onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }}
+                  categories={categories}
+                />
               </Suspense>
             ) : activePage === 'about' ? (
               <Suspense fallback={<div className="loading-spinner" />}>
@@ -592,6 +648,7 @@ function App() {
                   }
                 }}
                 user={user}
+                categories={categories}
               />
             )}
           </main>

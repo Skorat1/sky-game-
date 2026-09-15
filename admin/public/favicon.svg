@@ -1,13 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
   <defs>
-    <linearGradient id="adminGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff0055" />
-      <stop offset="50%" stop-color="#7928ca" />
-      <stop offset="100%" stop-color="#00ffcc" />
+    <!-- Top S Ribbon Gradient -->
+    <linearGradient id="topRibbonGrad" x1="15%" y1="5%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="35%" stop-color="#0080ff" />
+      <stop offset="70%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#9333ea" />
     </linearGradient>
+
+    <!-- Bottom S Ribbon Gradient -->
+    <linearGradient id="bottomRibbonGrad" x1="15%" y1="10%" x2="85%" y2="95%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="45%" stop-color="#0070f3" />
+      <stop offset="85%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="ribbonShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#0055ff" flood-opacity="0.4" />
+    </filter>
   </defs>
-  <rect width="100" height="100" rx="24" fill="#090d16" />
-  <circle cx="50" cy="50" r="38" stroke="url(#adminGrad)" stroke-width="4" fill="none" stroke-dasharray="6, 4" />
-  <path d="M50 22 L75 36 L75 64 L50 78 L25 64 L25 36 Z" fill="none" stroke="url(#adminGrad)" stroke-width="5" />
-  <circle cx="50" cy="50" r="10" fill="#00ffcc" />
+
+  <g filter="url(#ribbonShadow)">
+    <!-- 1. Top Fin / Ribbon of S -->
+    <path d="M 28 32 C 34 14, 52 6, 68 14 C 80 20, 88 32, 78 44 C 68 56, 52 52, 42 54 C 30 56, 24 46, 28 32 Z" fill="url(#topRibbonGrad)" />
+
+    <!-- 2. Bottom Fin / Ribbon of S -->
+    <path d="M 72 68 C 66 86, 48 94, 32 86 C 20 80, 12 68, 22 56 C 32 44, 48 48, 58 46 C 70 44, 76 54, 72 68 Z" fill="url(#bottomRibbonGrad)" />
+
+    <!-- 3. Dynamic Outer S-Body Loop -->
+    <path d="M 25 32 C 30 12, 60 5, 78 20 C 92 32, 90 54, 68 68 C 48 80, 24 90, 16 75 C 8 62, 18 45, 30 38 C 44 28, 64 34, 74 44 C 82 52, 80 64, 68 72 C 52 82, 34 76, 25 65 Z" fill="url(#topRibbonGrad)" />
+
+    <!-- 4. Controller Island Center -->
+    <g transform="rotate(-18 50 50) translate(0, -1)">
+      <!-- Gamepad Shell -->
+      <path d="M 31 38 C 31 30, 69 30, 69 38 C 73 50, 71 62, 64 63 C 57 64, 54 55, 50 55 C 46 55, 43 64, 36 63 C 29 62, 27 50, 31 38 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8" />
+      
+      <!-- D-Pad (Directional Pad) -->
+      <path d="M 39 42.5 H 41.5 V 45 H 44 V 47.5 H 41.5 V 50 H 39 V 47.5 H 36.5 V 45 H 39 Z" fill="#1e293b" />
+
+      <!-- Quad Action Buttons -->
+      <!-- Top: Amber/Yellow -->
+      <circle cx="61" cy="43.5" r="1.8" fill="#f59e0b" />
+      <!-- Left: Cyan -->
+      <circle cx="57.5" cy="47" r="1.8" fill="#00d2ff" />
+      <!-- Right: Red -->
+      <circle cx="64.5" cy="47" r="1.8" fill="#f43f5e" />
+      <!-- Bottom: Green -->
+      <circle cx="61" cy="50.5" r="1.8" fill="#10b981" />
+    </g>
+  </g>
 </svg>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { CONFIG } from '../config';
 import {
   Gamepad2,
   Sparkles,
@@ -26,17 +27,13 @@ export default function Footer({ onNavigate }) {
       <div className="footer-top-grid footer-two-col">
         {/* Brand Col */}
         <div className="footer-col brand-col">
-          <div className="footer-logo">
-            <div className="logo-icon-wrapper">
-              <Gamepad2 size={24} className="logo-icon" />
-              <span className="logo-glow"></span>
-            </div>
-            <div className="logo-text-group">
-              <span className="logo-title">
-                SKY<span className="gradient-highlight">GAMES</span>
-              </span>
-              <span className="logo-badge">PLAY FREE</span>
-            </div>
+          <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img
+              src="/skygames-logo.png"
+              alt="SkyGames"
+              style={{ height: '48px', width: 'auto', objectFit: 'contain', borderRadius: '10px', background: '#fff', padding: '2px 8px' }}
+            />
+            <span className="logo-badge">PLAY FREE</span>
           </div>
           <p className="footer-desc">
             Play premier arcade, action, shooting, racing, puzzle, and multiplayer 2-player games right in your browser. Engineered with next-gen WebGL physics, neon aesthetics, and zero installation needed!
@@ -89,7 +86,7 @@ export default function Footer({ onNavigate }) {
             </li>
             <li>
               <a
-                href="http://localhost:5174"
+                href={CONFIG.ADMIN_URL}
                 target="_blank"
                 rel="noreferrer"
                 style={{

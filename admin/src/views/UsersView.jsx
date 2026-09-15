@@ -108,7 +108,7 @@ export default function UsersView({
     setSubmitting(true);
     try {
       if (editingUser) {
-        await onUpdateUser(editingUser.id, formData);
+        await onUpdateUser(editingUser.id || editingUser._id, formData);
       } else {
         await onAddUser(formData);
       }
@@ -127,7 +127,7 @@ export default function UsersView({
       ? `Are you sure you want to BAN user "${u.username}"?` 
       : `Unban user "${u.username}"?`;
     if (window.confirm(confirmMsg)) {
-      await onUpdateUser(u.id, { status: nextStatus });
+      await onUpdateUser(u.id || u._id, { status: nextStatus });
     }
   };
 
