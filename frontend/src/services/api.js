@@ -159,3 +159,66 @@ export const fairApi = {
     return res.json();
   }
 };
+
+/**
+ * Global & Game Leaderboards API
+ */
+export const leaderboardApi = {
+  getLeaderboard: async (gameId, period = 'all') => {
+    const res = await apiFetch(`/leaderboard/${gameId}?period=${period}`);
+    if (!res.ok) throw new Error('Failed to fetch leaderboard');
+    return res.json();
+  },
+  getChampions: async () => {
+    const res = await apiFetch('/leaderboard/champions');
+    if (!res.ok) throw new Error('Failed to fetch global champions');
+    return res.json();
+  },
+  submitScore: async (scoreData) => {
+    const res = await apiFetch('/leaderboard/submit', {
+      method: 'POST',
+      body: JSON.stringify(scoreData)
+    });
+    if (!res.ok) throw new Error('Failed to submit score');
+    return res.json();
+  }
+};
+
+/**
+ * Daily Quests, Badges & XP Gamification API
+ */
+export const gamificationApi = {
+  getQuests: async () => {
+    const res = await apiFetch('/gamification/quests');
+    if (!res.ok) throw new Error('Failed to fetch quests');
+    return res.json();
+  },
+  claimQuest: async (questId, currentXp = 0) => {
+    const res = await apiFetch('/gamification/claim', {
+      method: 'POST',
+      body: JSON.stringify({ questId, currentXp })
+    });
+    if (!res.ok) throw new Error('Failed to claim quest reward');
+    return res.json();
+  }
+};
+
+/**
+ * Cross-Device Cloud Progress Sync API
+ */
+export const cloudSyncApi = {
+  syncProgress: async (progressData) => {
+    const res = await apiFetch('/users/progress/sync', {
+      method: 'POST',
+      body: JSON.stringify(progressData)
+    });
+    if (!res.ok) return { success: false };
+    return res.json();
+  },
+  getProgress: async (userId) => {
+    const res = await apiFetch(`/users/progress/${userId}`);
+    if (!res.ok) return { success: false };
+    return res.json();
+  }
+};
+

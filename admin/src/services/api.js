@@ -233,31 +233,6 @@ export const messagesApi = {
   }
 };
 
-/**
- * System Settings & Data Operations
- */
-export const settingsApi = {
-  get: async () => {
-    const res = await authFetch('/settings');
-    if (!res.ok) throw new Error('Failed to fetch settings');
-    return res.json();
-  },
-  update: async (settingsData) => {
-    const res = await authFetch('/settings', {
-      method: 'PUT',
-      body: JSON.stringify(settingsData)
-    });
-    if (!res.ok) throw new Error('Failed to update settings');
-    return res.json();
-  },
-  reset: async () => {
-    const res = await authFetch('/reset', {
-      method: 'POST'
-    });
-    if (!res.ok) throw new Error('Failed to reset database');
-    return res.json();
-  }
-};
 
 /**
  * Online Visitors & Health API Services

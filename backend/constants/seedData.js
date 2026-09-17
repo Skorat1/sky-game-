@@ -15,7 +15,7 @@ export const SEED_CATEGORIES = [
 export const SEED_BANNER = {
   active: true,
   badge: '🔥 SPOTLIGHT',
-  message: 'Welcome to SKYGAMES Enterprise Platform!',
+  message: 'Welcome toThopGames Enterprise Platform!',
   ctaText: 'Play Now',
   ctaLink: '#arcade',
   bgColor: 'rgba(255, 0, 85, 0.15)',

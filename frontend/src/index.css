@@ -1688,10 +1688,18 @@ select,
 .card-overlay-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(15, 23, 42, 0.5) 70%, rgba(15, 23, 42, 0.94) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(15, 23, 42, 0.65) 65%, rgba(15, 23, 42, 0.96) 100%);
   pointer-events: none;
   z-index: 2;
   border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sky-game-card:hover .card-overlay-gradient,
+.game-card:hover .card-overlay-gradient,
+.is-card-hovered .card-overlay-gradient {
+  opacity: 1;
 }
 
 .card-hover-preview-video {
@@ -1720,6 +1728,18 @@ select,
   align-items: center;
   justify-content: space-between;
   z-index: 3;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sky-game-card:hover .card-top-badges,
+.game-card:hover .card-top-badges,
+.is-card-hovered .card-top-badges {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .poki-tile-2x2 .card-top-badges {
@@ -1743,6 +1763,12 @@ select,
 .poki-tile-2x2 .card-badge-pill {
   font-size: 0.72rem;
   padding: 4px 10px;
+}
+
+.card-top-left-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .card-favorite-btn {
@@ -1783,6 +1809,18 @@ select,
   display: flex;
   flex-direction: column;
   gap: 2px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sky-game-card:hover .card-bottom-info,
+.game-card:hover .card-bottom-info,
+.is-card-hovered .card-bottom-info {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .poki-tile-2x2 .card-bottom-info {
@@ -2377,9 +2415,7 @@ select,
   color: #00f2fe;
 }
 
-/* ==========================================================================
-   sky.COM EXACT STYLE UNDER-GAME CONTROL BAR (CLEAN WHITE THEME)
-   ========================================================================== */
+
 .sky-under-ctrl-bar {
   background: #ffffff;
   padding: 12px 20px;
@@ -9350,4 +9386,39 @@ select,
   .info-modal-body {
     padding: 14px 16px;
   }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   UPGRADE UTILITY ANIMATIONS (SPIN & PULSE)
+   ========================================================================== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-animation {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.pulse-animation {
+  animation: pulseGlow 1.8s ease-in-out infinite;
 }

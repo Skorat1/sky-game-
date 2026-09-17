@@ -24,8 +24,7 @@ export default function AdminSidebar({
   const opsNavItems = [
     { id: 'banner', label: 'Banner Broadcast', icon: '📢', badge: bannerActive ? 'LIVE' : null, isLive: bannerActive },
     { id: 'submissions', label: 'Dev Submissions', icon: '🚀', badge: submissionsCount > 0 ? submissionsCount : null },
-    { id: 'messages', label: 'Support & Inquiries', icon: '📩', badge: unreadMessagesCount > 0 ? unreadMessagesCount : null },
-    { id: 'settings', label: 'System Settings', icon: '⚙️' }
+    { id: 'messages', label: 'Support & Inquiries', icon: '📩', badge: unreadMessagesCount > 0 ? unreadMessagesCount : null }
   ];
 
   const adminInitial = (adminUser?.username || adminUser?.name || 'A')[0].toUpperCase();
@@ -36,11 +35,11 @@ export default function AdminSidebar({
       <div className="sidebar-header">
         <img
           src="/sky-icon.png"
-          alt="SkyGames"
+          alt="ThopGame"
           style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '10px', background: '#fff', padding: '2px' }}
         />
         <div className="brand-text">
-          <h1>SKY<span>GAMES</span></h1>
+          <h1>THOP<span>GAME</span></h1>
           <div className="brand-tag">
             <span className="live-dot" style={{ width: 5, height: 5 }}></span>
             <span>CONTROL CENTER</span>

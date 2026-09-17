@@ -31,33 +31,20 @@ export function initStore() {
       if (!Array.isArray(localStore.users)) localStore.users = [];
       if (Array.isArray(localStore.games)) {
         localStore.games = localStore.games.map(g => {
-          const rawLikes = typeof g.likes === 'number' ? g.likes : Math.max(12, Math.floor((g.plays || 5) * 8.5) + 120);
-          const rawDislikes = typeof g.dislikes === 'number' ? g.dislikes : Math.max(1, Math.floor(rawLikes * 0.035));
-          const totalVotes = rawLikes + rawDislikes;
-          const computedRating = totalVotes > 0 ? Number(((rawLikes / totalVotes) * 5).toFixed(1)) : 4.8;
+          const rawLikes = 0;
+          const rawDislikes = 0;
+          const computedRating = 5.0;
           return {
             ...g,
-            likes: rawLikes,
-            dislikes: rawDislikes,
-            rating: g.rating || computedRating,
+            plays: 0,
+            likes: 0,
+            dislikes: 0,
+            rating: 5.0,
             gameUrl: sanitizeGameUrl(g.gameUrl)
           };
         });
       }
 
-      // Ensure seed users with valid passwords are present in localStore
-      for (const seedUser of SEED_USERS) {
-        const exists = localStore.users.find(u =>
-          (u.email && u.email.toLowerCase() === seedUser.email.toLowerCase()) ||
-          (u.username && u.username.toLowerCase() === seedUser.username.toLowerCase()) ||
-          u.id === seedUser.id
-        );
-        if (!exists) {
-          localStore.users.push(seedUser);
-        } else if (!exists.password) {
-          exists.password = seedUser.password;
-        }
-      }
       fs.writeFileSync(STORE_FILE, JSON.stringify(localStore, null, 2));
     } else {
       localStore.users = [...SEED_USERS];

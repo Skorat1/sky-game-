@@ -1,5 +1,5 @@
 /**
- * Application Configuration for SkyGames Admin Control Center
+ * Application Configuration forThopGames Admin Control Center
  */
 
 export const CONFIG = {
@@ -32,8 +32,7 @@ export const CONFIG = {
     'categories',
     'banner',
     'submissions',
-    'messages',
-    'settings'
+    'messages'
   ]
 };
 

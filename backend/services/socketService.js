@@ -1,20 +1,40 @@
 import { Server } from 'socket.io';
 import { verifyToken } from '../utils/crypto.js';
+import { setupMultiplayer } from './multiplayerService.js';
 
 export const activeVisitors = new Set();
 export const gameActivePlayers = new Map();
 export const recentActivities = [];
 
+export let io = null;
 let ioInstance = null;
 
 export function getIO() {
-  return ioInstance;
+  return ioInstance || io;
+}
+
+export function getActiveGameCounts() {
+  const counts = {};
+  for (const [gameId, set] of gameActivePlayers.entries()) {
+    if (set.size > 0) {
+      counts[gameId] = set.size;
+    }
+  }
+  return counts;
+}
+
+export function broadcastAllActiveGameCounts() {
+  const currentIO = ioInstance || io;
+  if (!currentIO) return;
+  const counts = getActiveGameCounts();
+  currentIO.emit('games:active_counts', counts);
 }
 
 export function broadcastOnlineCount() {
-  if (!ioInstance) return;
+  const currentIO = ioInstance || io;
+  if (!currentIO) return;
   const count = activeVisitors.size;
-  ioInstance.emit('online:count', { count });
+  currentIO.emit('online:count', { count });
 }
 
 export function recordActivity(type, title, detail) {
@@ -27,20 +47,25 @@ export function recordActivity(type, title, detail) {
   };
   recentActivities.unshift(activity);
   if (recentActivities.length > 50) recentActivities.pop();
-  if (ioInstance) {
-    ioInstance.emit('activity:new', activity);
+  const currentIO = ioInstance || io;
+  if (currentIO) {
+    currentIO.emit('activity:new', activity);
   }
 }
 
 export function setupSocket(httpServer) {
-  const io = new Server(httpServer, {
+  const socketServer = new Server(httpServer, {
     cors: {
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
     }
   });
 
-  ioInstance = io;
+  io = socketServer;
+  ioInstance = socketServer;
+
+  // Initialize Real-Time 1v1 Multiplayer Subsystem
+  setupMultiplayer(socketServer);
 
   // Socket Authentication Middleware
   io.use((socket, next) => {
@@ -75,8 +100,15 @@ export function setupSocket(httpServer) {
       socket.emit('online:count', { count: activeVisitors.size });
     }
 
+    // Send active player counts per game immediately
+    socket.emit('games:active_counts', getActiveGameCounts());
+
     socket.on('request:online:count', () => {
       socket.emit('online:count', { count: activeVisitors.size });
+    });
+
+    socket.on('request:active_game_counts', () => {
+      socket.emit('games:active_counts', getActiveGameCounts());
     });
 
     socket.emit('activities:init', recentActivities.slice(0, 20));
@@ -91,6 +123,7 @@ export function setupSocket(httpServer) {
       gameActivePlayers.get(gameId).add(socket.id);
       const count = gameActivePlayers.get(gameId).size;
       io.to(gameId).emit('game:players:count', { gameId, count });
+      broadcastAllActiveGameCounts();
       recordActivity('game_join', 'Player Joined', `Someone started playing "${gameId}"`);
     });
 
@@ -102,6 +135,10 @@ export function setupSocket(httpServer) {
         gameActivePlayers.get(gameId).delete(socket.id);
         const count = gameActivePlayers.get(gameId).size;
         io.to(gameId).emit('game:players:count', { gameId, count });
+        if (gameActivePlayers.get(gameId).size === 0) {
+          gameActivePlayers.delete(gameId);
+        }
+        broadcastAllActiveGameCounts();
       }
     });
 
@@ -131,8 +168,12 @@ export function setupSocket(httpServer) {
         if (playersSet.has(socket.id)) {
           playersSet.delete(socket.id);
           io.to(gameId).emit('game:players:count', { gameId, count: playersSet.size });
+          if (playersSet.size === 0) {
+            gameActivePlayers.delete(gameId);
+          }
         }
       }
+      broadcastAllActiveGameCounts();
     });
   });
 

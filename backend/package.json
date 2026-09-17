@@ -1,7 +1,7 @@
 {
   "name": "skygames-backend",
   "version": "1.0.0",
-  "description": "Backend API with MongoDB database for SKYGAMES and Admin Control Panel",
+  "description": "Backend API with MongoDB database forThopGames and Admin Control Panel",
   "main": "server.js",
   "type": "module",
   "scripts": {

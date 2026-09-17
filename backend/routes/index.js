@@ -7,21 +7,16 @@ import categoryRoutes from './categoryRoutes.js';
 import bannerRoutes from './bannerRoutes.js';
 import submissionRoutes from './submissionRoutes.js';
 import messageRoutes from './messageRoutes.js';
-import settingRoutes from './settingRoutes.js';
 import fairRoutes from './fairRoutes.js';
 import analyticsRoutes from './analyticsRoutes.js';
+import gamificationRoutes from './gamificationRoutes.js';
 import { getHealth, getOnlineStats } from '../controllers/analyticsController.js';
-import { resetDatabase } from '../controllers/settingController.js';
-import { requireAdminAuth } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
 // Core health & public stats endpoints
 router.get('/health', getHealth);
 router.get('/stats/online', getOnlineStats);
-
-// Protected Database Reset
-router.post('/reset', requireAdminAuth, resetDatabase);
 
 // Admin dedicated authentication & profile router
 router.use('/admin', adminRoutes);
@@ -34,8 +29,8 @@ router.use('/categories', categoryRoutes);
 router.use('/banner', bannerRoutes);
 router.use('/submissions', submissionRoutes);
 router.use('/messages', messageRoutes);
-router.use('/settings', settingRoutes);
 router.use('/provably-fair', fairRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/gamification', gamificationRoutes);
 
 export default router;

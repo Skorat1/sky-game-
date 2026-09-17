@@ -72,7 +72,7 @@ export default function DeveloperPortal({ onBackToHome, categories = [] }) {
           Publish Your Games to <span className="gradient-highlight">Millions of Players</span>
         </h1>
         <p className="dev-hero-subtitle">
-          SKYGAMES helps HTML5, WebGL, and Unity Web developers monetize, distribute, and grow their player base globally with 70/30 revenue share and instant SDK integration.
+          ThopGames helps HTML5, WebGL, and Unity Web developers monetize, distribute, and grow their player base globally with 70/30 revenue share and instant SDK integration.
         </p>
 
         <div className="dev-stats-grid">
@@ -213,7 +213,7 @@ export default function DeveloperPortal({ onBackToHome, categories = [] }) {
 
         {/* Developer Benefits Checklist */}
         <div className="dev-benefits-card">
-          <h3>Why Partner with SKYGAMES?</h3>
+          <h3>Why Partner withThopGames?</h3>
           <ul className="benefits-list">
             <li>
               <CheckCircle2 size={18} color="#00f2fe" />
@@ -243,11 +243,11 @@ export default function DeveloperPortal({ onBackToHome, categories = [] }) {
 
           <div className="sdk-code-preview">
             <div className="code-header">
-              <span>SKYGAMES SDK Quickstart</span>
+              <span>THOPGAME SDK Quickstart</span>
             </div>
             <pre className="code-block">
-              <code>{`// Initialize SKYGAMES SDK
-window.SkySDK.init({
+              <code>{`// Initialize ThopGame SDK
+window.ThopSDK.init({
   gameId: 'your-game-id',
   onReady: () => {
     console.log('SDK Ready!');

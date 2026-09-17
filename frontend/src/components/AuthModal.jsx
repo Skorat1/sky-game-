@@ -89,7 +89,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
   if (!isOpen) return null;
 
   const handleTabChange = (newTab, presetEmail = null) => {
-    try { sounds.playClick(); } catch (e) {}
+    try { sounds.playClick(); } catch (e) { }
     setTab(newTab);
     setGlobalError('');
     setFieldErrors({});
@@ -119,7 +119,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         try {
           const saved = localStorage.getItem('sky_remember_identifier');
           if (saved) setEmail(saved);
-        } catch {}
+        } catch { }
       }
     }
   };
@@ -129,8 +129,8 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
     setLoadingProvider(provider);
     setGlobalError('');
     const state = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    try { sessionStorage.setItem('oauth_state', state); } catch {}
-    
+    try { sessionStorage.setItem('oauth_state', state); } catch { }
+
     // Open provider dialog or direct redirect
     openSocialPrompt(provider);
     setLoadingProvider(null);
@@ -150,7 +150,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
     try {
       setPasskeyScanning(true);
-      try { sounds.playPowerup(); } catch (e) {}
+      try { sounds.playPowerup(); } catch (e) { }
 
       // Step 1: Challenge fetch from Backend
       let challengeBase64 = '';
@@ -172,7 +172,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
       const credential = await navigator.credentials.create({
         publicKey: {
           challenge: challengeBytes,
-          rp: { name: 'SkyGames Arcade', id: window.location.hostname || 'localhost' },
+          rp: { name: 'ThopGame Arcade', id: window.location.hostname || 'localhost' },
           user: {
             id: userIdBytes,
             name: 'player@skygames.io',
@@ -204,11 +204,11 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
       const data = await verifyRes.json();
       if (data.token && data.user) {
-        try { sounds.playPowerup(); } catch (e) {}
+        try { sounds.playPowerup(); } catch (e) { }
         setSuccessMsg(data.message || 'Passkey Verified Successfully!');
-        try { localStorage.setItem('sky_token', data.token); } catch {}
-        try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch {}
-        
+        try { localStorage.setItem('sky_token', data.token); } catch { }
+        try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch { }
+
         // Reconnect Socket with Authenticated Token
         authenticateSocket(data.token);
 
@@ -233,7 +233,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
   // Open Social Authentication Prompt
   const openSocialPrompt = (provider) => {
-    try { sounds.playClick(); } catch (e) {}
+    try { sounds.playClick(); } catch (e) { }
     setGlobalError('');
     setFieldErrors({});
     setSuccessMsg('');
@@ -245,7 +245,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
   // Execute Social SSO Authentication with Backend API & Database
   const executeSocialAuth = async ({ provider, name, email: ssoEmail, avatar }) => {
-    try { sounds.playPowerup(); } catch (e) {}
+    try { sounds.playPowerup(); } catch (e) { }
     setLoading(true);
     setGlobalError('');
 
@@ -267,13 +267,13 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
       const data = await res.json();
       if (res.ok && data.user) {
-        try { sounds.playPowerup(); } catch (e) {}
+        try { sounds.playPowerup(); } catch (e) { }
         setSuccessMsg(data.message || `Successfully signed in with ${provider}!`);
         if (data.token) {
-          try { localStorage.setItem('sky_token', data.token); } catch {}
+          try { localStorage.setItem('sky_token', data.token); } catch { }
           authenticateSocket(data.token);
         }
-        try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch {}
+        try { localStorage.setItem('sky_user', JSON.stringify(data.user)); } catch { }
         setTimeout(() => {
           onLogin(data.user);
           setLoading(false);
@@ -296,9 +296,9 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         status: 'active',
         createdAt: new Date().toISOString()
       };
-      try { sounds.playPowerup(); } catch (e) {}
+      try { sounds.playPowerup(); } catch (e) { }
       setSuccessMsg(`Signed in with ${provider}!`);
-      try { localStorage.setItem('sky_user', JSON.stringify(mockUser)); } catch {}
+      try { localStorage.setItem('sky_user', JSON.stringify(mockUser)); } catch { }
       setTimeout(() => {
         onLogin(mockUser);
         setLoading(false);
@@ -361,7 +361,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try { sounds.playClick(); } catch (err) {}
+    try { sounds.playClick(); } catch (err) { }
     setGlobalError('');
     setSuccessMsg('');
 
@@ -386,11 +386,11 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Password reset failed');
 
-        try { sounds.playPowerup(); } catch (err) {}
+        try { sounds.playPowerup(); } catch (err) { }
         setSuccessMsg(data.message || 'Password reset instructions have been sent!');
         setLoading(false);
       } catch (err) {
-        try { sounds.playPowerup(); } catch (e2) {}
+        try { sounds.playPowerup(); } catch (e2) { }
         setSuccessMsg(`Password reset instructions sent to ${cleanEmail}!`);
         setLoading(false);
       }
@@ -399,9 +399,9 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
 
     // Save remember me preference
     if (rememberMe && tab === 'login') {
-      try { localStorage.setItem('sky_remember_identifier', cleanEmail); } catch {}
+      try { localStorage.setItem('sky_remember_identifier', cleanEmail); } catch { }
     } else if (!rememberMe) {
-      try { localStorage.removeItem('sky_remember_identifier'); } catch {}
+      try { localStorage.removeItem('sky_remember_identifier'); } catch { }
     }
 
     try {
@@ -417,11 +417,11 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         createdAt: new Date().toISOString()
       };
 
-      try { sounds.playPowerup(); } catch (err) {}
+      try { sounds.playPowerup(); } catch (err) { }
       setSuccessMsg(tab === 'register' ? 'Account created successfully!' : 'Signed in successfully!');
 
-      try { localStorage.setItem('sky_user', JSON.stringify(playerUser)); } catch {}
-      try { localStorage.setItem('sky_token', 'sky_token_' + Date.now()); } catch {}
+      try { localStorage.setItem('sky_user', JSON.stringify(playerUser)); } catch { }
+      try { localStorage.setItem('sky_token', 'sky_token_' + Date.now()); } catch { }
 
       setTimeout(() => {
         onLogin(playerUser);
@@ -448,10 +448,10 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
           status: 'active',
           createdAt: new Date().toISOString()
         };
-        try { sounds.playPowerup(); } catch (e2) {}
+        try { sounds.playPowerup(); } catch (e2) { }
         setSuccessMsg(tab === 'register' ? 'Account registered!' : 'Welcome back!');
-        try { localStorage.setItem('sky_user', JSON.stringify(fallbackUser)); } catch {}
-        try { localStorage.setItem('sky_token', 'local_token_' + Date.now()); } catch {}
+        try { localStorage.setItem('sky_user', JSON.stringify(fallbackUser)); } catch { }
+        try { localStorage.setItem('sky_token', 'local_token_' + Date.now()); } catch { }
         setTimeout(() => {
           onLogin(fallbackUser);
           setEmail('');
@@ -505,7 +505,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
         <button
           className="sky-auth-close-btn"
           onClick={() => {
-            try { sounds.playClick(); } catch (err) {}
+            try { sounds.playClick(); } catch (err) { }
             onClose();
           }}
           aria-label="Close"
@@ -601,7 +601,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                   fontWeight: 700
                 }}
                 onClick={() => {
-                  try { sounds.playClick(); } catch (err) {}
+                  try { sounds.playClick(); } catch (err) { }
                   onClose();
                 }}
               >
@@ -621,11 +621,11 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                   boxShadow: '0 4px 14px rgba(239, 68, 68, 0.35)'
                 }}
                 onClick={() => {
-                  try { sounds.playClick(); } catch (err) {}
+                  try { sounds.playClick(); } catch (err) { }
                   try {
                     localStorage.removeItem('sky_token');
                     localStorage.removeItem('sky_user');
-                  } catch {}
+                  } catch { }
                   onLogout();
                   onClose();
                 }}
@@ -1116,7 +1116,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
               {/* Close Submodal */}
               <button
                 className="social-sso-close-btn"
-                onClick={() => { try { sounds.playClick(); } catch (e) {} setSocialPrompt(null); }}
+                onClick={() => { try { sounds.playClick(); } catch (e) { } setSocialPrompt(null); }}
                 disabled={loading}
                 style={{
                   position: 'absolute',
@@ -1149,7 +1149,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     </svg>
                     <div>
                       <h3 className="sso-title" style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>Sign in with Google</h3>
-                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Choose an account to continue to SkyGames</p>
+                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Choose an account to continue toThopGames</p>
                     </div>
                   </div>
 
@@ -1240,7 +1240,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     </div>
                     <div>
                       <h3 className="sso-title" style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>Sign in with Apple ID</h3>
-                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Register or login with your Apple ID to SkyGames</p>
+                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Register or login with your Apple ID toThopGames</p>
                     </div>
                   </div>
 
@@ -1327,7 +1327,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     </svg>
                     <div>
                       <h3 className="sso-title" style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>Microsoft Xbox Sign In</h3>
-                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Connect your Xbox Gamer profile to SkyGames</p>
+                      <p className="sso-subtitle" style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>Connect your Xbox Gamer profile toThopGames</p>
                     </div>
                   </div>
 
@@ -1405,7 +1405,7 @@ export default function AuthModal({ isOpen, onClose, user, onLogin, onLogout }) 
                     className="sso-confirm-btn passkey-btn"
                     onClick={() => {
                       setPasskeyScanning(true);
-                      try { sounds.playPowerup(); } catch (e) {}
+                      try { sounds.playPowerup(); } catch (e) { }
                       setTimeout(() => {
                         executeSocialAuth({ provider: 'Passkey', name: socialCustomName, email: socialCustomEmail });
                       }, 900);

@@ -12,6 +12,7 @@ export default function DashboardView({
   submissions = [],
   messages = [],
   onlineCount: propOnlineCount,
+  activeGameCounts = {},
   onNavigateTab,
   onEditGame
 }) {
@@ -77,7 +78,7 @@ export default function DashboardView({
       .then(data => {
         if (typeof data?.count === 'number') setOnlineCount(data.count);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     const handleCount = (data) => {
       if (typeof data?.count === 'number') setOnlineCount(data.count);
@@ -123,7 +124,7 @@ export default function DashboardView({
     sessions: Math.round(item.plays * 1.4)
   }));
 
-  const activeMax = Math.max(...dynamicAnalytics.map(d => 
+  const activeMax = Math.max(...dynamicAnalytics.map(d =>
     chartMetric === 'plays' ? d.plays : chartMetric === 'players' ? d.players : d.sessions
   ));
 
@@ -274,10 +275,10 @@ export default function DashboardView({
 
           <div className="chart-container-modern">
             {dynamicAnalytics.map((item) => {
-              const val = chartMetric === 'plays' 
-                ? item.plays 
-                : chartMetric === 'players' 
-                  ? item.players 
+              const val = chartMetric === 'plays'
+                ? item.plays
+                : chartMetric === 'players'
+                  ? item.players
                   : item.sessions;
               const heightPct = Math.max(14, Math.round((val / activeMax) * 100));
               const isPeak = val === activeMax;
@@ -401,19 +402,19 @@ export default function DashboardView({
             </div>
 
             <div className="chart-toggle-group">
-              <button 
+              <button
                 className={`chart-toggle-btn ${activityFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setActivityFilter('all')}
               >
                 All
               </button>
-              <button 
+              <button
                 className={`chart-toggle-btn ${activityFilter === 'game' ? 'active' : ''}`}
                 onClick={() => setActivityFilter('game')}
               >
                 Games
               </button>
-              <button 
+              <button
                 className={`chart-toggle-btn ${activityFilter === 'user' ? 'active' : ''}`}
                 onClick={() => setActivityFilter('user')}
               >
@@ -495,6 +496,7 @@ export default function DashboardView({
                 <th style={{ width: '60px' }}>#</th>
                 <th>Game</th>
                 <th>Category</th>
+                <th>Live Players</th>
                 <th>Plays</th>
                 <th>Share</th>
                 <th>Rating</th>
@@ -509,6 +511,9 @@ export default function DashboardView({
                 .map((game, idx) => {
                   const playShare = totalPlays > 0 ? Math.round(((game.plays || 0) / totalPlays) * 100) : 0;
                   const rankMedals = ['🥇 #1', '🥈 #2', '🥉 #3', '#4', '#5'];
+                  const gid = game.id || game._id;
+                  const socketLive = activeGameCounts && (activeGameCounts[gid] || activeGameCounts[game.id] || activeGameCounts[game._id]);
+                  const live = Number(socketLive || 0);
 
                   return (
                     <tr key={game.id || idx}>
@@ -537,6 +542,12 @@ export default function DashboardView({
                       <td>
                         <span className="category-pill-tag">
                           {game.category || 'Arcade'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="live-player-pulse-tag">
+                          <span className="live-player-pulse-dot" />
+                          <span>{live} LIVE</span>
                         </span>
                       </td>
                       <td>

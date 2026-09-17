@@ -102,23 +102,22 @@ export async function markAllMessagesRead(req, res) {
 
 export async function deleteMessage(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
     if (!rawId || rawId === 'undefined') {
       return res.status(400).json({ error: 'Invalid message ID' });
     }
 
     localStore.messages = (localStore.messages || []).filter(
-      m => m.id !== rawId && (m._id ? String(m._id) !== rawId : true)
+      m => String(m.id || '') !== rawId && String(m._id || '') !== rawId
     );
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Message.deleteMany({
-        $or: [
-          { id: rawId },
-          ...(mongoose.isValidObjectId(rawId) ? [{ _id: rawId }] : [])
-        ]
-      }).catch(() => { });
+      const deleteConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        deleteConditions.push({ _id: rawId });
+      }
+      await Message.deleteMany({ $or: deleteConditions }).catch(() => { });
     }
 
     const io = getIO();

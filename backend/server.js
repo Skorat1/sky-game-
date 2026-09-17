@@ -28,10 +28,12 @@ app.use('/game-proxy', proxyRoutes);
 
 // API Limiter & Endpoints
 app.use('/api', apiLimiter, apiRoutes);
-
+app.get('/', (req, res) => {
+  res.send({ message: " Welcome to Sky Games" })
+})
 // Connect DB & Launch Server
 connectDB().finally(() => {
   httpServer.listen(PORT, () => {
-    console.log(`🚀 SKYGAMES Backend Engine running at http://localhost:${PORT}`);
+    console.log(`🚀ThopGames Backend Engine running at http://localhost:${PORT}`);
   });
 });

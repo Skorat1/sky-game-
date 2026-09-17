@@ -33,7 +33,7 @@ export default function PrivacyPage({ onBackToHome }) {
 
   const handleCopyEmail = () => {
     sounds.playClick();
-    navigator.clipboard.writeText('privacy@skygames.com');
+    navigator.clipboard.writeText('privacy@thopgame.com');
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
   };
@@ -145,7 +145,7 @@ export default function PrivacyPage({ onBackToHome }) {
           </div>
           <div className="policy-card-body">
             <p>
-              SKYGAMES does not harvest personal identifiers. When you interact with our gaming catalog, our edge load balancers collect anonymous telemetry (such as viewport resolution, approximate country region, and browser type) solely to ensure high-performance 60 FPS canvas scaling and low-latency asset streaming.
+              ThopGames does not harvest personal identifiers. When you interact with our gaming catalog, our edge load balancers collect anonymous telemetry (such as viewport resolution, approximate country region, and browser type) solely to ensure high-performance 60 FPS canvas scaling and low-latency asset streaming.
             </p>
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function PrivacyPage({ onBackToHome }) {
               If you have any questions regarding privacy, terms, or wish to submit a DMCA copyright takedown notice, contact our Data Protection and Compliance team directly:
             </p>
             <div className="email-copy-bar">
-              <span className="email-text">privacy@skygames.com</span>
+              <span className="email-text">privacy@thopgame.com</span>
               <button className="copy-btn" onClick={handleCopyEmail}>
                 {copiedEmail ? <Check size={16} color="#00f5a0" /> : <Copy size={16} />}
                 <span>{copiedEmail ? 'Copied to Clipboard!' : 'Copy Email'}</span>

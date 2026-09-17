@@ -7,11 +7,11 @@ export async function getSubmissions(req, res) {
   try {
     if (mongoose.connection.readyState === 1) {
       const submissions = await Submission.find().sort({ createdAt: -1 }).lean();
-      if (submissions) return res.json(submissions);
+      return res.json(submissions || []);
     }
-    res.json(localStore.submissions);
+    res.json(localStore.submissions || []);
   } catch (err) {
-    res.json(localStore.submissions);
+    res.json(localStore.submissions || []);
   }
 }
 
@@ -75,19 +75,22 @@ export async function updateSubmission(req, res) {
 
 export async function deleteSubmission(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
+    if (!rawId) {
+      return res.status(400).json({ error: 'Submission ID required' });
+    }
+
     localStore.submissions = (localStore.submissions || []).filter(
-      s => s.id !== rawId && (s._id ? String(s._id) !== rawId : true)
+      s => String(s.id || '') !== rawId && String(s._id || '') !== rawId
     );
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Submission.deleteMany({
-        $or: [
-          { id: rawId },
-          { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
-        ]
-      }).catch(() => { });
+      const deleteConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        deleteConditions.push({ _id: rawId });
+      }
+      await Submission.deleteMany({ $or: deleteConditions }).catch(() => { });
     }
 
     const io = getIO();

@@ -45,7 +45,7 @@ const ICON_MAP = {
 
 function renderCategoryIcon(cat, size = 19) {
   if (!cat) return <Gamepad2 size={size} />;
-  
+
   // If icon is a React component directly
   if (typeof cat.icon === 'function') {
     const IconComp = cat.icon;
@@ -93,6 +93,9 @@ export default function Sidebar({
   onRandomPlay,
   user,
   onOpenAuth,
+  onOpenLeaderboard,
+  onOpenMultiplayer,
+  onOpenQuests,
   categories = []
 }) {
   const mainNavItems = [
@@ -100,6 +103,41 @@ export default function Sidebar({
     { id: 'most-played', label: 'Most played', icon: Trophy, color: '#ffd200' },
     { id: 'trending', label: 'Trending', icon: Flame, color: '#f52d7e', badge: 'HOT' },
     { id: 'new', label: 'New', icon: Sparkles, color: '#00f5a0' },
+    {
+      id: 'leaderboard',
+      label: 'Leaderboards',
+      icon: Trophy,
+      color: '#ffd700',
+      badge: 'TOP',
+      isAction: true,
+      action: () => {
+        sounds.playClick();
+        if (onOpenLeaderboard) onOpenLeaderboard();
+      }
+    },
+    {
+      id: 'multiplayer',
+      label: '1v1 Arena',
+      icon: Swords,
+      color: '#00f5a0',
+      badge: 'LIVE',
+      isAction: true,
+      action: () => {
+        sounds.playClick();
+        if (onOpenMultiplayer) onOpenMultiplayer();
+      }
+    },
+    {
+      id: 'quests',
+      label: 'Daily Quests & XP',
+      icon: Zap,
+      color: '#f52d7e',
+      isAction: true,
+      action: () => {
+        sounds.playClick();
+        if (onOpenQuests) onOpenQuests();
+      }
+    },
     {
       id: 'random',
       label: 'Surprise me',
@@ -165,11 +203,11 @@ export default function Sidebar({
       )}
 
       {/* GamePix Sticky Left Sidebar */}
-      <aside 
+      <aside
         className={`gamepix-sidebar ${isOpen ? 'open' : 'closed'}`}
       >
         <div className="gamepix-sidebar-inner custom-scrollbar">
-          
+
           {/* Main Navigation Section */}
           <div className="gamepix-side-section">
             {mainNavItems.map((item) => {
@@ -243,7 +281,7 @@ export default function Sidebar({
 
             {/* Quick Links Group */}
             <div className="sidebar-links-group">
-              <button onClick={() => handleFooterLinkClick('about')} className="sidebar-mini-link" title="About SKYGAMES">
+              <button onClick={() => handleFooterLinkClick('about')} className="sidebar-mini-link" title="AboutThopGames">
                 <Info size={13} />
                 <span>About</span>
               </button>
@@ -259,7 +297,7 @@ export default function Sidebar({
 
             {/* Mini Copyright */}
             <div className="sidebar-copyright-text">
-              © {new Date().getFullYear()} SKYGAMES Platform
+              © {new Date().getFullYear()}ThopGames Platform
             </div>
           </div>
 

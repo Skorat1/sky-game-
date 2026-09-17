@@ -12,7 +12,6 @@ const CategoriesView = lazy(() => import('./views/CategoriesView'));
 const BannerView = lazy(() => import('./views/BannerView'));
 const SubmissionsView = lazy(() => import('./views/SubmissionsView'));
 const MessagesView = lazy(() => import('./views/MessagesView'));
-const SettingsView = lazy(() => import('./views/SettingsView'));
 const GameModal = lazy(() => import('./components/GameModal'));
 
 import {
@@ -34,7 +33,6 @@ import {
   bannerApi,
   submissionsApi,
   messagesApi,
-  settingsApi,
   statsApi
 } from './services/api';
 
@@ -49,7 +47,7 @@ function getInitialAdminUser() {
         return parsed;
       }
     }
-  } catch (e) {}
+  } catch (e) { }
   return null;
 }
 
@@ -60,7 +58,7 @@ function getInitialTab() {
 
     const saved = localStorage.getItem(STORAGE_KEYS.ADMIN_TAB);
     if (saved && VALID_TABS.includes(saved)) return saved;
-  } catch (e) {}
+  } catch (e) { }
   return 'dashboard';
 }
 
@@ -73,6 +71,7 @@ export default function App() {
 
   // Core Data States
   const [onlineCount, setOnlineCount] = useState(0);
+  const [activeGameCounts, setActiveGameCounts] = useState({});
   const [games, setGames] = useState(DEFAULT_GAMES);
   const [users, setUsers] = useState(DEFAULT_USERS);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
@@ -95,7 +94,7 @@ export default function App() {
     try {
       window.location.hash = activeTab;
       localStorage.setItem(STORAGE_KEYS.ADMIN_TAB, activeTab);
-    } catch (e) {}
+    } catch (e) { }
   }, [activeTab]);
 
   // Listen for browser back / forward navigation
@@ -114,14 +113,13 @@ export default function App() {
   // Fetch all platform data from backend
   const fetchAllData = useCallback(async () => {
     try {
-      const [gamesData, usersData, bannerData, catData, subData, msgData, setData] = await Promise.all([
+      const [gamesData, usersData, bannerData, catData, subData, msgData] = await Promise.all([
         gamesApi.getAll().catch(() => null),
         usersApi.getAll().catch(() => null),
         bannerApi.get().catch(() => null),
         categoriesApi.getAll().catch(() => null),
         submissionsApi.getAll().catch(() => null),
-        messagesApi.getAll().catch(() => null),
-        settingsApi.get().catch(() => null)
+        messagesApi.getAll().catch(() => null)
       ]);
 
       if (Array.isArray(gamesData)) {
@@ -137,7 +135,7 @@ export default function App() {
         setBanner(bannerData);
       }
 
-      if (Array.isArray(catData) && catData.length > 0) {
+      if (Array.isArray(catData)) {
         setCategories(catData);
       }
 
@@ -147,10 +145,6 @@ export default function App() {
 
       if (Array.isArray(msgData)) {
         setMessages(msgData);
-      }
-
-      if (setData) {
-        setSettings(setData);
       }
     } catch (err) {
       console.warn('Backend API offline or initial sync fallback:', err.message);
@@ -162,7 +156,7 @@ export default function App() {
   useEffect(() => {
     statsApi.getOnlineCount().then(data => {
       if (typeof data?.count === 'number') setOnlineCount(data.count);
-    }).catch(() => {});
+    }).catch(() => { });
 
     fetchAllData();
 
@@ -296,8 +290,14 @@ export default function App() {
       if (updatedSettings) setSettings(updatedSettings);
     };
 
-    // Register all socket listeners
+    const handleActiveGameCounts = (counts) => {
+      if (counts && typeof counts === 'object') {
+        setActiveGameCounts(counts);
+      }
+    };
+
     socket.on('online:count', handleOnlineCount);
+    socket.on('games:active_counts', handleActiveGameCounts);
     socket.on('game:play:increment', handleGamePlay);
     socket.on('game:created', handleGameCreated);
     socket.on('game:updated', handleGameUpdated);
@@ -327,10 +327,12 @@ export default function App() {
 
     if (socket.connected) {
       socket.emit('request:online:count');
+      socket.emit('request:active_game_counts');
     }
 
     return () => {
       socket.off('online:count', handleOnlineCount);
+      socket.off('games:active_counts', handleActiveGameCounts);
       socket.off('game:play:increment', handleGamePlay);
       socket.off('game:created', handleGameCreated);
       socket.off('game:updated', handleGameUpdated);
@@ -379,7 +381,7 @@ export default function App() {
       } else {
         result = await gamesApi.create(savedGame);
         setGames(prev => [result, ...prev]);
-        showToast(`Game "${result.title}" published & live on SKYGAMES!`);
+        showToast(`Game "${result.title}" published & live onThopGames!`);
       }
     } catch (err) {
       // Offline fallback
@@ -474,15 +476,15 @@ export default function App() {
       let createdGame = newGame;
       try {
         createdGame = await gamesApi.create(newGame);
-      } catch (e) {}
+      } catch (e) { }
 
       try {
         await submissionsApi.updateStatus(subIdentifier, 'approved');
-      } catch (e) {}
+      } catch (e) { }
 
       setGames(prev => [createdGame, ...prev.filter(g => g.id !== createdGame.id)]);
       setSubmissions(prev => prev.map(s => ((s.id || s._id) === subIdentifier || s.id === subIdentifier || String(s._id) === subIdentifier) ? { ...s, status: 'approved' } : s));
-      showToast(`Submission "${sub.gameTitle}" approved & live on SKYGAMES!`);
+      showToast(`Submission "${sub.gameTitle}" approved & live onThopGames!`);
     } catch (err) {
       showToast(`Approved submission.`);
     }
@@ -588,18 +590,6 @@ export default function App() {
     }
   };
 
-  // Platform Settings Handlers
-  const handleSaveSettings = async (newSettings) => {
-    try {
-      setSettings(newSettings);
-      const saved = await settingsApi.update(newSettings);
-      setSettings(saved);
-      showToast('Platform settings saved & broadcasted!');
-    } catch (err) {
-      showToast('Settings saved locally.');
-    }
-  };
-
   const handleExportData = () => {
     const exportBundle = {
       games,
@@ -608,7 +598,6 @@ export default function App() {
       submissions,
       messages,
       banner,
-      settings,
       exportedAt: new Date().toISOString()
     };
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportBundle, null, 2));
@@ -626,7 +615,7 @@ export default function App() {
       for (const g of data.games) {
         try {
           await gamesApi.create(g);
-        } catch (e) {}
+        } catch (e) { }
       }
       setGames(data.games);
     }
@@ -634,33 +623,16 @@ export default function App() {
       setBanner(data.banner);
       try {
         await bannerApi.update(data.banner);
-      } catch (e) {}
+      } catch (e) { }
     }
     showToast('Backup restored successfully!');
-  };
-
-  const handleResetData = async () => {
-    try {
-      await settingsApi.reset();
-      await fetchAllData();
-      showToast('Platform database reset to defaults in MongoDB!');
-    } catch (err) {
-      setGames(DEFAULT_GAMES);
-      setUsers(DEFAULT_USERS);
-      setCategories(DEFAULT_CATEGORIES);
-      setSubmissions(DEFAULT_SUBMISSIONS);
-      setMessages(DEFAULT_MESSAGES);
-      setBanner(DEFAULT_BANNER);
-      setSettings(DEFAULT_SETTINGS);
-      showToast('Platform reset to defaults.');
-    }
   };
 
   // Auth Handlers
   const handleAdminLogin = (user) => {
     try {
       sessionStorage.setItem(STORAGE_KEYS.ADMIN_LOGGED_IN, 'true');
-    } catch (e) {}
+    } catch (e) { }
     setAdminUser(user);
     showToast(`Welcome back, ${user.username || user.name || 'Admin'}!`);
   };
@@ -670,7 +642,7 @@ export default function App() {
       sessionStorage.removeItem(STORAGE_KEYS.ADMIN_LOGGED_IN);
       localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
       localStorage.removeItem(STORAGE_KEYS.ADMIN_USER);
-    } catch (e) {}
+    } catch (e) { }
     setAdminUser(null);
     showToast('Signed out of admin console.', 'info');
   };
@@ -729,6 +701,7 @@ export default function App() {
                 submissions={submissions}
                 messages={messages}
                 onlineCount={onlineCount}
+                activeGameCounts={activeGameCounts}
                 onNavigateTab={(tab) => setActiveTab(tab)}
                 onEditGame={handleOpenGameModal}
               />
@@ -738,6 +711,7 @@ export default function App() {
               <GamesManagementView
                 games={games}
                 categories={categories}
+                activeGameCounts={activeGameCounts}
                 onEditGame={handleOpenGameModal}
                 onDeleteGame={handleDeleteGame}
                 onToggleFeatured={handleToggleFeatured}
@@ -789,16 +763,6 @@ export default function App() {
                 onRead={handleMarkRead}
                 onMarkAllRead={handleMarkAllRead}
                 onDeleteMessage={handleDeleteMessage}
-              />
-            )}
-
-            {activeTab === 'settings' && (
-              <SettingsView
-                settings={settings}
-                onSaveSettings={handleSaveSettings}
-                onExportData={handleExportData}
-                onImportData={handleImportData}
-                onResetData={handleResetData}
               />
             )}
           </Suspense>

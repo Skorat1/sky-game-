@@ -36,7 +36,7 @@ const TOPIC_PRESETS = [
 
 const CONTACT_FAQS = [
   {
-    q: "How quickly does the SKYGAMES support team respond?",
+    q: "How quickly does theThopGames support team respond?",
     a: "Our global engineering and support team reviews inquiries 24/7. Most player support requests and bug tickets are answered within 2 hours. Business partnerships and publisher inquiries are typically reviewed within 1 business day."
   },
   {
@@ -44,7 +44,7 @@ const CONTACT_FAQS = [
     a: "Select the 'Bug Report' category in the contact form above and include the game title along with your device or browser. Our QA team will reproduce and roll out a hotfix promptly."
   },
   {
-    q: "How can indie game developers publish their games on SKYGAMES?",
+    q: "How can indie game developers publish their games onThopGames?",
     a: "You can submit directly via our Developer Portal or select 'Business & Partnership' above. We offer generous revenue sharing, featured placement, and instant global distribution for high-quality HTML5/WebGL games."
   },
   {
@@ -123,7 +123,7 @@ export default function ContactPage({ onBackToHome }) {
             <span>OFFICIAL SUPPORT & OPERATIONS DESK</span>
           </div>
 
-          <h1>Get in Touch with <span className="pro-gradient-text">SKYGAMES</span></h1>
+          <h1>Get in Touch with <span className="pro-gradient-text">THOPGAME</span></h1>
           <p className="pro-hero-subtitle">
             Have a question, feedback, bug report, or business partnership proposal? Connect directly with our engineering and community support team.
           </p>

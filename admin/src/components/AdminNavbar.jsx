@@ -18,8 +18,7 @@ export default function AdminNavbar({
     categories: 'Game Categories & Taxonomy',
     banner: 'Sitewide Announcement Broadcast',
     submissions: 'Developer Community Submissions',
-    messages: 'Inbox & User Feedback Stream',
-    settings: 'Platform Configuration & Security'
+    messages: 'Inbox & User Feedback Stream'
   };
 
   return (

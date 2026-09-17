@@ -45,7 +45,7 @@ export default function UsersView({
 
   // Filter logic
   const filteredUsers = users.filter((u) => {
-    const matchesSearch = 
+    const matchesSearch =
       (u.username && u.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (u.id && u.id.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -123,8 +123,8 @@ export default function UsersView({
 
   const handleToggleBan = async (u) => {
     const nextStatus = u.status === 'banned' ? 'active' : 'banned';
-    const confirmMsg = nextStatus === 'banned' 
-      ? `Are you sure you want to BAN user "${u.username}"?` 
+    const confirmMsg = nextStatus === 'banned'
+      ? `Are you sure you want to BAN user "${u.username}"?`
       : `Unban user "${u.username}"?`;
     if (window.confirm(confirmMsg)) {
       await onUpdateUser(u.id || u._id, { status: nextStatus });
@@ -175,8 +175,7 @@ export default function UsersView({
             <option value="all">All Roles ({users.length})</option>
             <option value="admin">Admins 👑</option>
             <option value="moderator">Moderators 🛡️</option>
-            <option value="vip">VIP Gamers 💎</option>
-            <option value="user">Regular Players 🎮</option>
+
           </select>
 
           <select
@@ -228,7 +227,7 @@ export default function UsersView({
                   <tr key={u.id || u._id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div 
+                        <div
                           style={{
                             width: 38,
                             height: 38,
@@ -263,7 +262,7 @@ export default function UsersView({
                     </td>
 
                     <td>
-                      <span 
+                      <span
                         style={{
                           fontSize: '0.74rem',
                           fontWeight: 700,
@@ -337,11 +336,11 @@ export default function UsersView({
 
       {/* Add / Edit User Modal */}
       {isModalOpen && typeof document !== 'undefined' && createPortal(
-        <div className="modal-overlay" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div className="modal-header">
               <h2 className="modal-title">{editingUser ? '✏️ Edit User Profile' : '➕ Create New User'}</h2>
-              <button className="close-btn" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>&times;</button>
+              <button type="button" className="close-btn" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>&times;</button>
             </div>
 
             <form onSubmit={handleFormSubmit}>
@@ -393,8 +392,7 @@ export default function UsersView({
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     >
-                      <option value="user">Regular Player</option>
-                      <option value="vip">VIP Gamer</option>
+                      
                       <option value="moderator">Moderator</option>
                       <option value="admin">Administrator</option>
                     </select>

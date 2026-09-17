@@ -6,13 +6,19 @@ import { getIO } from '../services/socketService.js';
 export async function getCategories(req, res) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   try {
+    let catList = [];
     if (mongoose.connection.readyState === 1) {
-      const categories = await Category.find().lean();
-      if (categories && categories.length > 0) return res.json(categories);
+      catList = await Category.find().lean();
     }
-    res.json(localStore.categories);
+    if (!catList || catList.length === 0) {
+      catList = localStore.categories || [];
+      if (mongoose.connection.readyState === 1 && catList.length > 0) {
+        Category.insertMany(catList).catch(() => {});
+      }
+    }
+    res.json(catList || []);
   } catch (err) {
-    res.json(localStore.categories);
+    res.json(localStore.categories || []);
   }
 }
 
@@ -53,11 +59,11 @@ export async function createCategory(req, res) {
 
 export async function updateCategory(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
     const updates = { ...req.body };
 
     const idx = (localStore.categories || []).findIndex(
-      c => c.id === rawId || (c._id && String(c._id) === rawId)
+      c => String(c.id || '') === rawId || String(c._id || '') === rawId
     );
 
     let updated = null;
@@ -68,13 +74,12 @@ export async function updateCategory(req, res) {
     }
 
     if (mongoose.connection.readyState === 1) {
+      const updateConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        updateConditions.push({ _id: rawId });
+      }
       updated = await Category.findOneAndUpdate(
-        {
-          $or: [
-            { id: rawId },
-            { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
-          ]
-        },
+        { $or: updateConditions },
         { $set: updates },
         { new: true }
       ).catch(() => { });
@@ -90,19 +95,22 @@ export async function updateCategory(req, res) {
 
 export async function deleteCategory(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
+    if (!rawId) {
+      return res.status(400).json({ error: 'Category ID required' });
+    }
+
     localStore.categories = (localStore.categories || []).filter(
-      c => c.id !== rawId && (c._id ? String(c._id) !== rawId : true)
+      c => String(c.id || '') !== rawId && String(c._id || '') !== rawId
     );
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Category.deleteMany({
-        $or: [
-          { id: rawId },
-          { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
-        ]
-      }).catch(() => { });
+      const deleteConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        deleteConditions.push({ _id: rawId });
+      }
+      await Category.deleteMany({ $or: deleteConditions }).catch(() => { });
     }
 
     const io = getIO();

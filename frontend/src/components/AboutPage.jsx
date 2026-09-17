@@ -24,8 +24,8 @@ import { sounds } from '../utils/audio';
 
 const FAQ_ITEMS = [
   {
-    q: "Is SKYGAMES really 100% free to play?",
-    a: "Yes! All games on SKYGAMES are completely free to play directly in your web browser. There are zero paywalls, no subscriptions, and no hidden in-app purchases required to access any game in our catalog."
+    q: "IsThopGames really 100% free to play?",
+    a: "Yes! All games onThopGames are completely free to play directly in your web browser. There are zero paywalls, no subscriptions, and no hidden in-app purchases required to access any game in our catalog."
   },
   {
     q: "Do I need to download or install anything?",
@@ -65,7 +65,7 @@ export default function AboutPage({ onBackToHome }) {
           </div>
           <h1>Next-Gen <span className="neon-text-gradient">Browser Arcade</span></h1>
           <p className="static-hero-lead">
-            <strong>SKYGAMES</strong> is an ultra-fast, high-octane gaming destination delivering hundreds of handpicked instant HTML5 & WebGL 3D games directly to your screen with 0 downloads and 60 FPS performance.
+            <strong>THOPGAME</strong> is an ultra-fast, high-octane gaming destination delivering hundreds of handpicked instant HTML5 & WebGL 3D games directly to your screen with 0 downloads and 60 FPS performance.
           </p>
 
           <div className="hero-chips-row">
@@ -111,7 +111,7 @@ export default function AboutPage({ onBackToHome }) {
 
       {/* Core Platform Pillars */}
       <div className="static-section-heading">
-        <h2>Why Gamers Love <span className="text-cyan">SKYGAMES</span></h2>
+        <h2>Why Gamers Love <span className="text-cyan">THOPGAME</span></h2>
         <p>Engineered from the ground up for seamless browser-based gaming excellence.</p>
       </div>
 
@@ -180,7 +180,7 @@ export default function AboutPage({ onBackToHome }) {
       {/* Interactive FAQ Section */}
       <div className="static-section-heading" style={{ marginTop: '10px' }}>
         <h2>Frequently Asked <span className="text-purple">Questions</span></h2>
-        <p>Everything you need to know about playing and publishing on SKYGAMES.</p>
+        <p>Everything you need to know about playing and publishing onThopGames.</p>
       </div>
 
       <div className="static-faq-container">

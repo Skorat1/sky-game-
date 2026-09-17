@@ -12,7 +12,7 @@ export default function AboutModal({ isOpen, onClose }) {
         <div className="info-modal-header">
           <div className="info-title-group">
             <Gamepad2 size={24} className="text-cyan" />
-            <h2>About SKYGAMES</h2>
+            <h2>About ThopGame</h2>
           </div>
           <button
             className="modal-tool-btn close-btn"
@@ -27,7 +27,7 @@ export default function AboutModal({ isOpen, onClose }) {
 
         <div className="info-modal-body">
           <p className="info-lead">
-            <strong>SKYGAMES.com</strong> is your ultimate premier destination for free online games directly in your web browser. No downloads, no installations, and no paywalls — just pure instant gaming entertainment anytime, anywhere!
+            <strong>ThopGame.com</strong> is your ultimate premier destination for free online games directly in your web browser. No downloads, no installations, and no paywalls — just pure instant gaming entertainment anytime, anywhere!
           </p>
 
           <div className="about-stats-grid">

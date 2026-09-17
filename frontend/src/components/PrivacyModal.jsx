@@ -28,7 +28,7 @@ export default function PrivacyModal({ isOpen, onClose }) {
           <div className="info-section-block">
             <h3>1. Information We Collect</h3>
             <p>
-              SKYGAMES respects your privacy. We do not require personal registration or account creation to enjoy games. We may collect non-identifiable technical data such as browser type, device resolution, and anonymous gameplay statistics (high scores, favorited games) stored locally in your browser (LocalStorage).
+              ThopGames respects your privacy. We do not require personal registration or account creation to enjoy games. We may collect non-identifiable technical data such as browser type, device resolution, and anonymous gameplay statistics (high scores, favorited games) stored locally in your browser (LocalStorage).
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export default function PrivacyModal({ isOpen, onClose }) {
           <div className="info-section-block">
             <h3>4. Contact Details</h3>
             <p>
-              For privacy queries or DMCA removal requests, please reach out via our Contact Us portal or at <code>privacy@SKYGAMES.com</code>.
+              For privacy queries or DMCA removal requests, please reach out via our Contact Us portal or at <code>privacy@thopgame.com</code>.
             </p>
           </div>
         </div>

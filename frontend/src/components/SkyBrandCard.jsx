@@ -12,12 +12,13 @@ export default function SkyBrandCard({ onOpenAuth, onFocusSearch, user }) {
           sounds.playClick();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        title="SkyGames Arcade"
+        title="ThopGame Arcade"
       >
         <div className="sky-brand-logo-large">
-          <span className="sky-logo-char">s</span>
-          <span className="sky-logo-char">k</span>
-          <span className="sky-logo-char">y</span>
+          <span className="sky-logo-char">t</span>
+          <span className="sky-logo-char">h</span>
+          <span className="sky-logo-char">o</span>
+          <span className="sky-logo-char">p</span>
           <div className="sky-logo-dot-container">
             <span className="sky-logo-char">g</span>
             <div className="sky-logo-wave-inner" />
@@ -25,7 +26,6 @@ export default function SkyBrandCard({ onOpenAuth, onFocusSearch, user }) {
           <span className="sky-logo-char">a</span>
           <span className="sky-logo-char">m</span>
           <span className="sky-logo-char">e</span>
-          <span className="sky-logo-char">s</span>
         </div>
       </div>
 

@@ -121,7 +121,7 @@ export default function AdminLogin({ onLoginSuccess }) {
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <img
             src="/sky-icon.png"
-            alt="SkyGames Logo"
+            alt="ThopGame Logo"
             style={{
               width: '72px',
               height: '72px',
@@ -145,7 +145,7 @@ export default function AdminLogin({ onLoginSuccess }) {
               fontFamily: "'Outfit', sans-serif"
             }}
           >
-            SKY<span style={{ color: '#00f2fe' }}>GAMES</span> CONTROL CENTER
+            THOP<span style={{ color: '#00f2fe' }}>GAME</span> CONTROL CENTER
           </h1>
           <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: 0 }}>
             Master Administration & Gaming Operations Console

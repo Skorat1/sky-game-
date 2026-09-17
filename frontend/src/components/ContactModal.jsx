@@ -37,7 +37,7 @@ export default function ContactModal({ isOpen, onClose }) {
         <div className="info-modal-header">
           <div className="info-title-group">
             <Mail size={24} className="text-crimson" />
-            <h2>Contact SKYGAMES</h2>
+            <h2>ContactThopGames</h2>
           </div>
           <button
             className="modal-tool-btn close-btn"

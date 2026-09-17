@@ -30,7 +30,7 @@ export default function Footer({ onNavigate }) {
           <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img
               src="/skygames-logo.png"
-              alt="SkyGames"
+              alt="ThopGame"
               style={{ height: '48px', width: 'auto', objectFit: 'contain', borderRadius: '10px', background: '#fff', padding: '2px 8px' }}
             />
             <span className="logo-badge">PLAY FREE</span>
@@ -112,7 +112,7 @@ export default function Footer({ onNavigate }) {
       <div className="footer-bottom-bar">
         <div className="footer-bottom-content">
           <p className="copyright-text">
-            © {new Date().getFullYear()} <strong>SKYGAMES</strong>. Built with React & Web Audio API. All games are property of their respective creators.
+            © {new Date().getFullYear()} <strong>THOPGAME</strong>. Built with React & Web Audio API. All games are property of their respective creators.
           </p>
           <button className="back-to-top-btn" onClick={scrollToTop} title="Back to top">
             <span>Back to Top</span>

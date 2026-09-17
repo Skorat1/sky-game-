@@ -14,7 +14,11 @@ const SkyNavbar = memo(function SkyNavbar({
   onOpenAuth,
   user,
   onToggleSidebar,
-  onOpenSidebar
+  onOpenSidebar,
+  onOpenLeaderboard,
+  onOpenMultiplayer,
+  onOpenQuests,
+  level = 1
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
@@ -66,16 +70,16 @@ const SkyNavbar = memo(function SkyNavbar({
                 onSelectCategory('');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              title="SkyGames Arcade - Home"
+              title="ThopGame Arcade - Home"
             >
               <img
                 src="/sky-icon.png"
-                alt="SkyGames Icon"
+                alt="ThopGame Icon"
                 className="sky-logo-badge-icon-img"
               />
               <div className="sky-logo-text-box">
-                <span className="sky-text-sky">Sky</span>
-                <span className="sky-text-games">Games</span>
+                <span className="sky-text-sky">Thop</span>
+                <span className="sky-text-games">Game</span>
               </div>
             </div>
           </div>

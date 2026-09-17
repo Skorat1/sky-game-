@@ -76,9 +76,8 @@ export default function GameModal({
   allGames = [],
   onSelectRelatedGame
 }) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [likes, setLikes] = useState(() => Math.floor(Math.random() * 800) + 1240);
-  const [dislikes, setDislikes] = useState(() => Math.floor(Math.random() * 30) + 12);
+  const [likes, setLikes] = useState(() => typeof game?.likes === 'number' ? game.likes : 0);
+  const [dislikes, setDislikes] = useState(() => typeof game?.dislikes === 'number' ? game.dislikes : 0);
   const [userVote, setUserVote] = useState(null);
   const [userRating, setUserRating] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);

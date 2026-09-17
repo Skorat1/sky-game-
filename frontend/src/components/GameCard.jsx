@@ -56,12 +56,16 @@ const GameCard = memo(function GameCard({
   isFavorite = false,
   onToggleFavorite,
   sizeVariant = '1x1',
-  priority = false
+  priority = false,
+  livePlayersCount = 0
 }) {
   if (!game) return null;
   const targetWidth = sizeVariant === '2x2' ? 500 : 360;
   const rawThumb = game?.thumbnail || game?.thumbnailUrl || game?.image || game?.imageUrl || game?.cover || game?.banner;
   const optimizedThumb = optimizeThumbUrl(rawThumb, targetWidth);
+
+  // Use real socket live players count
+  const computedLive = Number(livePlayersCount || 0);
 
   const [imgSrc, setImgSrc] = useState(optimizedThumb);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -178,18 +182,20 @@ const GameCard = memo(function GameCard({
 
         {/* Top Badges & Favorite */}
         <div className="card-top-badges">
-          {game.badge ? (
-            <span
-              className="card-badge-pill"
-              style={{ background: (typeof game.badge === 'string' && BADGE_COLORS[game.badge.toUpperCase()]) || '#f52d3a' }}
-            >
-              {game.badge}
-            </span>
-          ) : (
-            <span className="card-badge-pill" style={{ background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)' }}>
-              {(game.category ? String(game.category).toUpperCase() : 'ARCADE')}
-            </span>
-          )}
+          <div className="card-top-left-badges">
+            {game.badge ? (
+              <span
+                className="card-badge-pill"
+                style={{ background: (typeof game.badge === 'string' && BADGE_COLORS[game.badge.toUpperCase()]) || '#f52d3a' }}
+              >
+                {game.badge}
+              </span>
+            ) : (
+              <span className="card-badge-pill" style={{ background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)' }}>
+                {(game.category ? String(game.category).toUpperCase() : 'ARCADE')}
+              </span>
+            )}
+          </div>
 
           {/* Favorite heart button */}
           <button

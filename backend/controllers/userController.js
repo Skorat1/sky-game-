@@ -110,25 +110,28 @@ export async function createUser(req, res) {
 
 export async function deleteUser(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
+    if (!rawId) {
+      return res.status(400).json({ error: 'User ID required' });
+    }
+
     localStore.users = (localStore.users || []).filter(
-      u => u.id !== rawId && (u._id ? String(u._id) !== rawId : true)
+      u => String(u.id || '') !== rawId && String(u._id || '') !== rawId
     );
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await User.deleteMany({
-        $or: [
-          { id: rawId },
-          { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
-        ]
-      }).catch(() => { });
+      const deleteConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        deleteConditions.push({ _id: rawId });
+      }
+      await User.deleteMany({ $or: deleteConditions }).catch(() => { });
     }
 
     const io = getIO();
     if (io) io.emit('user:deleted', { id: rawId });
     recordActivity('user_delete', 'User Removed', `User ID "${rawId}" was permanently deleted`);
-    res.json({ success: true, message: 'User deleted successfully' });
+    res.json({ success: true, message: 'User deleted successfully', id: rawId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -169,5 +172,90 @@ export async function updateUser(req, res) {
     res.json({ success: true, user: sanitized });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+}
+
+/**
+ * Cloud Game Progress Sync & State Hydration
+ */
+export async function syncCloudProgress(req, res) {
+  try {
+    const userId = req.user ? req.user.id : req.body.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required for cloud save' });
+    }
+
+    const { favorites, recent, highScores, totalXp, level, unlockedBadges, questProgress } = req.body;
+    const progressData = {
+      favorites: Array.isArray(favorites) ? favorites : [],
+      recent: Array.isArray(recent) ? recent : [],
+      highScores: highScores || {},
+      totalXp: Number(totalXp) || 0,
+      level: Number(level) || 1,
+      unlockedBadges: Array.isArray(unlockedBadges) ? unlockedBadges : [],
+      questProgress: questProgress || {},
+      lastSyncedAt: new Date().toISOString()
+    };
+
+    if (mongoose.connection.readyState === 1) {
+      await User.findOneAndUpdate(
+        { $or: [{ id: userId }, { _id: mongoose.isValidObjectId(userId) ? userId : null }] },
+        { $set: { cloudSave: progressData } }
+      ).catch(() => {});
+    }
+
+    const idx = (localStore.users || []).findIndex(
+      u => u.id === userId || (u._id && String(u._id) === userId)
+    );
+    if (idx !== -1) {
+      localStore.users[idx].cloudSave = progressData;
+      persistStore();
+    }
+
+    return res.json({ success: true, cloudSave: progressData });
+  } catch (err) {
+    console.error('Cloud sync error:', err);
+    return res.status(500).json({ error: 'Failed to sync cloud progress' });
+  }
+}
+
+export async function getCloudProgress(req, res) {
+  try {
+    const userId = req.user ? req.user.id : req.params.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({
+        $or: [{ id: userId }, { _id: mongoose.isValidObjectId(userId) ? userId : null }]
+      }).lean();
+    }
+
+    if (!user) {
+      user = (localStore.users || []).find(
+        u => u.id === userId || (u._id && String(u._id) === userId)
+      );
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json({
+      success: true,
+      cloudSave: user.cloudSave || {
+        favorites: [],
+        recent: [],
+        highScores: {},
+        totalXp: 0,
+        level: 1,
+        unlockedBadges: [],
+        questProgress: {}
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to get cloud progress' });
   }
 }

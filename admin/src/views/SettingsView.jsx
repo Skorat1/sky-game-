@@ -4,8 +4,7 @@ export default function SettingsView({
   settings = {}, 
   onSaveSettings, 
   onExportData, 
-  onImportData, 
-  onResetData 
+  onImportData 
 }) {
   const [formData, setFormData] = useState({ ...settings });
 
@@ -79,7 +78,7 @@ export default function SettingsView({
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 700 }}>GOOGLE SERP PREVIEW</div>
             <div style={{ fontSize: '0.74rem', color: '#22c55e', marginBottom: 2 }}>https://skygames.io</div>
             <div style={{ fontSize: '0.98rem', color: '#60a5fa', fontWeight: 600, textDecoration: 'underline', marginBottom: 4 }}>
-              {formData.siteTitle || 'SKYGAMES - Next-Gen Web Gaming Arena'}
+              {formData.siteTitle || 'THOPGAME - Next-Gen Web Gaming Arena'}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.4 }}>
               {formData.metaDescription || 'Play the best high-octane cyberpunk and neon arcade games in your browser instantly.'}
@@ -165,30 +164,7 @@ export default function SettingsView({
           </div>
         </div>
 
-        <div className="glass-panel" style={{ border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-          <div className="panel-header">
-            <div>
-              <h2 className="panel-title" style={{ color: '#f87171' }}>
-                <span>⚠️</span>
-                <span>Factory Reset</span>
-              </h2>
-              <span className="panel-subtitle">Wipe custom data and restore default catalog and settings</span>
-            </div>
-          </div>
 
-          <button 
-            className="admin-btn danger" 
-            style={{ width: '100%', justifyContent: 'center' }}
-            onClick={() => {
-              if (window.confirm('Are you sure you want to reset all data back to factory defaults in MongoDB?')) {
-                onResetData();
-              }
-            }}
-          >
-            <span>🔄</span>
-            <span>Reset Database to Defaults</span>
-          </button>
-        </div>
       </div>
     </div>
   );

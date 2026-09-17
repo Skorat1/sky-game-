@@ -68,6 +68,32 @@
   ],
   "games": [
     {
+      "id": "2048-7492",
+      "title": "2048",
+      "category": "arcade",
+      "description": "",
+      "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJUAAACUCAMAAACtIJvYAAAAk1BMVEX/ngD/////mgD/nAD/mAD/9ur/r0T/z6T/8ub/16j/pz3/057/8+L/lgD/py//oAD/9/D/rU///fn/8Nz/oBP/0Jj/69D/oSv/xn//5cP/58n/26z/nhr/zY//27D/7tb/tlf/4br/vWj/wnf/xor/pyH/uFL/tl//zIj/v33/wm//uXf/2aL/rDr/qkf/tmv/jgCjenjSAAAFtElEQVR4nO2cb3eqOBDGIRNcEeFS/IuCoq3FurV3v/+n20AmQADvGfGea3dPnldISPJjMpkMkNayv6OsZwP0ylDRZajoqqmi5c59prabqEvlvCbAnilIsn2bKkp869nivtOicp8PZVn+WacKM/ZsJCE2cjQqZwTPRhKCydhQEWWo6DJUdBkqugwVXYaKLkNFl6Giy1DRZajoMlR0GSq6DBVdhoouQ0WXoaLLUNFlqOgyVHQZKroMFV3/AyoQullw3938ugKZChibr4IgSIBBuyQRBauE9X8tw0+g+hlV41ZnNCrgPPfi8dgZzw5vJ964BvxruikLvBHvqcuuCyEvnUPVFLxul2OhjXfk/AEqlqyn9cfgqO7CgsCrCqJd0DEXwLIsmwZYBebrsGrJnl56B5JExUdLW9PeUn1YWsn+1Mbi+FVUUQHb6E0t+kaRRLWO7JaW0lqQHPTzm5NenWWRRgUQt5vyhlFB1m5IKC0/T/PX9vmF9tkauDIlUvF1ZdYZHkSTLhbFVtzFluOdG6NTOMUYgoWfh+PjuysLomuzPl8oCEUl9wREqZjKAZrN635/p1CBVdR3zgHzfZ4jyEh4EL/IY5dxrsy2aMwqnlWOLangh6ztFrOVMYm4H0ZV+rSLcUr1fhRUsJN1ynnED7KPpJ6f82KUoibVSf7Ky0mB+wNm3ThHjAyjtZoq7EU2fOYiKkzLw0N5s+xDDk7dgF+O3yHq2uqlBEEnWw60VTGhqyO83YugegnVYVEQyB5TNYTsWFrivUFloffLYfY3eoW7qRpmy+WF78yCv+VhLif9XFpuh50AlLPsI7ebVNL9w5EP4GPA+Ro2B3UqT14nnA1HwPnCUCQdK8ZozUqn2/mvTSpYYUBIgwBnttuzfN5LBStpkVg4g+81O0QMeyYDLM8LS0SBTiVOy36qeLWZ902vO6lwppXbafzP8hjjvLKipMKZ8MHZRaMSc1jtFyoU7Yavgw2oo7zsUJi9nyosQwMvf2xEdD/rVGIRqrFuLM53UvEjRp+yMZxDFZV0lHAFKr46YrGW4aFJpRyqoM76M6y7qDhuQIqOMgrGvbYSVGCV45cyq0Plj2Z2rTD1Hx1BjvHJzmTcuzGCK8DMQA6zTsVSxaPMFTzm7RxDuUiJLI3Kanu7HOjoygVfRcWKUVcuYLsvHmLFD0WGylJrtUK0zIDxajbHnWaLyZfQRKJPs6+XSbXiTK8++CfM/z4HrziFk0pLRevq3nDlq6KodLMYOA5lKQeN44ThTiUZUZFwWGwub8PpJlhUKoaWivL6zuBnMwOoVxy2tXt1AEyvzrINsKTjp91sn0bFTrKBMG8spfAlx0NfnRecuXavDmBJqlzlHwt1fhAVm0g7ONemD8BcZgB6JpOx27a6ls04aj1mMsLGw6jYaY+FHGpV9yqzZS7darqCW7aKAS3+E4eMfz5ApSwVinlUKymeQGWlneVzjoHILYbzRy0kn57ESQDMiefFReDjA9Agv4IAH1SisKkivnOc3Mt0HUdqAPG1A6oOH8K6Plpxf0xYkpxxVudDqJjafqvrUnSftZ8Ut+3gowU1lcgWHVVH20G56C+oLEj1k/tru7oeannaaWfWs+Q8SuV7zXOza+e+WwuA334Oj7vvJh6mEi50rNKlvrcfnZyBZXGDyzn3paK0J3qvT+pCxi7bzXS8PLxd+7ISlpdX169xmH96225m4/H+ULwpGpxf9f9pQP0wyiBZrbpv2/TazTO8qLBK5vzWrvXf9F70zvePv+0N5B+VoaLLUNFlqOgyVHQZKroMFV2Gii5DRZehostQ0WWo6DJUdBkqugwVXYaKLkNFl6Giy1DRZajoMlR0GSq6DBVd/w2qsPvB/AmC1n+aam1vfpKqTdSKKryxPf9Piv0zbVHZsyMUm52fKFZv8q+o7Ojg/vVU7epNkjXVd5KhostQ0fU9qf4FwOV2ACUxubkAAAAASUVORK5CYII=",
+      "banner": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/2048.png",
+      "previewVideo": "",
+      "gameUrl": "https://games.poki.com/458768/2048?tag=pg-8ce4fd4807b9923357cd6dca64e4a97ab4d8bf0c&site_id=3&iso_lang=en&country=IN&poki_url=https://poki.com/en/g/2048&hoist=yes&nonPersonalized=n&cloudsavegames=n&familyFriendly=n&device=desktop&categories=7,72,823,852,933,1155&special_condition=landing&user_id=apvRklbBkUggAbNuTIJ82A",
+      "tags": [
+        "Puzzle",
+        "Number",
+        "Brain"
+      ],
+      "featured": false,
+      "tileSize": "1x2",
+      "status": "active",
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Thu Sep 17 2026 17:29:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aabd61f00f5e4b584097fd6",
+      "__v": 0,
+      "updatedAt": "2026-09-17T11:59:27.511Z"
+    },
+    {
       "id": "squid-shooter-8523",
       "title": "Squid Shooter",
       "category": "shooting",
@@ -81,14 +107,14 @@
         "Shooter",
         "Squad"
       ],
-      "featured": false,
+      "featured": true,
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "street-mayhem--beat--em-up-0321",
@@ -100,16 +126,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/176213/e541d234520659c0b5d59c4b7c3469ea1f897c88.mp4?1675665633",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/RHMInteractive/street_mayhem_beat_em_up/?key=y8&value=default",
       "tags": [
-        "1 player  2 player  3D  Beat 'Em Up  Fighting  Local Multiplayer  Obstacle  Street Fighting  Throwing  WebGL"
+        "1 player",
+        "2 player",
+        "3D",
+        "Fighting",
+        "Local Multiplayer",
+        "Obstacle",
+        "Street Fighting",
+        "Throwing"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 6,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:40:00 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9197800f5e4b5840932d5",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "drunken-boxing--ultimate-5520",
@@ -121,16 +157,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/163152/3cf804e8ca10d0c5afb70e928bbcd32323723a74.mp4?1650362789",
       "gameUrl": "https://https:https://html5.gamedistribution.com/rvvASMiM/efce5d80681649eda327ea384c103760/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fdrunken_boxing_ultimate&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvZHJ1bmtlbl9ib3hpbmdfdWx0aW1hdGUiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fdrunken_boxing_ultimate&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvZHJ1bmtlbl9ib3hpbmdfdWx0aW1hdGUiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "1 player  2 player  3D  Boxing  Fighting  Local Multiplayer  WebGL"
+        "1 player",
+        "2 player",
+        "3D",
+        "Boxing",
+        "Fighting",
+        "Local Multiplayer"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:35:45 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9187900f5e4b58409328c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "hero-3--flying-robot-7418",
@@ -142,16 +186,21 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/157301/f30fb17bf1169f92b1d5b18bc5c5fb4237ada757.mp4?1631499655",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/acc4557b7ffd48b7808323f3b9ae30d6/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Firon_man&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvaXJvbl9tYW4iLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "3D  Flying  WebGL"
+        "3D",
+        "Flying",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:30:57 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9175900f5e4b58409324d",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "pacific-dogfight-0148",
@@ -163,16 +212,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/213581/d3e54d01ba3b094082ecec7d81ccfe81773d3b77.mp4?1763448404",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/common/pacific_dogfight_v3/?key=8465263&value=264901",
       "tags": [
-        "1 player  3D  Aircraft  Flying  Mobile  Reflex  Touchscreen  War  WebGL"
+        "1 player",
+        "3D",
+        "Aircraft",
+        "Flying"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:26:50 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9166200f5e4b584093219",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "advanced-pixel-apocalypse-3-7475",
@@ -184,16 +239,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/127004/69e3e8007d14bbeab49bb634fdd9d7f8c41da028.mp4?1542787607",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/mentolatux/advanced-pixel-apocalypse-3-v3/?key=4074120&value=161798",
       "tags": [
-        "3D  Blood  First Person Shooter  Gun  Killing  Multiplayer  Voxel  WebGL  Zombie"
+        "3D",
+        "Blood",
+        "First Person",
+        "Shooter",
+        "Gun",
+        "Killing",
+        "Multiplayer",
+        "Voxel",
+        "WebGL",
+        "Zombie"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:24:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa915d300f5e4b5840931df",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:36:42.261Z"
     },
     {
       "id": "gun-rush-1263",
@@ -205,16 +272,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/208149/9acf66c7af2e94c3e827b60286e4383ddd79efbc.mp4?1750428755",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/yyg/gun_rush/?key=y8&value=default",
       "tags": [
-        "1 player  Gun  HTML5  Matching  Mobile  Obstacle  Touchscreen  Upgrade"
+        "1 player",
+        "Gun",
+        "Matching",
+        "Obstacle"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 1,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:22:41 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9156900f5e4b5840931c0",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "sky-assault-2217",
@@ -226,16 +299,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/196095/124d1c22baeaf1bb1fc2a4c7e5f4d972fc55b539.mp4?1718968800",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/studd-idnetstorage/SkyAssaultNewV1_2/index.html?key=y8&value=default",
       "tags": [
-        "1 player  3D  Army  Boat  Flying  Helicopter  Upgrade  War  WebGL  Y8 Account  Y8 Achievements  Y8 Cloud Save  Y8 Highscore  Y8 Originals"
+        "1 player",
+        "3D",
+        "Army",
+        "Boat",
+        "Flying",
+        "Helicopter",
+        "Upgrade",
+        "War",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:20:22 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa914de00f5e4b58409318e",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:36:42.261Z"
     },
     {
       "id": "pistol-training-9253",
@@ -247,16 +331,25 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/98834/4596ec759f7471e82a2af9f50a352d854451dcb7.mp4?1481185529",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/akeemywka/pistol_training/?key=y8&value=default",
       "tags": [
-        "1 player  Army  Gun  HTML5  Mouse Skill  Simulation  Y8 Account  Y8 Cloud Save  Y8 Highscore  Y8 Originals"
+        "1 player",
+        "Army",
+        "Gun",
+        "HTML5",
+        "Mouse",
+        "Skill",
+        "Simulation"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:17:39 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9143b00f5e4b58409316b",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:36:42.261Z"
     },
     {
       "id": "pixel-gun-apocalypse-7-7042",
@@ -268,16 +361,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/127405/6899d618635300378c66c3bf212f7e334b48f32b.mp4?1544252213",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/pixel_gun_apocalypse_7/?key=4074120&value=162331",
       "tags": [
-        "3D  First Person Shooter  Gun  Killing  Multiplayer  Sniper  Voxel  WebGL"
+        "3D",
+        "First Person",
+        "Shooter",
+        "Gun",
+        "Killing",
+        "Multiplayer",
+        "Sniper",
+        "Voxel",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:15:47 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa913cb00f5e4b584093147",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "super-sniper-missions-9638",
@@ -289,16 +393,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/199875/43814b1c3577fb026afa9a2994c3771f175921fc.mp4?1728318821",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/98d6071c904d4a808b7598bad77869f8/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fsuper_sniper_missions&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvc3VwZXJfc25pcGVyX21pc3Npb25zIiwicGFyZW50RG9tYWluIjoieTguY29tIiwidG9wRG9tYWluIjoieTguY29tIiwiaGFzSW1wcmVzc2lvbiI6ZmFsc2UsImxvYWRlckVuYWJsZWQiOnRydWUsImhvc3QiOiJodG1sNS5nYW1lZGlzdHJpYnV0aW9uLmNvbSIsInZlcnNpb24iOiIxLjUuMTgifQ%253D%253D",
       "tags": [
-        "1 player  3D  Gun  HTML5  Killing  Mobile  Mouse Skill  Sniper  Touchscreen  Upgrade"
+        "1 player",
+        "3D  Gun",
+        "HTML5",
+        "Killing",
+        "Mobile",
+        "Mouse",
+        "Skill",
+        "Sniper",
+        "Touchscreen",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 4,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:13:39 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9134b00f5e4b58409312b",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:36:42.261Z"
     },
     {
       "id": "highway-squad-1927",
@@ -310,16 +426,24 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/75266/1467afaff273149936878283239dec83f24baa82.mp4?1458553754",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/highway_squad/?key=2184848&value=105831",
       "tags": [
-        "1 player  3D  Car  Racing  Upgrade  WebGL  Y8 Account  Y8 Achievements  Y8 Cloud Save  Y8 Highscore  Y8 Originals"
+        "1 player",
+        "3D",
+        "Car",
+        "Racing",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 15:11:01 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa912ad00f5e4b584093106",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:36:42.261Z"
     },
     {
       "id": "jetpack-fighter-1168",
@@ -331,16 +455,24 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover-002/videos/113614/dcb15850254cb390ef3a0477ac0a31a40196cc51.mp4?1513280505",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/jatpack_fighter/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  Aircraft  Fighting  Flying  WebGL  Y8 Account  Y8 Achievements  Y8 Highscore  Y8 Originals"
+        "1 player",
+        "3D",
+        "Aircraft",
+        "Fighting",
+        "Flying",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 2,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:50:31 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa90ddf00f5e4b584092fd0",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "imposter-smasher-3411",
@@ -352,16 +484,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/161274/58b0cfda41d5764120b0e0ae028a29df553c7b79.mp4?1646581972",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/db344ef0543544929b453bcfea4f3f7f/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fimposter_smasher&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvaW1wb3N0ZXJfc21hc2hlciIsInBhcmVudERvbWFpbiI6Ink4LmNvbSIsInRvcERvbWFpbiI6Ink4LmNvbSIsImhhc0ltcHJlc3Npb24iOmZhbHNlLCJsb2FkZXJFbmFibGVkIjp0cnVlLCJob3N0IjoiaHRtbDUuZ2FtZWRpc3RyaWJ1dGlvbi5jb20iLCJ2ZXJzaW9uIjoiMS41LjE4In0%253D",
       "tags": [
-        "1 player  3D  Killing  Space  Spaceship  WebGL"
+        "1 player",
+        "3D",
+        "Killing",
+        "Space",
+        "Spaceship",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:46:43 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa90cfb00f5e4b584092fa1",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "teen-titans-go--jump-jousts-2-6781",
@@ -373,16 +513,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/163104/cbc26f7717de174bf8465565767c730f8c7ad050.mp4?1650266607",
       "gameUrl": "https://kdata1.com/2021/12/jumpjousts12/?key=y8&value=default",
       "tags": [
-        "1 player  2 player  Cartoon  Fighting  HTML5  Local Multiplayer  Mobile  Mouse Skill  Robots  Touchscreen"
+        "1 player",
+        "2 player",
+        "Cartoon",
+        "Fighting",
+        "HTML5",
+        "Local Multiplayer  Mobile  Mouse Skill",
+        "Robots",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 3,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:43:56 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa90c5400f5e4b584092f7a",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "steal-car-duel-1663",
@@ -394,16 +544,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/213957/7485c1b6839ab80b35b2305d1ea80f316ba55552.mp4?1764215452",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/e3f4448cc0514fbaa84f157982da157d/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fsteal_car_duel&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvc3RlYWxfY2FyX2R1ZWwiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "1 player  2 player  3D  Car  Fighting  Funny  Local Multiplayer  Upgrade  WebGL"
+        "1 player",
+        "2 player",
+        "3D",
+        "Car",
+        "Fighting",
+        "Funny",
+        "Local",
+        "Multiplayer",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:42:31 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa90bff00f5e4b584092f67",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "stick-squad-2402",
@@ -415,16 +577,29 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/208217/3aea39cf06a2545303f937e940a641436fe24814.mp4?1750668075",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/samin/duck2/?key=y8&value=default",
       "tags": [
-        "1 player  Animal  HTML5  Jumping  Mobile  Obstacle  Pixel  Platform  Puzzle  Touchscreen  Trap"
+        "1 player",
+        "Animal",
+        "HTML5",
+        "Jumping",
+        "Mobile",
+        "Obstacle",
+        "Pixel",
+        "Platform",
+        "Puzzle",
+        "Touchscreen",
+        "Trap"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 2,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:39:22 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa90b4200f5e4b584092f2c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "steve-and-alex--dragon-egg-7188",
@@ -436,16 +611,30 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/171105/f324be284e4a9ea09c6aefbd56bf1f97dd8022d0.mp4?1666261667",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/fbkgames/steve_and_alex_dragon_egg/?key=y8&value=default",
       "tags": [
-        "2 player  Dragon  HTML5  Jumping  Local Multiplayer  Mobile  Monster  Obstacle  Platform  Touchscreen  Trap"
+        "2 player",
+        "Dragon",
+        "HTML5",
+        "Jumping",
+        "Local",
+        "Multiplayer",
+        "Mobile",
+        "Monster",
+        "Obstacle",
+        "Platform",
+        "Touchscreen",
+        "Trap"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:33:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa909df00f5e4b584092ed5",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "dragon-world-6774",
@@ -457,16 +646,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/138672/06a98ea96ac48c1c2cd556b6bcc5493a8df89f74.mp4?1579764227",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/5cbf62dc7ba54ec2a159e7a61060de73/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fdragon_world&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvZHJhZ29uX3dvcmxkIiwicGFyZW50RG9tYWluIjoieTguY29tIiwidG9wRG9tYWluIjoieTguY29tIiwiaGFzSW1wcmVzc2lvbiI6ZmFsc2UsImxvYWRlckVuYWJsZWQiOnRydWUsImhvc3QiOiJodG1sNS5nYW1lZGlzdHJpYnV0aW9uLmNvbSIsInZlcnNpb24iOiIxLjUuMTgifQ%253D%253D",
       "tags": [
-        "1 player  3D  Animal  Battle Royale  Dragon  Flying  Killing  Multiplayer  WebGL"
+        "1 player",
+        "3D",
+        "Animal",
+        "Battle",
+        "Royale  Dragon",
+        "Flying",
+        "Killing",
+        "Multiplayer",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:31:56 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9098400f5e4b584092ec1",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "moto-city-stunt-7852",
@@ -478,16 +678,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/135364/4b6d91632950e4b0a7ce727b914037838737f074.mp4?1570412768",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/132ae9f3d87f4b47b2701972cd9c0d4c/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fmoto_city_stunt&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvbW90b19jaXR5X3N0dW50IiwicGFyZW50RG9tYWluIjoieTguY29tIiwidG9wRG9tYWluIjoieTguY29tIiwiaGFzSW1wcmVzc2lvbiI6ZmFsc2UsImxvYWRlckVuYWJsZWQiOnRydWUsImhvc3QiOiJodG1sNS5nYW1lZGlzdHJpYnV0aW9uLmNvbSIsInZlcnNpb24iOiIxLjUuMTgifQ%253D%253D",
       "tags": [
-        "1 player  3D  Extreme Sports  Motorcycle  Platform  Racing  Stunt  Upgrade  WebGL"
+        "1 player",
+        "3D",
+        "Extreme",
+        "Sports",
+        "Motorcycle",
+        "Platform",
+        "Racing",
+        "Stunt  Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:29:07 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa908db00f5e4b584092e99",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "we-baby-bears--veggie-village-quest-9793",
@@ -499,16 +710,29 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/162248/3c8c9062a3ef79563be8dffd20a7a8eafe6883d3.mp4?1648401226",
       "gameUrl": "https://kdata1.com/2022/03/veggie-village-quest/?key=y8&value=default",
       "tags": [
-        "1 player  Animal  Cartoon  Food  HTML5  Mobile  Mouse Skill  Obstacle  Platform  Touchscreen  Trap"
+        "1 player",
+        "Animal",
+        "Cartoon",
+        "Food",
+        "HTML5",
+        "Mobile",
+        "Mouse Skill",
+        "Obstacle",
+        "Platform",
+        "Touchscreen",
+        "Trap"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 14:26:59 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa9085b00f5e4b584092e7e",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "amazing-strange-rope-police---vice-spider-vegas-5387",
@@ -520,16 +744,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/129733/f4be999a12248eb5ad3e45eacfc3b5b274b006c8.mp4?1552652319",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/rope_police/?key=9886172&value=165163",
       "tags": [
-        "1 player  3D  Car  Gun  Helicopter  Killing  Spiderman  Upgrade  WebGL"
+        "1 player",
+        "3D",
+        "Car",
+        "Gun",
+        "Helicopter",
+        "Killing",
+        "Spiderman",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:58:35 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8f3a300f5e4b584092bae",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "madness-retaliation-0944",
@@ -541,16 +776,22 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/6531/09208c2980b4039d85fbf568ae713011701eddd2.mp4?1459922400",
       "gameUrl": "https://img.y8.com/cloud/y8-flash-game/contents/item_versions/flash_games/17968/original/madness_retaliation.swf?1521356071",
       "tags": [
-        "1 player  Fighting  Flash  Killing"
+        "1 player",
+        "Fighting",
+        "Flash",
+        "Killing"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:54:51 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8f2c300f5e4b584092b80",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "obby-games-brookhaven-6546",
@@ -562,16 +803,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/210847/ad09e976918929a38ceecb1b0b6c36cf1de188a5.mp4?1756889693",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/Playgama/obby_games_brookhaven/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Jumping  Obstacle  Platform  Touchscreen  Trap  WebGL"
+        "1 player",
+        "3D",
+        "Jumping",
+        "Obstacle",
+        "Platform",
+        "Touchscreen",
+        "Trap",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:50:56 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8f1d800f5e4b584092b4c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "https---img-y8-com-cloud-v2-y8-video-previews-001-videos-200277-f56eeeeea0477abeec44dce3b8d0b83bcfa27d18-mp4-1729240371-0660",
@@ -583,19 +834,29 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/200277/f56eeeeea0477abeec44dce3b8d0b83bcfa27d18.mp4?1729240371",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/563a3f252c6e4ef8a7fa4a59b9f47c5c/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fgeometry_rush_4d&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvZ2VvbWV0cnlfcnVzaF80ZCIsInBhcmVudERvbWFpbiI6Ink4LmNvbSIsInRvcERvbWFpbiI6Ink4LmNvbSIsImhhc0ltcHJlc3Npb24iOmZhbHNlLCJsb2FkZXJFbmFibGVkIjp0cnVlLCJob3N0IjoiaHRtbDUuZ2FtZWRpc3RyaWJ1dGlvbi5jb20iLCJ2ZXJzaW9uIjoiMS41LjE4In0%253D",
       "tags": [
-        "1 player  Adrenaline  Jumping  Mouse Skill  Obstacle  Platform  Reflex  Side Scrolling  Trap  WebGL"
+        "1 player",
+        "Adrenaline",
+        "Jumping",
+        "Mouse Skill",
+        "Obstacle",
+        "Platform",
+        "Reflex",
+        "Side",
+        "Scrolling",
+        "Trap",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "Tue Sep 15 2026 12:48:40 GMT+0530 (India Standard Time)",
-      "likes": 120,
-      "dislikes": 4,
+      "likes": 0,
+      "dislikes": 0,
       "_id": "6aa8f15000f5e4b584092b2b",
       "__v": 0,
-      "updatedAt": "2026-09-15T07:18:40.688Z"
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "kim-jong-un-five-nights-detention-0979",
@@ -607,20 +868,29 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/215435/45b74e682962b52f254303dd16394f8884d807b7.mp4?1767852777",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/breyman/kim_jong_un_five_nights_detention_v2/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Scary  Survival Horror  Touchscreen  WebGL  Y8 Account  Y8 Achievements  Y8 Highscore"
+        "1 player",
+        "3D",
+        "Scary",
+        "Survival",
+        "Horror",
+        "Touchscreen",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 121,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:47:01 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8f0ed00f5e4b584092b16",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "https---img-y8-com-cloud-v2-y8-video-previews-002-videos-222843-079e69dbf5f304eee573118923ff0bf469a5d827-mp4-1787216986-0949",
-      "title": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/222843/079e69dbf5f304eee573118923ff0bf469a5d827.mp4?1787216986",
+      "title": "Shadows of the Forest",
       "category": "adventure",
       "description": "",
       "thumbnail": "https://cdn2.y8.com/cloudimage/411573/file/w180h135_webp-585bb3ca8b023830c84df1dcb9705770.webp",
@@ -628,16 +898,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/222843/079e69dbf5f304eee573118923ff0bf469a5d827.mp4?1787216986",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/4eb7f93347e844f28557465a8a60627b/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fshadows_of_the_forest_reign_of_triduja&key=y8&ratio_tolerant=true&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvc2hhZG93c19vZl90aGVfZm9yZXN0X3JlaWduX29mX3RyaWR1amEiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "1 player  3D  HTML5  Mobile  Monster  Scary  Touchscreen"
+        "1 player",
+        "3D",
+        "HTML5",
+        "Mobile",
+        "Monster",
+        "Scary",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:45:00 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8f07400f5e4b584092afc",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "roblox--spiderman-upgrade-6576",
@@ -649,16 +928,23 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/188405/8f8d57d3bf867ee51bbe61192bbf2471aeac2815.mp4?1700937209",
       "gameUrl": "https://html5.gamemonetize.co/2s24nenxf9gopwr4mcmtu9fstpf8xxir/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Running  Voxel  WebGL"
+        "1 player",
+        "3D",
+        "Running",
+        "Voxel",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:41:06 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ef8a00f5e4b584092ac7",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "unanswered-7548",
@@ -670,16 +956,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/168590/3bbbf193ee12635a0e099b21473bd87276794dba.mp4?1661504498",
       "gameUrl": "https://kdata1.com/2022/08/unanswered/?key=y8&value=default",
       "tags": [
-        "1 player  Platform  Puzzle  Scary  Side Scrolling  Trap  WebGL"
+        "1 player",
+        "Platform",
+        "Puzzle",
+        "Scary",
+        "Side Scrolling",
+        "Trap",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 2,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:38:57 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ef0900f5e4b584092aab",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "dome-romantik-3381",
@@ -691,16 +986,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/153911/34679f47d876d5ae42d2cccc993421125bce033e.mp4?1620720364",
       "gameUrl": "https://files.gamezhero.com/game/130/46c/13046cf7941dabbf/data/index.html?key=y8&value=default",
       "tags": [
-        "1 player  HTML5  Monster  Pixel"
+        "1 player",
+        "HTML5",
+        "Monster",
+        "Pixel"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 1,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:35:23 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ee3300f5e4b584092a7b",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "only-up-3d-parkour-go-ascend-0251",
@@ -712,16 +1013,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/184277/ca17b93cdae6c4076b91bd88adbb1bc9fe1bfa4d.mp4?1692120120",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/c7a11f86eeda4a2b88e8d5ad2ba2f41d/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fonly_up_3d_parkour_go_ascend&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvb25seV91cF8zZF9wYXJrb3VyX2dvX2FzY2VuZCIsInBhcmVudERvbWFpbiI6Ink4LmNvbSIsInRvcERvbWFpbiI6Ink4LmNvbSIsImhhc0ltcHJlc3Npb24iOmZhbHNlLCJsb2FkZXJFbmFibGVkIjp0cnVlLCJob3N0IjoiaHRtbDUuZ2FtZWRpc3RyaWJ1dGlvbi5jb20iLCJ2ZXJzaW9uIjoiMS41LjE4In0%253D",
       "tags": [
-        "1 player  3D  Extreme Sports  Obstacle  Platform  Stunt  Trap  WebGL"
+        "1 player",
+        "3D",
+        "Extreme",
+        "Sports",
+        "Obstacle",
+        "Platform",
+        "Stunt",
+        "Trap",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 2,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:32:00 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ed6800f5e4b584092a4d",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "obby-the-legendary-dragon-8790",
@@ -733,16 +1045,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/202725/12d369514eb3c7ca3581920a06d4666ca2fa4fdf.mp4?1735289142",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/Playgama/obby_the_legendary_dragon/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Fighting  Mobile  Touchscreen  Upgrade  WebGL"
+        "1 player",
+        "3D",
+        "Fighting",
+        "Mobile",
+        "Touchscreen",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:19:18 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ea6e00f5e4b5840929ac",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "princess-vs-shark-7378",
@@ -754,16 +1075,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/205163/7cdda2e6dbdfeb7952c39d8f90f6483ea4d93083.mp4?1741247614",
       "gameUrl": "https://play.wgplayground.com/ifr/835a29f39b2a561ae5f4f5cb80cf34cb?key=y8&value=default",
       "tags": [
-        "1 player  HTML5  Mobile  Physics  Puzzle  Shark  Thinking  Touchscreen  Trap  Water"
+        "1 player",
+        "HTML5",
+        "Mobile",
+        "Physics",
+        "Puzzle",
+        "Shark",
+        "Thinking",
+        "Touchscreen",
+        "Trap",
+        "Water"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:15:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e98700f5e4b584092978",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "stumble-boys-3343",
@@ -775,16 +1108,21 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/167498/2fa6b37fe895b5b0b5c8aae6838d1cf07050022e.mp4?1659030771",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/d52354c7f83e449a92b99ecd0d8bb23c/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fstumble_boys&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvc3R1bWJsZV9ib3lzIiwicGFyZW50RG9tYWluIjoieTguY29tIiwidG9wRG9tYWluIjoieTguY29tIiwiaGFzSW1wcmVzc2lvbiI6ZmFsc2UsImxvYWRlckVuYWJsZWQiOnRydWUsImhvc3QiOiJodG1sNS5nYW1lZGlzdHJpYnV0aW9uLmNvbSIsInZlcnNpb24iOiIxLjUuMTgifQ%253D%253D",
       "tags": [
-        "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/167498/2fa6b37fe895b5b0b5c8aae6838d1cf07050022e.mp4?1659030771"
+        "3d",
+        "1 player",
+        "HTML5"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:12:23 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e8cf00f5e4b58409294d",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "circle-shooter-master-3485",
@@ -796,16 +1134,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/190061/7130903864eec5a4b79e50a8afad97950ce0ca7f.mp4?1704391880",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/727130f5db2a463caeb8db35e1c1bcb1/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fcircle_shooter_master&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvY2lyY2xlX3Nob290ZXJfbWFzdGVyIiwicGFyZW50RG9tYWluIjoieTguY29tIiwidG9wRG9tYWluIjoieTguY29tIiwiaGFzSW1wcmVzc2lvbiI6ZmFsc2UsImxvYWRlckVuYWJsZWQiOnRydWUsImhvc3QiOiJodG1sNS5nYW1lZGlzdHJpYnV0aW9uLmNvbSIsInZlcnNpb24iOiIxLjUuMTgifQ%253D%253D",
       "tags": [
-        "1 player  3D  Upgrade  WebGL"
+        "1 player",
+        "3D",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:10:13 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e84d00f5e4b584092931",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "adam-and-eve-6-4148",
@@ -817,16 +1161,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/133838/838ed09956807386b1f9d5fbaf331ef96024a095.mp4?1565750671",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/40c023fd55c94f1598a24aade271857b/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fadam_and_eve_6&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvYWRhbV9hbmRfZXZlXzYiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "1 player  HTML5  Mobile  Puzzle  Thinking  Touchscreen"
+        "1 player",
+        "HTML5",
+        "Mobile",
+        "Puzzle",
+        "Thinking",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:07:34 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e7ae00f5e4b58409290c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "adam-and-eve-8896",
@@ -838,16 +1190,24 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/6438/82a201d60232c3fa2fc5d86438daac200214bf42.mp4?1460056462",
       "gameUrl": "https://img.y8.com/cloud/y8-flash-game/contents/item_versions/flash_games/20419/original/adam_and_eve_game.swf?1521368220",
       "tags": [
-        "1 player  Dinosaur  Flash  Love  Puzzle  Thinking"
+        "1 player",
+        "Dinosaur",
+        "Flash",
+        "Love",
+        "Puzzle",
+        "Thinking"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:05:18 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e72600f5e4b5840928ef",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "digital-circus--parkour-7558",
@@ -859,16 +1219,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/189887/a8af8531f3a3ff5479b1bc930216aa7beb9a1874.mp4?1703971212",
       "gameUrl": "https://html5.gamemonetize.co/ygvjmgb91wppx82qphz4o2teukwlftpz/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Jumping  Obstacle  Platform  WebGL"
+        "1 player",
+        "3D",
+        "Jumping",
+        "Obstacle",
+        "Platform",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 1,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 12:00:17 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e5f900f5e4b5840928ad",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "not-yet-6701",
@@ -880,16 +1248,23 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/177537/3d3f877a408c7f95e6fcbb53894f6cf210cc99a7.mp4?1678288161",
       "gameUrl": "https://kdata1.com/2023/03/not-yet/?key=y8&value=default",
       "tags": [
-        "1 player  Fighting  Pixel  Reflex  WebGL"
+        "1 player",
+        "Fighting",
+        "Pixel",
+        "Reflex",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:58:16 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e58000f5e4b58409288f",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "death-run-3d-2699",
@@ -901,16 +1276,26 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/63297/606f3a9f7242dd424107309c128e73a6978f7666.mp4?1461590950",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/bitlaslt/death_run_wasm_v1/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  Adrenaline  Arcade  Block  Reflex  Running  WebGL"
+        "1 player",
+        "3D",
+        "Adrenaline",
+        "Arcade",
+        "Block",
+        "Reflex",
+        "Running",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 3,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:55:12 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e4c800f5e4b584092868",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "the-scythian-warrior-2470",
@@ -922,16 +1307,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/194563/caa3f8cdd1d0beb2afd9cb6721e5c2e97b40bd17.mp4?1715058005",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/hammergames/the-scythian-warrior/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Blood  Knight  Platform  Sword  WebGL"
+        "1 player",
+        "3D",
+        "Blood",
+        "Knight",
+        "Platform",
+        "Sword",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 1,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:48:32 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e33800f5e4b58409280f",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "backrooms-1670",
@@ -943,16 +1337,23 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/213373/470f6c5464a5debe3509222709103d9c3beb7bcb.mp4?1762876825",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/2eb8260c11ae4628926d434548a81ec5/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fbackrooms_&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvYmFja3Jvb21zXyIsInBhcmVudERvbWFpbiI6Ink4LmNvbSIsInRvcERvbWFpbiI6Ink4LmNvbSIsImhhc0ltcHJlc3Npb24iOmZhbHNlLCJsb2FkZXJFbmFibGVkIjp0cnVlLCJob3N0IjoiaHRtbDUuZ2FtZWRpc3RyaWJ1dGlvbi5jb20iLCJ2ZXJzaW9uIjoiMS41LjE4In0%253D",
       "tags": [
-        "1 player  3D  Monster  Scary  WebGL"
+        "1 player",
+        "3D",
+        "Monster",
+        "Scary",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:45:11 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e26f00f5e4b5840927d9",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "dynamons-world-6407",
@@ -964,16 +1365,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/128066/315629df0d45766a757dd17ef796b94d32ba60a2.mp4?1546681587",
       "gameUrl": "https://html5.gamedistribution.com/61e157f72a4a40e18da245bee8891694/?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fdynamons_world&key=y8&value=default",
       "tags": [
-        "1 player  Fighting  HTML5  Mobile  Role Playing  Touchscreen  Turn Based"
+        "1 player",
+        "Fighting",
+        "HTML5",
+        "Mobile",
+        "Role",
+        "Playing",
+        "Touchscreen",
+        "Turn",
+        "Based"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:41:36 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e19800f5e4b5840927a2",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "jailbreak--escape-from-prison-7926",
@@ -985,16 +1397,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/207157/2839d47f9ea8779ff6f61326603a7cb91993b11f.mp4?1747734729",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/e5c41772e13f49d891a9bff3ea726943/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fjailbreak_escape_from_prison&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvamFpbGJyZWFrX2VzY2FwZV9mcm9tX3ByaXNvbiIsInBhcmVudERvbWFpbiI6Ink4LmNvbSIsInRvcERvbWFpbiI6Ink4LmNvbSIsImhhc0ltcHJlc3Npb24iOmZhbHNlLCJsb2FkZXJFbmFibGVkIjp0cnVlLCJob3N0IjoiaHRtbDUuZ2FtZWRpc3RyaWJ1dGlvbi5jb20iLCJ2ZXJzaW9uIjoiMS41LjE4In0%253D",
       "tags": [
-        "1 player  3D  Jumping  Obstacle  Platform  Puzzle  Trap  WebGL"
+        "1 player",
+        "3D",
+        "Jumping",
+        "Obstacle",
+        "Platform",
+        "Puzzle",
+        "Trap",
+        "WebGL"
       ],
       "featured": false,
-      "tileSize": "auto",
+      "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:39:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8e11700f5e4b584092786",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "survival-master--456-challenge-5803",
@@ -1006,16 +1428,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/208935/3baf034cae1636581ca6a9262c4b53a636f46103.mp4?1752389548",
       "gameUrl": "https://html5.gamedistribution.com/rvvASMiM/d01d3715c93c4c149afb4d132e4e43a3/index.html?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fsurvival_master_456_challenge&key=y8&value=default&gd_zone_config=eyJwYXJlbnRVUkwiOiJodHRwczovL3d3dy55OC5jb20vZ2FtZXMvc3Vydml2YWxfbWFzdGVyXzQ1Nl9jaGFsbGVuZ2UiLCJwYXJlbnREb21haW4iOiJ5OC5jb20iLCJ0b3BEb21haW4iOiJ5OC5jb20iLCJoYXNJbXByZXNzaW9uIjpmYWxzZSwibG9hZGVyRW5hYmxlZCI6dHJ1ZSwiaG9zdCI6Imh0bWw1LmdhbWVkaXN0cmlidXRpb24uY29tIiwidmVyc2lvbiI6IjEuNS4xOCJ9",
       "tags": [
-        "1 player  3D  Guessing  Gun  Killing  Memory  Obstacle  Running  Squid Game  WebGL"
+        "1 player",
+        "3D",
+        "Guessing",
+        "Gun",
+        "Killing",
+        "Memory",
+        "Obstacle",
+        "Running",
+        "Squid Game",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:34:05 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8dfd500f5e4b58409273a",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "find-100-meme-1749",
@@ -1027,16 +1461,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/208783/19f93f5561714db408c189493eee3e8b7f84d72d.mp4?1751964079",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/MirraGames/find_100_meme/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Jumping  Meme  Obstacle  Platform  Trap  Upgrade"
+        "1 player",
+        "3D",
+        "Jumping",
+        "Meme",
+        "Obstacle",
+        "Platform",
+        "Trap",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:30:41 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8df0900f5e4b58409270c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "agent-hunt--hitman-shooter-7140",
@@ -1048,16 +1492,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/202969/8437cf7595ea31523f376c77ccd32a51c4f4954e.mp4?1735929631",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/yyg/agent_hunt_hitman_shooter/?key=12883139&value=250825",
       "tags": [
-        "1 player  3D  Gun  HTML5  Killing  Mobile  Third Person"
+        "1 player",
+        "3D",
+        "Gun",
+        "HTML5",
+        "Killing",
+        "Mobile",
+        "Third Person"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 1,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:23:47 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8dd6b00f5e4b5840926ad",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "barry-prison--parkour-escape-5980",
@@ -1069,16 +1522,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/205185/a7f8ad374b78c2c62f2e9d05487b5b4dee4834b4.mp4?1741259122",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/Playgama/barry_prison_parkour_escape_v2/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Escape  Jumping  Obstacle  Platform  Police  Trap  Upgrade  WebGL"
+        "1 player",
+        "3D",
+        "Escape",
+        "Jumping",
+        "Obstacle",
+        "Platform",
+        "Police",
+        "Trap",
+        "Upgrade",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:19:36 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8dc7000f5e4b584092679",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "weightlifting-beauty-9511",
@@ -1090,16 +1555,28 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/164688/401d43924dd142287e43e0bee1521b3fe04c3910.mp4?1653333570",
       "gameUrl": "https://html5.gamemonetize.co/y62hsxm8btljsmjjm5nj83igg9az0ohp/?key=y8&value=default",
       "tags": [
-        "1 player  3D  HTML5  Mobile  Mouse Skill  Obstacle  Running  Touchscreen  Trap  Upgrade"
+        "1 player",
+        "3D",
+        "HTML5",
+        "Mobile",
+        "Mouse Skill",
+        "Obstacle",
+        "Running",
+        "Touchscreen",
+        "Trap",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:17:09 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8dbdd00f5e4b584092655",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "mineclone-3-2630",
@@ -1111,16 +1588,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/130170/e43eeeeefaf81f9ac5785e0d7e4d62f5fdfe1331.mp4?1554276634",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/y8games/MineClone3-2022-v1/?key=6842727&ratio_tolerant=true&value=68221",
       "tags": [
-        "1 player  3D  Block  Mining  Voxel  WebGL  Zombie"
+        "1 player",
+        "3D",
+        "Block",
+        "Mining",
+        "Voxel",
+        "WebGL",
+        "Zombie"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:14:22 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8db3600f5e4b584092632",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "cat-simulator--kitty-craft--1344",
@@ -1132,21 +1618,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/128510/811837bc66f483559d7032a016c7ded48a7dd589.mp4?1548242426",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/caty_simulator_kitty_craft/?key=9886172&value=163670",
       "tags": [
-        "#1 player",
-        "#3D",
-        "#Animal",
-        "#Cat",
-        "#Simulation",
-        "#WebGL"
+        "1 player",
+        "3D",
+        "Animal",
+        "Cat",
+        "Simulation",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:10:21 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8da4500f5e4b5840925fc",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "horror-eyes-1989",
@@ -1158,21 +1647,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/205069/e4e43baefc13755a0b59f110460b058e6db046ac.mp4?1740994065",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/kHADIJA/horror_eyes_v2/?key=y8&value=default",
       "tags": [
-        "#1 player",
-        "#3D",
-        "#Escape",
-        "#Monster",
-        "#Scary",
-        "#WebGL"
+        "1 player",
+        "3D",
+        "Escape",
+        "Monster",
+        "Scary",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 11:02:52 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d88400f5e4b58409259b",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "nox-timore-7032",
@@ -1184,16 +1676,24 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/90721/97631b89b9e6cce18b123bcf613d30005202a8f3.mp4?1472006061",
       "gameUrl": "https://media2.y8.com/y8-studio/unity_webgl_games/u53/nox_timore/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Escape  Ghost  Scary  WebGL  Y8 Account  Y8 Achievements  Y8 Highscore  Y8 Originals"
+        "1 player",
+        "3D",
+        "Escape",
+        "Ghost",
+        "Scary",
+        "WebGL"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 7,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:56:47 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d71700f5e4b584092549",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "super-pizza-quest-3147",
@@ -1205,16 +1705,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/207289/0667ed3ee89aea71bed88b2c1498197b3f9ab2f1.mp4?1748243974",
       "gameUrl": "https://kdata1.com/2025/05/SuperPizzaQuest_v1009/?key=y8&value=default",
       "tags": [
-        "1 player  HTML5  Jumping  Mobile  Obstacle  Platform  Side Scrolling  Touchscreen"
+        "1 player",
+        "HTML5",
+        "Jumping",
+        "Mobile",
+        "Obstacle",
+        "Platform",
+        "Side Scrolling",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:51:53 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d5f100f5e4b584092509",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "diseviled-3--stolen-kingdom-0716",
@@ -1226,16 +1736,27 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover-002/videos/117292/b0e6ce888c06f7e55ebb2d50a896ff4f386f6c2f.mp4?1522152363",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/akeemywka/diseviled_3_v6/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  Blood  HTML5  Magic  Medieval  Mobile  Platform  Role Playing  Side Scrolling  Sword"
+        "1 player",
+        "Blood",
+        "HTML5",
+        "Magic",
+        "Medieval",
+        "Mobile  Platform",
+        "Role",
+        "Playing  Side Scrolling",
+        "Sword"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:45:40 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d47c00f5e4b5840924b8",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "fireboy---watergirl-ep--3-4514",
@@ -1247,16 +1768,28 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/92/617dd60e535fe998624b4c24474c8e64f4480294.mp4?1458899118",
       "gameUrl": "https://img.y8.com/cloud/y8-flash-game/contents/item_versions/flash_games/23852/original/the_forest_temple_3.swf?1521386116",
       "tags": [
-        "2 player  Fire  Flash  Jumping  Local Multiplayer  Platform  Puzzle  Trap  Water"
+        "2 player",
+        "Fire",
+        "Flash",
+        "Jumping",
+        "Local",
+        "Multiplayer",
+        "Platform",
+        "Puzzle",
+        "Trap",
+        "Water"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:42:44 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d3cc00f5e4b58409248f",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "tropic-adventure-7576",
@@ -1268,16 +1801,26 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/101461/b84436bb5daec62648785799403d98dd0b40ba2b.mp4?1485428184",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/tropic_adventure/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Adrenaline  Fruit  Jumping  Money  Mouse Skill  Running"
+        "1 player",
+        "3D",
+        "Adrenaline",
+        "Fruit",
+        "Jumping",
+        "Money",
+        "Mouse  Skill",
+        "Running"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:38:07 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d2b700f5e4b584092453",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "imposter-3d-online-horror-8070",
@@ -1289,16 +1832,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/215785/38f60c3062cb341c276abfe668f0fa68bf78d395.mp4?1768833631",
       "gameUrl": "https://item-cdn.y8.com/Playgama/html5/imposter_3d_online_horror_10-09-2026_y8/2026-09-10-073410-0d2d3e9dc3b2/index.html?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  HTML5  Mobile  Multiplayer  Scary  Touchscreen  Upgrade"
+        "1 player",
+        "3D",
+        "HTML5",
+        "Mobile",
+        "Multiplayer",
+        "Scary",
+        "Touchscreen",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:34:48 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d1f000f5e4b584092429",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "99-nights-in-the-forest-8978",
@@ -1310,16 +1863,25 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/216703/9550ff54f01ddfe8e9cadfda75370738400521a8.mp4?1771074421",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/RedToks/99_nights_in_the_forest/?key=y8&value=default",
       "tags": [
-        "1 player  3D  Mobile  Monster  Survival Horror  Touchscreen"
+        "1 player",
+        "3D",
+        "Mobile",
+        "Monster",
+        "Survival",
+        "Horror",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:29:19 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8d0a700f5e4b5840923e3",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "skyblock-3d--survival-7453",
@@ -1331,16 +1893,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/223703/cf7d724e7dbbe7466b4c1cd508a91715ef9539ee.mp4?1789366604",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/Playgama/skyblock_3d_survival/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  Block  HTML5  Monster  Obstacle  Platform  Trap"
+        "1 player",
+        "3D",
+        "Block",
+        "HTML5",
+        "Monster",
+        "Obstacle",
+        "Platform",
+        "Trap"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:24:07 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8cf6f00f5e4b5840923a0",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "skyblock-3d--survival-5192",
@@ -1352,16 +1924,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/205929/c68ac2dd504d8cf0afa0718570e429c429ab8b56.mp4?1743673867",
       "gameUrl": "https://cm.g.doubleclick.net/partnerpixels?url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fskyblock_3d_survival",
       "tags": [
-        "1 player  3D  Block  HTML5  Monster  Obstacle  Platform  Trap"
+        "1 player",
+        "3D",
+        "Block",
+        "HTML5",
+        "Monster",
+        "Obstacle",
+        "Platform",
+        "Trap"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:18:55 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ce3700f5e4b58409235c",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "speed-per-click--obby-7467",
@@ -1373,16 +1955,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/212783/d54a0f64127ef711707031f6160da326873df802.mp4?1761547888",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/Playgama/speed_per_click_obby_v4/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "3D  Clicking  Jumping  Multiplayer  Platform  Upgrade"
+        "3D",
+        "Clicking",
+        "Jumping",
+        "Multiplayer",
+        "Platform",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:13:27 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ccef00f5e4b584092312",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "interstellar-legends-9924",
@@ -1394,16 +1984,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/217339/9d7f96e79f72247aac838bfef13b9f395f12a7e1.mp4?1772790360",
       "gameUrl": "https://storage.y8.com/cloud-builds/unity_webgl/il_1_5/?key=9757549&ratio_tolerant=true&value=267867",
       "tags": [
-        "Alien  Fighting  HTML5  Monster  Multiplayer  Space  Touchscreen  Turn Based  Upgrade"
+        "Alien",
+        "Fighting",
+        "HTML5",
+        "Monster",
+        "Multiplayes",
+        "Space",
+        "Touchscreen",
+        "Turn Based",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:07:59 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8cba700f5e4b5840922cb",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "kombat-fighters-6902",
@@ -1415,16 +2016,26 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/2143/d1bcbb8e5ec5254ff6ea6ef67b7f459950d271c7.webm?1459374177x",
       "gameUrl": "https://img.y8.com/cloud/y8-flash-game/contents/item_versions/flash_games/7393/original/kombat_fighters.swf?1521313592",
       "tags": [
-        "1 player  2 player  Card  Fighting  Flash  Local Multiplayer  Street Fighting  Turn Based"
+        "1 player",
+        "2 player",
+        "Card",
+        "Fighting",
+        "Flash",
+        "Local Multiplayer",
+        "Street Fighting",
+        "Turn Based"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 10:01:16 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8ca1400f5e4b584092272",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "bubble-game-3-6134",
@@ -1436,16 +2047,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/155362/5128030ea38c100f393419bca7f081b88cc8b942.webm?1624534177",
       "gameUrl": "https://html5.gamedistribution.com/e24c3ed905ef42d6a949f199eb656d63/?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fbubble_game_3&key=y8&value=default",
       "tags": [
-        "1 player  Arcade  Bubble Shooter  HTML5  Match 3  Matching  Mobile"
+        "1 player",
+        "Arcade",
+        "Bubble",
+        "Shooter"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 09:56:16 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8c8e800f5e4b584092230",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "spider-solitaire-3279",
@@ -1457,16 +2074,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/146767/7f1c88750be0aef8f178732bf4466cfaaa684ec3.webm?1600226187",
       "gameUrl": "https://games.gameboss.com/spidersolitairebig/index.html?key=y8&value=default",
       "tags": [
-        "1 player  Card  HTML5  Mobile  Solitaire  Touchscreen"
+        "1 player",
+        "Card",
+        "HTML5",
+        "Mobile",
+        "Solitaire",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 09:52:33 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8c80900f5e4b5840921fe",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "worms-zone-8562",
@@ -1478,16 +2103,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/134943/3029d326c091a07a7dc0826765d1393cb95bfd46.mp4?1568964377",
       "gameUrl": "https://storage.y8.com/y8-studio/html5/wildspike/wormszone/?key=7774698&ratio_tolerant=true&value=170992",
       "tags": [
-        ".io Games  1 player  Arcade  HTML5  Mobile  Mouse Skill  Multiplayer  Touchscree"
+        "Games",
+        "1 player",
+        "Arcade",
+        "HTML5",
+        "Mobile",
+        "Mouse Skill",
+        "Multiplayer",
+        "Touchscree"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-15",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Tue Sep 15 2026 09:48:38 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa8c71e00f5e4b5840921ca",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "anime-battle-4-8666",
@@ -1499,16 +2134,22 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/193925/9160db11b90e5bf026a942059bdbfddfb3e4d107.webm?1713271279",
       "gameUrl": "https://en.gameslol.net/data/animebattle/4/index.html?key=y8&value=default",
       "tags": [
-        "1 player  2 player  Arcade  Fighting"
+        "1 player",
+        "2 player",
+        "Arcade",
+        "Fighting"
       ],
       "featured": false,
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 18:49:18 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7f45600f5e4b584092085",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "grand-vegas-crime-0551",
@@ -1520,16 +2161,27 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/205517/46ae0aa5ea68bcecad1e07730e22eadbeb251858.webm?1742288699",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/gamosoftstudios/2025_1_GrandVegasCrime_24March_v3/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  Blood  Car  Fighting  Gun  Killing  Police  Violence"
+        "1 player",
+        "3D",
+        "Blood",
+        "Car",
+        "Fighting",
+        "Gun",
+        "Killing",
+        "Police",
+        "Violence"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 18:39:20 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7f20000f5e4b584092004",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "master-chess-0086",
@@ -1547,10 +2199,10 @@
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "slope-7779",
@@ -1570,10 +2222,10 @@
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "traffic-jam-3d-4179",
@@ -1585,16 +2237,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/165408/bd6fe8f6639adae96db2cf35e4d58023a6e0000e.mp4?1654753625",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/gamosoftstudios/y8_TrafficJam3D_y8_3_0_32bit/index.html?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "1 player  3D  Adrenaline  Car  Racing  Upgrade"
+        "1 player",
+        "3D",
+        "Adrenaline",
+        "Car",
+        "Racing",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 18:07:44 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7ea9800f5e4b584091e66",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "formula-car-circuit-racing-4738",
@@ -1606,16 +2266,26 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-002/videos/221899/8925a4974bec533aff94bc018fed3f246911789d.mp4?1784878165",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/Horizon-Games/formula_car_circuit_racing_v3/?key=13862907&value=279059",
       "tags": [
-        "1 player  3D  Adrenaline  Car  Mobile  Racing  Touchscreen  Upgrade"
+        "1 player",
+        "3D",
+        "Adrenaline",
+        "Car",
+        "Mobile",
+        "Racing",
+        "Touchscreen",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 18:04:44 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7e9e400f5e4b584091e3d",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "burnout-drift-7043",
@@ -1627,16 +2297,21 @@
       "previewVideo": "https://img.y8.com/cloud/y8-rollover/videos/105047/aaa88116e45a829e6f3c48507f4027b15e1a619c.webm?149262333",
       "gameUrl": "https://storage.y8.com/y8-studio/unity/akeemywka/burnout_drift_v3/?key=y8&ratio_tolerant=true&value=default",
       "tags": [
-        "Car  Drifting  Racing"
+        "Car",
+        "Drifting",
+        "Racing"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 18:01:57 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7e93d00f5e4b584091e19",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "uphill-bus-simulator-3d-9033",
@@ -1648,16 +2323,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/136433/be30f897371680497b2d8c4b7b89254f52fb4fc9.webm?1573566676",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/gamosoftstudios/y8_UphillBusSimulator3d_2025_v1_0/index.html?key=6842727&ratio_tolerant=true&value=172667",
       "tags": [
-        "3D  Bus  Extreme Sports    Parking  Simulation"
+        "3D",
+        "Bus",
+        "Extreme",
+        "Sports",
+        "Parking",
+        "Simulation"
       ],
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 17:58:49 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7e88100f5e4b584091dee",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "turbo-moto-racer-7186",
@@ -1669,16 +2352,24 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/134778/65a9fc84a2a60f407fe184b1cec07bff2205ed9e.mp4?1568442861",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/gamosoftstudios/y8_TurboMotoRacer-2025-32bit_1_2/index.html?key=6842727&ratio_tolerant=true&value=170775",
       "tags": [
-        "3D  Adrenaline  Motorcycle  Obstacle  Racing  Upgrade"
+        "3D",
+        "Adrenaline",
+        "Motorcycle",
+        "Obstacle",
+        "Racing",
+        "Upgrade"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 17:55:57 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7e7d500f5e4b584091dca",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "time-shooter-2-8276",
@@ -1690,16 +2381,23 @@
       "previewVideo": "https://img.y8.com/cloud/v2-y8-video-previews-001/videos/160031/d4a4e924183d96e565c4424b5d96e42d79afa466.mp4?1642617316",
       "gameUrl": "https://storage.y8.com/y8-studio/unity_webgl/GoGoMan/time_shooter_2/index.html?key=10322731&value=199105",
       "tags": [
-        "3D  Gun  Killing  Mobile  Touchscreen"
+        "3D",
+        "Gun",
+        "Killing",
+        "Mobile",
+        "Touchscreen"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 17:44:48 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7e53800f5e4b584091cc9",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "garage-boss-1660",
@@ -1724,10 +2422,10 @@
       "tileSize": "2x3",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "backrooms-3170",
@@ -1746,10 +2444,10 @@
       "tileSize": "2x1",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "punch-boxing-championship-7152",
@@ -1769,10 +2467,10 @@
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "cs-dust-4215",
@@ -1793,10 +2491,10 @@
       "tileSize": "2x2",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "traffic-jam-3d-8356",
@@ -1816,10 +2514,10 @@
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "hero-wars-8969",
@@ -1836,11 +2534,11 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 7,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "Mon Sep 14 2026 16:45:09 GMT+0530 (India Standard Time)",
-      "likes": 120,
-      "dislikes": 4,
+      "likes": 0,
+      "dislikes": 0,
       "_id": "6aa7d73d00f5e4b584091996",
       "__v": 0,
       "updatedAt": "2026-09-14T11:15:09.179Z"
@@ -1860,11 +2558,11 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 4,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "ghost-range-sniper-9835",
@@ -1883,10 +2581,10 @@
       "tileSize": "auto",
       "status": "active",
       "plays": 0,
-      "rating": 4.8,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "daily-solitaire-9624",
@@ -1899,17 +2597,22 @@
       "gameUrl": "https://pikoya.cdn.msnfun.com/9mvl3mt105qq/v3/index.html?msstart_sdk_init=eyJwYXJlbnRPcmlnaW4iOiJodHRwczovL3d3dy5tc24uY29tIiwiY2xpZW50SWQiOiIyMDlBQzQ3QTlDODg2RkFDMEYyQkQzREI5RDVCNkUwOCIsImxvY2FsZSI6ImVuLWluIiwiZW50cnlQb2ludElkIjoiIiwic3dpdGNoR2FtZVBheWxvYWQiOnsic3dpdGNoZWRUbyI6IjltdmwzbXQxMDVxcSIsInZhbHVlIjp7fX19",
       "tags": [
         "Arcade",
-        "Retro",
-        "Cyber"
+        "Sports",
+        "Football",
+        "2 Player",
+        "Multiplayer"
       ],
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 14,
-      "rating": 4.8,
-      "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "plays": 0,
+      "rating": 5,
+      "createdAt": "Mon Sep 14 2026 16:06:19 GMT+0530 (India Standard Time)",
+      "likes": 0,
+      "dislikes": 0,
+      "_id": "6aa7ce2300f5e4b584091780",
+      "__v": 0,
+      "updatedAt": "2026-09-17T08:52:58.905Z"
     },
     {
       "id": "play-gas-station-1269",
@@ -1928,11 +2631,11 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 3,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-14",
-      "likes": 120,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "escape-from-school-runaway-3519",
@@ -1951,11 +2654,11 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 1,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "escape-from-vlogger-runaway-4066",
@@ -1974,11 +2677,11 @@
       "featured": false,
       "tileSize": "3x2",
       "status": "active",
-      "plays": 16,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 154,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "war-the-knights-2883",
@@ -1997,11 +2700,11 @@
       "featured": false,
       "tileSize": "3x2",
       "status": "active",
-      "plays": 41,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 189,
-      "dislikes": 6
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "skillwarz-0070",
@@ -2019,11 +2722,11 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 4,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "temple-run-0511",
@@ -2040,11 +2743,11 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 12,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 213,
-      "dislikes": 7
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "afk-three-kingdoms-6771",
@@ -2061,14 +2764,14 @@
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 1,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
       "_id": "6aa532508f334fe1c4efc70f",
       "updatedAt": "2026-09-12T11:17:12.936Z",
       "__v": 0,
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "smash-badminton--4187",
@@ -2089,8 +2792,8 @@
       "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "vikings--an-archer-s-journey-7091",
@@ -2109,14 +2812,14 @@
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 10,
-      "rating": 4.9,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-12",
       "_id": "6aa52d6fea5279b20856c14b",
       "updatedAt": "2026-09-12T10:46:18.947Z",
       "__v": 0,
-      "likes": 137,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "8-ball-pool-billiards-multiplayer-game-4590",
@@ -2135,11 +2838,11 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 7,
-      "rating": 4.9,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "mini-car-racing-4226",
@@ -2164,8 +2867,8 @@
       "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "yummy-tales-6785",
@@ -2187,8 +2890,8 @@
       "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "1942-pacific-front-0946",
@@ -2209,11 +2912,11 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 7,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "crazy-shooters-2-7629",
@@ -2232,14 +2935,14 @@
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 23,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
       "_id": "6aa4df318bbf54f1db790357",
       "updatedAt": "2026-09-12T05:31:13.775Z",
       "__v": 0,
-      "likes": 307,
-      "dislikes": 10
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "4-colors-multiplayer-8891",
@@ -2258,11 +2961,11 @@
       "featured": false,
       "tileSize": "4x2",
       "status": "active",
-      "plays": 3,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 137,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "sort-balls-2803",
@@ -2281,11 +2984,11 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 8,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "stickman-fighting-----play-now-on-gamepix-6323",
@@ -2304,14 +3007,14 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 11,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-12",
       "_id": "6aa4d60213a4c9a4b44e82c9",
       "updatedAt": "2026-09-12T00:00:00.000Z",
       "__v": 0,
-      "likes": 179,
-      "dislikes": 6
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "island-of-treasures-1379",
@@ -2329,14 +3032,14 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 3,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa4073b1461e9e52a5eea09",
       "updatedAt": "2026-09-11T00:00:00.000Z",
       "__v": 0,
-      "likes": 137,
-      "dislikes": 4
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "jetpack-joyride-7388",
@@ -2355,14 +3058,14 @@
       "featured": false,
       "tileSize": "1x2",
       "status": "active",
-      "plays": 1,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa4016f814f790e57868329",
       "updatedAt": "2026-09-11T00:00:00.000Z",
       "__v": 0,
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "only-up-balls-game-1172",
@@ -2380,7 +3083,7 @@
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 15,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "likes": 0,
@@ -2406,11 +3109,11 @@
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 3,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
-      "likes": 162,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "sdfghjkl--2424",
@@ -2429,14 +3132,14 @@
       "featured": false,
       "tileSize": "2x1",
       "status": "active",
-      "plays": 19,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c1a0990a82e5b89cc184",
       "updatedAt": "2026-09-11T09:55:46.803Z",
       "__v": 0,
-      "likes": 247,
-      "dislikes": 8
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "sdfghjkl-wfghjkl-5701",
@@ -2455,14 +3158,14 @@
       "featured": false,
       "tileSize": "auto",
       "status": "active",
-      "plays": 4,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c171990a82e5b89cc180",
       "updatedAt": "2026-09-11T10:06:31.939Z",
       "__v": 0,
-      "likes": 145,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "sdfghjklxcvbm--6512",
@@ -2481,14 +3184,14 @@
       "featured": false,
       "tileSize": "2x2",
       "status": "active",
-      "plays": 11,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c0f0990a82e5b89cc17a",
       "updatedAt": "2026-09-11T00:00:00.000Z",
       "__v": 0,
-      "likes": 171,
-      "dislikes": 5
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "gfds-3022",
@@ -2507,14 +3210,14 @@
       "featured": false,
       "tileSize": "1x1",
       "status": "active",
-      "plays": 11,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa3c04d990a82e5b89cc170",
       "updatedAt": "2026-09-11T13:43:16.922Z",
       "__v": 0,
-      "likes": 213,
-      "dislikes": 7
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "sky-islands-6372",
@@ -2531,7 +3234,7 @@
       ],
       "featured": false,
       "status": "active",
-      "plays": 54,
+      "plays": 0,
       "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa38c52313aaee4d591dad4",
@@ -2539,8 +3242,8 @@
       "__v": 0,
       "previewVideo": "",
       "tileSize": "2x2",
-      "likes": 579,
-      "dislikes": 20
+      "likes": 0,
+      "dislikes": 0
     },
     {
       "id": "crazy-runner-9384",
@@ -2557,42 +3260,16 @@
       ],
       "featured": false,
       "status": "active",
-      "plays": 39,
-      "rating": 4.8,
+      "plays": 0,
+      "rating": 5,
       "createdAt": "2026-09-11",
       "_id": "6aa38a7f313aaee4d591dacd",
       "updatedAt": "2026-09-11T08:45:04.822Z",
       "__v": 0,
       "previewVideo": "",
       "tileSize": "auto",
-      "likes": 410,
-      "dislikes": 14
-    },
-    {
-      "id": "2048-8654",
-      "title": "2048",
-      "category": "puzzle",
-      "description": "",
-      "thumbnail": "https://bloxd.io/textures/games/survivalFactory/bloxd_factory_thumbnail_small.jpg",
-      "banner": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80",
-      "gameUrl": "https://Bloxd.io",
-      "tags": [
-        "Arcade",
-        "Retro",
-        "Cyber"
-      ],
-      "featured": false,
-      "status": "active",
-      "plays": 37,
-      "rating": 5,
-      "createdAt": "2026-09-10",
-      "_id": "6aa2cdaafc0e5215a6751cc3",
-      "updatedAt": "2026-09-11T07:33:29.121Z",
-      "__v": 0,
-      "previewVideo": "",
-      "tileSize": "1x1",
-      "likes": 426,
-      "dislikes": 14
+      "likes": 0,
+      "dislikes": 0
     }
   ],
   "categories": [
@@ -2712,8 +3389,14 @@
   ],
   "settings": {
     "siteName": "SKYGAMES Arcade",
-    "maintenanceMode": false,
+    "maintenanceMode": true,
     "allowSubmissions": true,
-    "platformName": "SKYGAMES ENTERPRISE"
+    "platformName": "SKYGAMES ENTERPRISE",
+    "_id": "6aa25a19ce57ef19a3353ca6",
+    "siteTitle": "SKYGAMES - Play 1000+ Free Online Browser Games",
+    "metaDescription": "Play top-rated instant arcade, action, puzzle, and racing games onThopGames.",
+    "allowDevSubmissions": true,
+    "updatedAt": "2026-09-10T07:19:53.974Z",
+    "__v": 0
   }
 }

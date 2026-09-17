@@ -28,7 +28,9 @@ import {
   EyeOff,
   Zap,
   SmilePlus,
-  ChevronRight
+  ChevronRight,
+  Trophy,
+  Swords
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sounds } from '../utils/audio';
@@ -194,16 +196,19 @@ export default function GamePlayerView({
   onToggleFavorite,
   allGames = [],
   onSelectRelatedGame,
-  onSelectCategory
+  onSelectCategory,
+  onOpenLeaderboard,
+  onOpenMultiplayer,
+  user
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [likes, setLikes] = useState(() => {
-    return typeof game?.likes === 'number' ? game.likes : 120;
+    return typeof game?.likes === 'number' ? game.likes : 0;
   });
   const [dislikes, setDislikes] = useState(() => {
-    return typeof game?.dislikes === 'number' ? game.dislikes : 4;
+    return typeof game?.dislikes === 'number' ? game.dislikes : 0;
   });
   const [userVote, setUserVote] = useState(() => {
     try {
@@ -1073,18 +1078,6 @@ export default function GamePlayerView({
                 title={isFavorite ? "Saved to Favorites" : "Add to Favorites"}
               >
                 <Heart size={19} className="sky-action-icon" fill={isFavorite ? "#f52d7e" : "none"} color={isFavorite ? "#f52d7e" : "currentColor"} />
-              </button>
-
-              {/* Switch Engine (Built-in Arcade vs Web URL) */}
-              <button
-                className={`sky-action-btn ${useBuiltInEngine ? 'active-engine' : ''}`}
-                onClick={() => {
-                  sounds.playClick();
-                  setUseBuiltInEngine(!useBuiltInEngine);
-                }}
-                title={useBuiltInEngine ? "Switch to Web Embed" : "Play Built-in Arcade Engine"}
-              >
-                <Gamepad2 size={19} className="sky-action-icon" />
               </button>
 
               {/* Reload / Restart */}

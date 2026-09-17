@@ -6,6 +6,10 @@ import GamePlayerView from './components/GamePlayerView';
 
 // Critical auth modal imported directly for instant 0ms response
 import AuthModal from './components/AuthModal';
+import LeaderboardModal from './components/LeaderboardModal';
+import QuestRewardsModal from './components/QuestRewardsModal';
+import MultiplayerLobbyModal from './components/MultiplayerLobbyModal';
+import PWAInstallBanner from './components/PWAInstallBanner';
 
 // Code-split other non-critical pages & drawers
 const FavoritesDrawer = lazy(() => import('./components/FavoritesDrawer'));
@@ -18,7 +22,7 @@ import { GAMES as DEFAULT_STATIC_GAMES, CATEGORIES as DEFAULT_STATIC_CATEGORIES 
 import { sounds } from './utils/audio';
 import { socket } from './utils/socket';
 import { CONFIG } from './config';
-import { gamesApi, categoriesApi, bannerApi } from './services/api';
+import { gamesApi, categoriesApi, bannerApi, cloudSyncApi } from './services/api';
 
 const { STORAGE_KEYS } = CONFIG;
 
@@ -48,7 +52,7 @@ class ErrorBoundary extends Component {
           textAlign: 'center',
           fontFamily: 'Inter, system-ui, sans-serif'
         }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: 12 }}>🎮 SkyGames Ready</h2>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: 12 }}>🎮ThopGames Ready</h2>
           <p style={{ color: '#94a3b8', maxWidth: 460, marginBottom: 20 }}>
             An unexpected glitch was caught and safely recovered.
           </p>
@@ -159,6 +163,7 @@ function App() {
 
   const [pendingGameId, setPendingGameId] = useState(initialNav.gameId);
   const [selectedGame, setSelectedGame] = useState(null);
+  const [activeGameCounts, setActiveGameCounts] = useState({});
 
   const [recentlyPlayed, setRecentlyPlayed] = useState(() => {
     try {
@@ -183,6 +188,96 @@ function App() {
   const [contactOpen, setContactOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
+  // Upgrade Modals State
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [leaderboardGame, setLeaderboardGame] = useState(null);
+  const [questsOpen, setQuestsOpen] = useState(false);
+  const [multiplayerOpen, setMultiplayerOpen] = useState(false);
+
+  // Gamification & XP State
+  const [totalXp, setTotalXp] = useState(() => {
+    try {
+      return parseInt(localStorage.getItem('sky_total_xp') || '150', 10);
+    } catch {
+      return 150;
+    }
+  });
+
+  const [level, setLevel] = useState(() => {
+    try {
+      const savedLvl = parseInt(localStorage.getItem('sky_user_level') || '1', 10);
+      return Math.max(savedLvl, Math.floor(Math.sqrt(totalXp / 100)) + 1);
+    } catch {
+      return 1;
+    }
+  });
+
+  const [completedQuests, setCompletedQuests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sky_completed_quests');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [unlockedBadges, setUnlockedBadges] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sky_unlocked_badges');
+      return saved ? JSON.parse(saved) : ['first_play'];
+    } catch {
+      return ['first_play'];
+    }
+  });
+
+  // Cloud Save Hydration on Login
+  useEffect(() => {
+    if (user?.id) {
+      cloudSyncApi.getProgress(user.id).then(res => {
+        if (res?.cloudSave) {
+          const { favorites: cloudFavs, totalXp: cloudXp, level: cloudLvl, unlockedBadges: cloudBadges, questProgress } = res.cloudSave;
+          if (Array.isArray(cloudFavs) && cloudFavs.length > 0) setFavorites(cloudFavs);
+          if (cloudXp > totalXp) setTotalXp(cloudXp);
+          if (cloudLvl > level) setLevel(cloudLvl);
+          if (Array.isArray(cloudBadges)) setUnlockedBadges(prev => Array.from(new Set([...prev, ...cloudBadges])));
+          if (questProgress) setCompletedQuests(prev => ({ ...prev, ...questProgress }));
+        }
+      }).catch(() => { });
+    }
+  }, [user]);
+
+  const handleAwardXp = useCallback((newXp, newLvl, questId = null) => {
+    setTotalXp(newXp);
+    setLevel(newLvl);
+    try {
+      localStorage.setItem('sky_total_xp', String(newXp));
+      localStorage.setItem('sky_user_level', String(newLvl));
+    } catch { }
+
+    if (questId) {
+      setCompletedQuests(prev => {
+        const updated = { ...prev, [questId]: true };
+        try {
+          localStorage.setItem('sky_completed_quests', JSON.stringify(updated));
+        } catch { }
+        return updated;
+      });
+    }
+
+    // Debounced Cloud Sync
+    if (user?.id) {
+      cloudSyncApi.syncProgress({
+        userId: user.id,
+        favorites,
+        recent: recentlyPlayed,
+        totalXp: newXp,
+        level: newLvl,
+        questProgress: completedQuests,
+        unlockedBadges
+      }).catch(() => { });
+    }
+  }, [user, favorites, recentlyPlayed, completedQuests, unlockedBadges]);
+
   const fetchLivePlatformData = useCallback(async () => {
     try {
       const [liveGames, liveBanner, liveCats] = await Promise.all([
@@ -191,7 +286,7 @@ function App() {
         categoriesApi.getLiveCategories().catch(() => null)
       ]);
 
-      if (Array.isArray(liveGames) && liveGames.length > 0) {
+      if (Array.isArray(liveGames)) {
         setGames(liveGames);
         try {
           localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(liveGames));
@@ -202,7 +297,7 @@ function App() {
         setBanner(liveBanner);
       }
 
-      if (Array.isArray(liveCats) && liveCats.length > 0) {
+      if (Array.isArray(liveCats)) {
         setCategories(liveCats);
         try {
           localStorage.setItem(STORAGE_KEYS.CACHED_CATEGORIES, JSON.stringify(liveCats));
@@ -312,6 +407,12 @@ function App() {
       setActiveCategory(prev => (prev === catId ? '' : prev));
     };
 
+    const handleActiveGameCounts = (counts) => {
+      if (counts && typeof counts === 'object') {
+        setActiveGameCounts(counts);
+      }
+    };
+
     socket.on('banner:update', handleBannerUpdate);
     socket.on('game:play:increment', handleGameIncrement);
     socket.on('game:created', handleGameCreated);
@@ -323,6 +424,11 @@ function App() {
     socket.on('category:new', handleCategoryNew);
     socket.on('category:update', handleCategoryUpdate);
     socket.on('category:delete', handleCategoryDelete);
+    socket.on('games:active_counts', handleActiveGameCounts);
+
+    if (socket.connected) {
+      socket.emit('request:active_game_counts');
+    }
 
     return () => {
       socket.off('banner:update', handleBannerUpdate);
@@ -336,6 +442,7 @@ function App() {
       socket.off('category:new', handleCategoryNew);
       socket.off('category:update', handleCategoryUpdate);
       socket.off('category:delete', handleCategoryDelete);
+      socket.off('games:active_counts', handleActiveGameCounts);
     };
   }, [fetchLivePlatformData]);
 
@@ -443,7 +550,12 @@ function App() {
       const filtered = prev.filter(g => g.id !== game.id);
       return [game, ...filtered].slice(0, 10);
     });
-  }, [activeCategory, activePage, searchQuery]);
+
+    // Award +25 XP on game play session
+    const nextXp = totalXp + 25;
+    const nextLvl = Math.floor(Math.sqrt(nextXp / 100)) + 1;
+    handleAwardXp(nextXp, nextLvl);
+  }, [activeCategory, activePage, searchQuery, totalXp, handleAwardXp]);
 
   const handleCloseGame = useCallback(() => {
     setSelectedGame(null);
@@ -532,6 +644,9 @@ function App() {
 
   return (
     <div className="sky-app-root sky-theme-root gamepix-app-layout">
+      {/* 📱 PWA 1-Click Install Banner */}
+      <PWAInstallBanner />
+
       {/* Sitewide Announcement Banner */}
       {banner && banner.active === true && Boolean(banner.message?.trim()) && (
         <div className="sky-sitewide-banner">
@@ -545,7 +660,7 @@ function App() {
         </div>
       )}
 
-      {/* SkyGames Modern Sticky Navbar */}
+      {/*ThopGames Modern Sticky Navbar */}
       <SkyNavbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -569,6 +684,13 @@ function App() {
         favoritesCount={favorites.length}
         onOpenFavorites={() => setFavoritesDrawerOpen(true)}
         onNavigate={handleNavigation}
+        onOpenLeaderboard={() => {
+          setLeaderboardGame(null);
+          setLeaderboardOpen(true);
+        }}
+        onOpenMultiplayer={() => setMultiplayerOpen(true)}
+        onOpenQuests={() => setQuestsOpen(true)}
+        level={level}
       />
 
       <div className="gamepix-body-layout">
@@ -587,6 +709,12 @@ function App() {
           user={user}
           onOpenAuth={() => setAuthModalOpen(true)}
           categories={categories}
+          onOpenLeaderboard={() => {
+            setLeaderboardGame(null);
+            setLeaderboardOpen(true);
+          }}
+          onOpenMultiplayer={() => setMultiplayerOpen(true)}
+          onOpenQuests={() => setQuestsOpen(true)}
         />
 
         {/* Right Main Content Area */}
@@ -601,10 +729,16 @@ function App() {
                 allGames={games}
                 onSelectRelatedGame={handlePlayGame}
                 onSelectCategory={handleCategorySelect}
+                onOpenLeaderboard={(targetGame) => {
+                  setLeaderboardGame(targetGame || selectedGame);
+                  setLeaderboardOpen(true);
+                }}
+                onOpenMultiplayer={() => setMultiplayerOpen(true)}
+                user={user}
               />
             ) : activePage === 'developers' ? (
               <Suspense fallback={<div className="loading-spinner" />}>
-                <DeveloperPortal 
+                <DeveloperPortal
                   onBackToHome={() => { setActivePage('home'); setActiveCategory(''); }}
                   categories={categories}
                 />
@@ -633,6 +767,7 @@ function App() {
                               ''
                 }
                 games={displayedGames}
+                activeGameCounts={activeGameCounts}
                 onPlayGame={handlePlayGame}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
@@ -656,7 +791,7 @@ function App() {
 
       </div>
 
-      {/* Critical Auth & Profile Modal - Rendered directly for instant response */}
+      {/* Critical Auth & Profile Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
@@ -668,6 +803,40 @@ function App() {
             localStorage.removeItem('sky_user');
           } catch { }
           setUser(null);
+        }}
+      />
+
+      {/* 🏆 Global & Game Leaderboards Modal */}
+      <LeaderboardModal
+        isOpen={leaderboardOpen}
+        onClose={() => setLeaderboardOpen(false)}
+        game={leaderboardGame}
+        user={user}
+        onScoreSubmitted={() => {
+          handleAwardXp(totalXp + 50, level);
+        }}
+      />
+
+      {/* ⚡ Daily Quests & XP Rewards Modal */}
+      <QuestRewardsModal
+        isOpen={questsOpen}
+        onClose={() => setQuestsOpen(false)}
+        totalXp={totalXp}
+        level={level}
+        completedQuests={completedQuests}
+        unlockedBadges={unlockedBadges}
+        onXpAwarded={handleAwardXp}
+      />
+
+      {/* ⚔️ Real-Time 1v1 Multiplayer Lobby Modal */}
+      <MultiplayerLobbyModal
+        isOpen={multiplayerOpen}
+        onClose={() => setMultiplayerOpen(false)}
+        user={user}
+        onStartMatch={(room) => {
+          if (games.length > 0) {
+            handlePlayGame(games[0]);
+          }
         }}
       />
 

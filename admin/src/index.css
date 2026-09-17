@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SKYGAMES CONTROL CENTER - ADVANCED NEXT-GEN CYBER DASHBOARD DESIGN SYSTEM
+  ThopGames CONTROL CENTER - ADVANCED NEXT-GEN CYBER DASHBOARD DESIGN SYSTEM
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
@@ -69,17 +69,20 @@
 /* ==========================================================================
    Reset & Base Styles (No Unwanted Text Caret / No Accidental Text Selection)
    ========================================================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  caret-color: transparent; /* Removes blinking '|' text typing line from UI */
+  caret-color: transparent;
+  /* Removes blinking '|' text typing line from UI */
 }
 
 body {
   font-family: var(--font-main);
   background-color: var(--bg-space);
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.03) 0%, transparent 40%),
     radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.03) 0%, transparent 40%),
     linear-gradient(180deg, #050814 0%, #080d1e 100%);
@@ -90,7 +93,8 @@ body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  user-select: none; /* Prevents text typing cursor '|' across dashboard UI */
+  user-select: none;
+  /* Prevents text typing cursor '|' across dashboard UI */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -114,7 +118,8 @@ pre,
   -moz-user-select: text !important;
   -ms-user-select: text !important;
   cursor: text !important;
-  caret-color: auto !important; /* Normal cursor in inputs */
+  caret-color: auto !important;
+  /* Normal cursor in inputs */
 }
 
 /* Clickable elements should always show pointer cursor */
@@ -202,8 +207,13 @@ select,
 }
 
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
-  100% { box-shadow: 0 0 25px rgba(0, 242, 254, 0.6), 0 0 40px rgba(37, 99, 235, 0.4); }
+  0% {
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+  }
+
+  100% {
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.6), 0 0 40px rgba(37, 99, 235, 0.4);
+  }
 }
 
 .brand-text h1 {
@@ -358,9 +368,20 @@ select,
 }
 
 @keyframes pulseDot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 .status-value-text {
@@ -947,12 +968,41 @@ select,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.icon-emerald { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: #10b981; }
-.icon-blue { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); color: #3b82f6; }
-.icon-purple { background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.3); color: #a855f7; }
-.icon-amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; }
-.icon-rose { background: rgba(244, 63, 94, 0.12); border-color: rgba(244, 63, 94, 0.3); color: #f43f5e; }
-.icon-cyan { background: rgba(0, 242, 254, 0.12); border-color: rgba(0, 242, 254, 0.3); color: #00f2fe; }
+.icon-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.icon-blue {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.icon-purple {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+}
+
+.icon-amber {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.icon-rose {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #f43f5e;
+}
+
+.icon-cyan {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: rgba(0, 242, 254, 0.3);
+  color: #00f2fe;
+}
 
 /* ==========================================================================
    Analytics Charts & Telemetry Grid
@@ -1154,10 +1204,25 @@ select,
   transition: width 0.4s ease;
 }
 
-.bar-emerald { background: var(--grad-emerald-teal); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.bar-blue { background: var(--grad-cyan-blue); box-shadow: 0 0 10px rgba(0, 242, 254, 0.4); }
-.bar-purple { background: var(--grad-purple-pink); box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
-.bar-amber { background: var(--grad-amber-orange); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+.bar-emerald {
+  background: var(--grad-emerald-teal);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.bar-blue {
+  background: var(--grad-cyan-blue);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+}
+
+.bar-purple {
+  background: var(--grad-purple-pink);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.bar-amber {
+  background: var(--grad-amber-orange);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
 
 .telemetry-quick-actions {
   display: flex;
@@ -1342,9 +1407,23 @@ select,
   font-family: var(--font-mono);
 }
 
-.rank-1 { color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
-.rank-2 { color: #cbd5e1; background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.3); }
-.rank-3 { color: #d97706; background: rgba(180, 83, 9, 0.15); border: 1px solid rgba(180, 83, 9, 0.3); }
+.rank-1 {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.rank-2 {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.rank-3 {
+  color: #d97706;
+  background: rgba(180, 83, 9, 0.15);
+  border: 1px solid rgba(180, 83, 9, 0.3);
+}
 
 .game-row-identity {
   display: flex;
@@ -1480,6 +1559,49 @@ select,
   border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
+.live-player-pulse-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2.5px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  user-select: none;
+}
+
+.live-player-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: adminPulseDotGlow 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes adminPulseDotGlow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75);
+  }
+
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
 /* Action Button Groups */
 .action-btn-group {
   display: flex;
@@ -1613,8 +1735,13 @@ select,
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -1976,8 +2103,15 @@ select,
 }
 
 @keyframes modalSlideUp {
-  from { transform: translateY(20px) scale(0.97); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
+  from {
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -2232,8 +2366,83 @@ select,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.game-card-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.game-card-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.game-card-badge.category {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  text-transform: capitalize;
+}
+
+.game-card-badge.tile-size {
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  font-weight: 800;
+}
+
+.game-card-badge.video {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.game-card-metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.game-card-metric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.game-card-metric-item.likes {
+  color: #38bdf8;
+}
+
+.game-card-metric-item.plays {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.game-card-metric-item.plays strong {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .game-card-actions {
@@ -2276,8 +2485,15 @@ select,
 }
 
 @keyframes toastSlideIn {
-  from { transform: translateX(50px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .toast.error {
@@ -2314,6 +2530,7 @@ select,
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

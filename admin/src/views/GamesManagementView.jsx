@@ -7,13 +7,16 @@ function AdminGameCardItem({
   onPlay,
   onToggleFeatured,
   onEditGame,
-  onDeleteGame
+  onDeleteGame,
+  livePlayersCount = 0
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef(null);
 
   const rawVideo = game.previewVideo || getGamePreviewVideo(game);
   const videoSource = parseVideoSource(rawVideo);
+
+  const computedLive = Number(livePlayersCount || 0);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -89,7 +92,7 @@ function AdminGameCardItem({
           />
         )}
         
-        <div className="game-card-badge-top" style={{ zIndex: 2 }}>
+        <div className="game-card-badge-top" style={{ zIndex: 2, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <span className={`status-badge ${game.status || 'active'}`}>
             {game.status || 'active'}
           </span>
@@ -98,6 +101,10 @@ function AdminGameCardItem({
               ⭐ Spotlight
             </span>
           )}
+          <span className="live-player-pulse-tag" title={`${computedLive} Active Players Right Now`}>
+            <span className="live-player-pulse-dot" />
+            <span>{computedLive} LIVE</span>
+          </span>
         </div>
 
         {game.gameUrl && (
@@ -122,24 +129,30 @@ function AdminGameCardItem({
           </div>
         </div>
 
-        <div className="game-card-meta-row">
-          <span className="category-pill-tag">
+        <div className="game-card-badges-row">
+          <span className="game-card-badge category">
             {game.category || 'Arcade'}
           </span>
-          <span style={{ fontSize: '0.72rem', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
-            📏 {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
+          <span className="game-card-badge tile-size">
+            📐 {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
           </span>
           {rawVideo && (
-            <span style={{ fontSize: '0.72rem', background: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
+            <span className="game-card-badge video">
               🎥 Video
             </span>
           )}
-          <span style={{ fontSize: '0.72rem', background: 'rgba(56, 189, 248, 0.12)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '2px 7px', borderRadius: '6px', fontWeight: 800 }}>
-            👍 {(game.likes || 0).toLocaleString()}
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ffffff' }}>
-            {(game.plays || 0).toLocaleString()} Plays
-          </span>
+        </div>
+
+        <div className="game-card-metrics-row">
+          <div className="game-card-metric-item likes">
+            <span>👍</span>
+            <span>{(game.likes || 0).toLocaleString()}</span>
+          </div>
+          <div className="game-card-metric-item plays">
+            <span>🎮</span>
+            <strong>{(game.plays || 0).toLocaleString()}</strong>
+            <span>Plays</span>
+          </div>
         </div>
 
         {game.tags && game.tags.length > 0 && (
@@ -191,6 +204,7 @@ function AdminGameCardItem({
 export default function GamesManagementView({
   games = [],
   categories = [],
+  activeGameCounts = {},
   onEditGame,
   onDeleteGame,
   onToggleFeatured,
@@ -206,21 +220,28 @@ export default function GamesManagementView({
 
   // Filter and Sort Logic
   const filteredGames = games.filter((game) => {
-    const matchesSearch = 
-      game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (game.description && game.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (game.tags && game.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))) ||
-      (game.id && game.id.toLowerCase().includes(searchQuery.toLowerCase()));
+    const q = searchQuery.trim().toLowerCase();
+    const title = (game.title || '').toLowerCase();
+    const desc = (game.description || '').toLowerCase();
+    const gid = String(game.id || game._id || '').toLowerCase();
+    const tagsStr = Array.isArray(game.tags) ? game.tags.join(' ').toLowerCase() : String(game.tags || '').toLowerCase();
 
-    const matchesCategory = selectedCategory === 'all' || game.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || (game.status || 'active') === selectedStatus;
+    const matchesSearch = !q || title.includes(q) || desc.includes(q) || tagsStr.includes(q) || gid.includes(q);
+
+    const gameCat = (game.category || '').toLowerCase();
+    const selCat = (selectedCategory || 'all').toLowerCase();
+    const matchesCategory = selCat === 'all' || gameCat === selCat;
+
+    const gameStatus = (game.status || 'active').toLowerCase();
+    const selStatus = (selectedStatus || 'all').toLowerCase();
+    const matchesStatus = selStatus === 'all' || gameStatus === selStatus;
 
     return matchesSearch && matchesCategory && matchesStatus;
   }).sort((a, b) => {
     if (sortBy === 'plays-desc') return (b.plays || 0) - (a.plays || 0);
     if (sortBy === 'plays-asc') return (a.plays || 0) - (b.plays || 0);
     if (sortBy === 'rating-desc') return (b.rating || 0) - (a.rating || 0);
-    if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
+    if (sortBy === 'title-asc') return (a.title || '').localeCompare(b.title || '');
     return 0;
   });
 
@@ -228,16 +249,30 @@ export default function GamesManagementView({
   const featuredCount = games.filter(g => g.featured).length;
   const maintenanceCount = games.filter(g => g.status === 'maintenance').length;
 
+  // Calculate live player total (Real active socket users only)
+  const totalLivePlayers = games.reduce((sum, g) => {
+    const gid = g.id || g._id;
+    const socketLive = activeGameCounts && (activeGameCounts[gid] || activeGameCounts[g.id] || activeGameCounts[g._id]);
+    const live = Number(socketLive || 0);
+    return sum + live;
+  }, 0);
+
   return (
     <div className="glass-panel">
       {/* Top Header Row with Metric Pills */}
-    
 
       {/* Metric Summary Counters */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, marginBottom: 20 }}>
         <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL TITLES</div>
           <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>{games.length}</div>
+        </div>
+        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
+          <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span className="live-player-pulse-dot" style={{ width: 6, height: 6 }} />
+            <span>LIVE PLAYERS</span>
+          </div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399' }}>{totalLivePlayers.toLocaleString()}</div>
         </div>
         <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
           <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>ACTIVE LIVE</div>
@@ -341,16 +376,22 @@ export default function GamesManagementView({
               No games found matching the selected criteria.
             </div>
           ) : (
-            filteredGames.map((game) => (
-              <AdminGameCardItem
-                key={game.id}
-                game={game}
-                onPlay={setActivePlayGame}
-                onToggleFeatured={onToggleFeatured}
-                onEditGame={onEditGame}
-                onDeleteGame={onDeleteGame}
-              />
-            ))
+            filteredGames.map((game) => {
+              const gid = game.id || game._id;
+              const liveCount = (activeGameCounts && (activeGameCounts[gid] || activeGameCounts[game.id] || activeGameCounts[game._id])) || 0;
+
+              return (
+                <AdminGameCardItem
+                  key={game.id || game._id}
+                  game={game}
+                  onPlay={setActivePlayGame}
+                  onToggleFeatured={onToggleFeatured}
+                  onEditGame={onEditGame}
+                  onDeleteGame={onDeleteGame}
+                  livePlayersCount={liveCount}
+                />
+              );
+            })
           )}
         </div>
       )}
@@ -364,6 +405,7 @@ export default function GamesManagementView({
                 <th>Game & Media</th>
                 <th>Category</th>
                 <th>Card Size</th>
+                <th>Live Players</th>
                 <th>Plays</th>
                 <th>Rating</th>
                 <th>Featured</th>
@@ -374,51 +416,62 @@ export default function GamesManagementView({
             <tbody>
               {filteredGames.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
                     No games match the selected filters.
                   </td>
                 </tr>
               ) : (
-                filteredGames.map((game) => (
-                  <tr key={game.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <img
-                          src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100'}
-                          alt={game.title}
-                          style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 'var(--radius)',
-                            objectFit: 'cover',
-                            border: '1px solid var(--border-glass)'
-                          }}
-                        />
-                        <div>
-                          <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>{game.title}</div>
-                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>ID: {game.id}</div>
+                filteredGames.map((game) => {
+                  const gid = game.id || game._id;
+                  const socketLive = activeGameCounts && (activeGameCounts[gid] || activeGameCounts[game.id] || activeGameCounts[game._id]);
+                  const live = Number(socketLive || 0);
+
+                  return (
+                    <tr key={game.id || game._id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <img
+                            src={game.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100'}
+                            alt={game.title}
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: 'var(--radius)',
+                              objectFit: 'cover',
+                              border: '1px solid var(--border-glass)'
+                            }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>{game.title}</div>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>ID: {game.id}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="category-pill-tag">{game.category || 'Arcade'}</span>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
-                        {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: 800, fontFamily: 'var(--font-mono)' }}>
-                        {(game.plays || 0).toLocaleString()}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="rating-badge-inline">
-                        <span className="rating-star">★</span>
-                        <span>{game.rating || 5.0}</span>
-                      </div>
-                    </td>
+                      </td>
+                      <td>
+                        <span className="category-pill-tag">{game.category || 'Arcade'}</span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                          {game.tileSize ? game.tileSize.toUpperCase() : (game.featured ? '2X2' : 'AUTO')}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="live-player-pulse-tag">
+                          <span className="live-player-pulse-dot" />
+                          <span>{live} LIVE</span>
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 800, fontFamily: 'var(--font-mono)' }}>
+                          {(game.plays || 0).toLocaleString()}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="rating-badge-inline">
+                          <span className="rating-star">★</span>
+                          <span>{game.rating || 5.0}</span>
+                        </div>
+                      </td>
                     <td>
                       <button
                         className="header-btn"
@@ -456,7 +509,7 @@ export default function GamesManagementView({
                           title="Delete Game"
                           onClick={() => {
                             if (window.confirm(`Delete "${game.title}"?`)) {
-                              onDeleteGame(game.id);
+                              onDeleteGame(game.id || game._id);
                             }
                           }}
                         >
@@ -465,8 +518,9 @@ export default function GamesManagementView({
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })
+            )}
             </tbody>
           </table>
         </div>

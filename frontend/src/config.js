@@ -1,5 +1,5 @@
 /**
- * Central Configuration for SkyGames Gaming Portal Frontend
+ * Central Configuration forThopGames Gaming Portal Frontend
  */
 
 export const CONFIG = {

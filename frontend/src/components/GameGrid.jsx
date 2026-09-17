@@ -32,7 +32,8 @@ const GameGrid = memo(function GameGrid({
   onOpenAuth,
   onFocusSearch,
   user,
-  categories = []
+  categories = [],
+  activeGameCounts = {}
 }) {
   const [visibleLimit, setVisibleLimit] = useState(INITIAL_BATCH_SIZE);
 
@@ -112,6 +113,9 @@ const GameGrid = memo(function GameGrid({
             sizeVariant = '1x1';
           }
 
+          const gameId = game.id || game._id;
+          const liveCount = (activeGameCounts && (activeGameCounts[gameId] || activeGameCounts[game.id] || activeGameCounts[game._id])) || 0;
+
           return (
             <GameCard
               key={game.id || game._id || index}
@@ -121,6 +125,7 @@ const GameGrid = memo(function GameGrid({
               onToggleFavorite={onToggleFavorite}
               sizeVariant={sizeVariant}
               priority={index < 12}
+              livePlayersCount={liveCount}
             />
           );
         })}

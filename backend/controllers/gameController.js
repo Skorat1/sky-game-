@@ -34,10 +34,11 @@ export async function getGames(req, res) {
       gamesList = await mQuery.lean();
     }
 
+    // If MongoDB returned no records (or is offline), fetch from localStore
     if (!gamesList || gamesList.length === 0) {
       gamesList = localStore.games || [];
       if (category && category !== 'all') {
-        gamesList = gamesList.filter(g => g.category?.toLowerCase() === category.toLowerCase());
+        gamesList = gamesList.filter(g => (g.category || '').toLowerCase() === category.toLowerCase());
       }
       if (featured === 'true') {
         gamesList = gamesList.filter(g => Boolean(g.featured));
@@ -45,17 +46,23 @@ export async function getGames(req, res) {
       if (search) {
         const q = search.toLowerCase();
         gamesList = gamesList.filter(g =>
-          g.title?.toLowerCase().includes(q) ||
-          g.description?.toLowerCase().includes(q) ||
-          (Array.isArray(g.tags) && g.tags.some(t => t.toLowerCase().includes(q)))
+          (g.title || '').toLowerCase().includes(q) ||
+          (g.description || '').toLowerCase().includes(q) ||
+          (Array.isArray(g.tags) && g.tags.some(t => String(t).toLowerCase().includes(q))) ||
+          (typeof g.tags === 'string' && g.tags.toLowerCase().includes(q))
         );
       }
       if (limit && !isNaN(Number(limit))) {
         gamesList = gamesList.slice(0, Number(limit));
       }
+
+      // Sync into MongoDB if MongoDB is connected
+      if (mongoose.connection.readyState === 1 && (!category || category === 'all') && !search && featured !== 'true' && (localStore.games || []).length > 0) {
+        Game.insertMany(localStore.games).catch(() => {});
+      }
     }
 
-    res.json(gamesList);
+    res.json(gamesList || []);
   } catch (err) {
     res.json(localStore.games || []);
   }
@@ -103,11 +110,11 @@ export async function createGame(req, res) {
     }
 
     gameData.plays = typeof gameData.plays === 'number' ? gameData.plays : 0;
-    gameData.likes = typeof gameData.likes === 'number' ? gameData.likes : 120;
-    gameData.dislikes = typeof gameData.dislikes === 'number' ? gameData.dislikes : 4;
+    gameData.likes = typeof gameData.likes === 'number' ? gameData.likes : 0;
+    gameData.dislikes = typeof gameData.dislikes === 'number' ? gameData.dislikes : 0;
 
     const totalVotes = gameData.likes + gameData.dislikes;
-    gameData.rating = totalVotes > 0 ? Number(((gameData.likes / totalVotes) * 5).toFixed(1)) : 4.8;
+    gameData.rating = totalVotes > 0 ? Number(((gameData.likes / totalVotes) * 5).toFixed(1)) : 5.0;
     if (!gameData.createdAt) gameData.createdAt = new Date().toISOString().split('T')[0];
     if (!Array.isArray(gameData.tags)) {
       gameData.tags = gameData.tags ? String(gameData.tags).split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -199,19 +206,22 @@ export async function updateGame(req, res) {
 // Delete single game
 export async function deleteGame(req, res) {
   try {
-    const rawId = req.params.id;
+    const rawId = String(req.params.id || '');
+    if (!rawId) {
+      return res.status(400).json({ error: 'Game ID required' });
+    }
+
     localStore.games = (localStore.games || []).filter(
-      g => g.id !== rawId && (g._id ? String(g._id) !== rawId : true)
+      g => String(g.id || '') !== rawId && String(g._id || '') !== rawId
     );
     persistStore();
 
     if (mongoose.connection.readyState === 1) {
-      await Game.deleteMany({
-        $or: [
-          { id: rawId },
-          { _id: mongoose.isValidObjectId(rawId) ? rawId : null }
-        ]
-      }).catch(() => { });
+      const deleteConditions = [{ id: rawId }];
+      if (mongoose.isValidObjectId(rawId)) {
+        deleteConditions.push({ _id: rawId });
+      }
+      await Game.deleteMany({ $or: deleteConditions }).catch(() => { });
     }
 
     const io = getIO();
