@@ -93,27 +93,15 @@ export default function Sidebar({
   onRandomPlay,
   user,
   onOpenAuth,
-  onOpenLeaderboard,
   onOpenMultiplayer,
-  onOpenQuests,
   categories = []
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home, color: '#00f2fe' },
     { id: 'most-played', label: 'Most played', icon: Trophy, color: '#ffd200' },
     { id: 'trending', label: 'Trending', icon: Flame, color: '#f52d7e', badge: 'HOT' },
-    { id: 'new', label: 'New', icon: Sparkles, color: '#00f5a0' },
     {
-      id: 'leaderboard',
-      label: 'Leaderboards',
-      icon: Trophy,
-      color: '#ffd700',
-      badge: 'TOP',
-      isAction: true,
-      action: () => {
-        sounds.playClick();
-        if (onOpenLeaderboard) onOpenLeaderboard();
-      }
+      id: 'new', label: 'New', icon: Sparkles, color: '#00f5a0'
     },
     {
       id: 'multiplayer',
@@ -125,17 +113,6 @@ export default function Sidebar({
       action: () => {
         sounds.playClick();
         if (onOpenMultiplayer) onOpenMultiplayer();
-      }
-    },
-    {
-      id: 'quests',
-      label: 'Daily Quests & XP',
-      icon: Zap,
-      color: '#f52d7e',
-      isAction: true,
-      action: () => {
-        sounds.playClick();
-        if (onOpenQuests) onOpenQuests();
       }
     },
     {

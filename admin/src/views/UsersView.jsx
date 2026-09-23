@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import CustomSelect from '../components/CustomSelect';
 
 export default function UsersView({
   users = [],
@@ -134,29 +135,34 @@ export default function UsersView({
   return (
     <div className="glass-panel">
       {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL ACCOUNTS</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>{totalUsers}</div>
+      <div className="mini-stats-grid">
+        <div className="mini-stat-card">
+          <div className="mini-stat-label">TOTAL ACCOUNTS</div>
+          <div className="mini-stat-value">{totalUsers}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>ACTIVE PLAYERS</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399' }}>{activeUsers}</div>
+        <div className="mini-stat-card success">
+          <div className="mini-stat-label">ACTIVE PLAYERS</div>
+          <div className="mini-stat-value">{activeUsers}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>STAFF / ADMINS</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#c084fc' }}>{staffCount}</div>
+        <div className="mini-stat-card purple">
+          <div className="mini-stat-label">STAFF / ADMINS</div>
+          <div className="mini-stat-value">{staffCount}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#fca5a5', fontWeight: 600 }}>BANNED / LOCKED</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fca5a5' }}>{bannedCount}</div>
+        <div className="mini-stat-card danger">
+          <div className="mini-stat-label">BANNED / LOCKED</div>
+          <div className="mini-stat-value">{bannedCount}</div>
         </div>
       </div>
 
       {/* Filter Toolbar */}
       <div className="filter-bar">
         <div className="search-input-wrapper">
-          <span className="search-icon-pos">🔍</span>
+          <span className="search-icon-pos">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
           <input
             type="text"
             className="search-input"
@@ -167,30 +173,35 @@ export default function UsersView({
         </div>
 
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <select
-            className="select-filter"
+          <CustomSelect
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-          >
-            <option value="all">All Roles ({users.length})</option>
-            <option value="admin">Admins 👑</option>
-            <option value="moderator">Moderators 🛡️</option>
+            onChange={setRoleFilter}
+            options={[
+              { value: 'all', label: `All Roles (${users.length})` },
+              { value: 'admin', label: 'Admins' },
+              { value: 'moderator', label: 'Moderators' }
+            ]}
+            minWidth="155px"
+          />
 
-          </select>
-
-          <select
-            className="select-filter"
+          <CustomSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active 🟢</option>
-            <option value="banned">Banned 🔴</option>
-          </select>
+            onChange={setStatusFilter}
+            options={[
+              { value: 'all', label: 'All Statuses' },
+              { value: 'active', label: 'Active' },
+              { value: 'banned', label: 'Banned' }
+            ]}
+            minWidth="145px"
+          />
 
           {onRefresh && (
-            <button className="admin-btn secondary" onClick={onRefresh} title="Sync Users from MongoDB">
-              <span>🔄</span>
+            <button className="admin-btn secondary" onClick={onRefresh} title="Sync Users from Database">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
               <span>Sync</span>
             </button>
           )}
@@ -247,7 +258,7 @@ export default function UsersView({
                           {userInitial}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.9rem' }}>
+                          <div style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '0.9rem' }}>
                             {u.username || u.name}
                           </div>
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
@@ -274,7 +285,7 @@ export default function UsersView({
                           border: `1px solid ${u.role === 'admin' ? 'rgba(168, 85, 247, 0.3)' : u.role === 'vip' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
                         }}
                       >
-                        {u.role === 'admin' ? '👑 Admin' : u.role === 'vip' ? '💎 VIP' : u.role === 'moderator' ? '🛡️ Mod' : '🎮 Player'}
+                        {u.role === 'admin' ? 'Admin' : u.role === 'vip' ? 'VIP' : u.role === 'moderator' ? 'Mod' : 'Player'}
                       </span>
                     </td>
 
@@ -304,14 +315,27 @@ export default function UsersView({
                           onClick={() => handleToggleBan(u)}
                           style={{ color: u.status === 'banned' ? '#34d399' : '#f87171' }}
                         >
-                          {u.status === 'banned' ? '🔓' : '🚫'}
+                          {u.status === 'banned' ? (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                              <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                            </svg>
+                          ) : (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                            </svg>
+                          )}
                         </button>
                         <button
                           className="icon-action-btn edit"
                           title="Edit User"
                           onClick={() => handleOpenEditModal(u)}
                         >
-                          ✏️
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
                         </button>
                         <button
                           className="icon-action-btn delete"
@@ -322,7 +346,10 @@ export default function UsersView({
                             }
                           }}
                         >
-                          🗑️
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -339,14 +366,14 @@ export default function UsersView({
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h2 className="modal-title">{editingUser ? '✏️ Edit User Profile' : '➕ Create New User'}</h2>
+              <h2 className="modal-title">{editingUser ? 'Edit User Profile' : 'Create New User'}</h2>
               <button type="button" className="close-btn" onClick={() => { setIsModalOpen(false); setEditingUser(null); }}>&times;</button>
             </div>
 
             <form onSubmit={handleFormSubmit}>
               <div className="modal-body">
                 {formError && (
-                  <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 8, color: '#fca5a5', fontSize: '0.82rem' }}>
+                  <div style={{ padding: '10px 14px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, color: '#dc2626', fontSize: '0.84rem', fontWeight: 600 }}>
                     {formError}
                   </div>
                 )}
@@ -387,27 +414,78 @@ export default function UsersView({
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">System Role</label>
-                    <select
-                      className="form-select"
-                      value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    >
-                      
-                      <option value="moderator">Moderator</option>
-                      <option value="admin">Administrator</option>
-                    </select>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {[
+                        { id: 'moderator', label: 'Moderator' },
+                        { id: 'admin', label: 'Administrator' }
+                      ].map(r => {
+                        const isSel = formData.role === r.id;
+                        return (
+                          <button
+                            key={r.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, role: r.id })}
+                            style={{
+                              flex: 1,
+                              padding: '9px 8px',
+                              borderRadius: '8px',
+                              border: isSel ? '1.5px solid var(--accent-brand)' : '1px solid var(--border-color)',
+                              background: isSel ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-canvas)',
+                              color: isSel ? 'var(--accent-brand)' : 'var(--text-muted)',
+                              fontWeight: isSel ? 700 : 500,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '5px',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.9rem' }}>{r.icon}</span>
+                            <span>{r.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">Account Status</label>
-                    <select
-                      className="form-select"
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    >
-                      <option value="active">Active 🟢</option>
-                      <option value="banned">Banned 🔴</option>
-                    </select>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {[
+                        { id: 'active', label: 'Active', icon: '●', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.1)', border: '#16a34a' },
+                        { id: 'banned', label: 'Banned', icon: '●', color: '#dc2626', bg: 'rgba(220, 38, 38, 0.1)', border: '#dc2626' }
+                      ].map(s => {
+                        const isSel = formData.status === s.id;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, status: s.id })}
+                            style={{
+                              flex: 1,
+                              padding: '9px 8px',
+                              borderRadius: '8px',
+                              border: isSel ? `1.5px solid ${s.border}` : '1px solid var(--border-color)',
+                              background: isSel ? s.bg : 'var(--bg-canvas)',
+                              color: isSel ? s.color : 'var(--text-muted)',
+                              fontWeight: isSel ? 700 : 500,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.5rem', color: isSel ? s.color : '#94a3b8' }}>{s.icon}</span>
+                            <span>{s.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

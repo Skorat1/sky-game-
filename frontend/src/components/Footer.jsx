@@ -29,7 +29,7 @@ export default function Footer({ onNavigate }) {
         <div className="footer-col brand-col">
           <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img
-              src="/skygames-logo.png"
+              src="/thopgame-logo.png"
               alt="ThopGame"
               style={{ height: '48px', width: 'auto', objectFit: 'contain', borderRadius: '10px', background: '#fff', padding: '2px 8px' }}
             />

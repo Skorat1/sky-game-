@@ -4,7 +4,6 @@ import { requireAdminAuth } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-// Protected: Admin live analytics and server telemetry
 router.get('/live', requireAdminAuth, getLiveAnalytics);
 
 export default router;

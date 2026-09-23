@@ -88,15 +88,11 @@ export default function AdminLogin({ onLoginSuccess }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#050814',
-        backgroundImage: `
-          radial-gradient(circle at 50% 20%, rgba(0, 242, 254, 0.12) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-          linear-gradient(180deg, #050814 0%, #080d1e 100%)
-        `,
+        backgroundColor: '#090d16',
+        backgroundImage: 'linear-gradient(180deg, #090d16 0%, #0d1527 100%)',
         padding: '20px',
         boxSizing: 'border-box',
-        fontFamily: "'Plus Jakarta Sans', 'Outfit', sans-serif",
+        fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
         color: '#ffffff'
       }}
     >
@@ -104,48 +100,40 @@ export default function AdminLogin({ onLoginSuccess }) {
         style={{
           width: '100%',
           maxWidth: '440px',
-          backgroundColor: 'rgba(13, 21, 45, 0.85)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(0, 242, 254, 0.25)',
-          borderRadius: '20px',
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '16px',
           padding: '40px 32px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 242, 254, 0.15)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05)',
           boxSizing: 'border-box',
           position: 'relative'
         }}
       >
-        {/* Glow Top Accent */}
-        <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '2px', background: 'linear-gradient(90deg, transparent, #00f2fe, transparent)' }}></div>
-
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <img
-            src="/sky-icon.png"
+            src="/thopgame-logo.svg"
             alt="ThopGame Logo"
             style={{
               width: '72px',
               height: '72px',
               objectFit: 'contain',
-              borderRadius: '20px',
-              background: '#ffffff',
-              padding: '6px',
               margin: '0 auto 16px',
               display: 'block',
-              boxShadow: '0 0 25px rgba(0, 242, 254, 0.4)',
-              border: '1.5px solid rgba(255, 255, 255, 0.3)'
+              filter: 'drop-shadow(0 6px 16px rgba(0, 102, 254, 0.4))'
             }}
           />
           <h1 
             style={{
-              fontSize: '1.5rem',
-              fontWeight: 900,
+              fontSize: '1.45rem',
+              fontWeight: 800,
               color: '#ffffff',
               margin: '0 0 6px 0',
-              letterSpacing: '0.5px',
-              fontFamily: "'Outfit', sans-serif"
+              letterSpacing: '-0.02em',
+              fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif"
             }}
           >
-            THOP<span style={{ color: '#00f2fe' }}>GAME</span> CONTROL CENTER
+            THOP<span style={{ color: '#3b82f6' }}>GAME</span> CONTROL CENTER
           </h1>
           <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: 0 }}>
             Master Administration & Gaming Operations Console
@@ -168,7 +156,11 @@ export default function AdminLogin({ onLoginSuccess }) {
               marginBottom: '18px'
             }}
           >
-            <span>⚠️</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
             <span>{error}</span>
           </div>
         )}
@@ -210,7 +202,10 @@ export default function AdminLogin({ onLoginSuccess }) {
                 height: '44px'
               }}
             >
-              <span style={{ marginRight: 10, color: '#64748b' }}>👤</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 10, flexShrink: 0 }}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
               <input
                 type="text"
                 value={identifier}
@@ -246,7 +241,10 @@ export default function AdminLogin({ onLoginSuccess }) {
                 height: '44px'
               }}
             >
-              <span style={{ marginRight: 10, color: '#64748b' }}>🔒</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 10, flexShrink: 0 }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -275,7 +273,17 @@ export default function AdminLogin({ onLoginSuccess }) {
                   fontSize: '0.85rem'
                 }}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -286,14 +294,14 @@ export default function AdminLogin({ onLoginSuccess }) {
             style={{
               height: '46px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #00f2fe 0%, #2563eb 100%)',
+              background: '#2563eb',
               border: 'none',
               color: '#ffffff',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '0.92rem',
               cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: '8px',
-              boxShadow: '0 0 20px rgba(0, 242, 254, 0.35)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -305,7 +313,9 @@ export default function AdminLogin({ onLoginSuccess }) {
               <span>Authenticating...</span>
             ) : (
               <>
-                <span>⚡</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
                 <span>Access Master Console</span>
               </>
             )}

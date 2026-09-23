@@ -26,6 +26,7 @@ export default function SkyBrandCard({ onOpenAuth, onFocusSearch, user }) {
           <span className="sky-logo-char">a</span>
           <span className="sky-logo-char">m</span>
           <span className="sky-logo-char">e</span>
+          <span className="sky-logo-char">s</span>
         </div>
       </div>
 

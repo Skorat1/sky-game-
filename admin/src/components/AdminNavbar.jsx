@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export default function AdminNavbar({ 
   activeTab, 
@@ -8,52 +8,45 @@ export default function AdminNavbar({
   livePlayerCount = 0, 
   adminUser, 
   onLogout,
-  dbStatus,
-  onSearchGlobal
+  dbStatus
 }) {
   const titles = {
-    dashboard: 'Platform Overview & Live Telemetry',
-    games: 'Games Catalog & Asset Management',
-    users: 'User & Gamer Accounts Management',
-    categories: 'Game Categories & Taxonomy',
-    banner: 'Sitewide Announcement Broadcast',
-    submissions: 'Developer Community Submissions',
-    messages: 'Inbox & User Feedback Stream'
+    dashboard: 'Dashboard',
+    games: 'Games Catalog',
+    users: 'Users & Players',
+    categories: 'Categories',
+    submissions: 'Dev Submissions',
+    messages: 'Support Inbox'
   };
 
   return (
     <header className="admin-header">
+      {/* Left: Breadcrumbs */}
       <div className="header-left">
-        <button
-          className="header-btn"
-          style={{ padding: '6px 10px', fontSize: '1rem', display: 'none' }}
-          onClick={onToggleSidebar}
-          aria-label="Toggle Sidebar"
-          id="mobileSidebarToggle"
-        >
-          ☰
-        </button>
+        <div className="navbar-breadcrumbs">
+          <span className="breadcrumb-root">
+            <span>Dashboards</span>
+          </span>
+          <span className="breadcrumb-sep">›</span>
+          <span className="breadcrumb-active">{titles[activeTab] || 'Dashboard'}</span>
 
-        <div className="page-title">
-          <span>{titles[activeTab] || 'Control Center'}</span>
-          <span className="live-indicator">
-            <span className="live-dot"></span>
-            <span>{livePlayerCount.toLocaleString()} Live Visitors</span>
+          <span className="live-indicator" title="Live Visitors Realtime Telemetry">
+            <span className="live-dot" />
+            <span>{livePlayerCount.toLocaleString()} Live</span>
           </span>
         </div>
       </div>
 
+      {/* Right: Action Buttons */}
       <div className="header-right">
         {activeTab === 'games' && onOpenGameModal && (
           <button className="header-btn primary" onClick={() => onOpenGameModal(null)}>
-            <span>➕</span>
             <span>Add New Game</span>
           </button>
         )}
 
         {activeTab === 'users' && onOpenUserModal && (
           <button className="header-btn primary" onClick={() => onOpenUserModal(null)}>
-            <span>➕</span>
             <span>Add New User</span>
           </button>
         )}

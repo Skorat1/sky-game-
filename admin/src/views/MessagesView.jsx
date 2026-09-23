@@ -25,7 +25,12 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
         <div className="panel-header">
           <div>
             <h2 className="panel-title">
-              <span style={{ color: 'var(--accent-cyan)' }}>📩</span>
+              <span style={{ color: 'var(--accent-cyan)', display: 'inline-flex', alignItems: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </span>
               <span>Player Inbox & Support Stream ({messages.length})</span>
             </h2>
             <span className="panel-subtitle">Feedback, bug reports, and partnership inquiries from the player community</span>
@@ -51,7 +56,12 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
         {/* Filter Toolbar */}
         <div className="filter-bar">
           <div className="search-input-wrapper">
-            <span className="search-icon-pos">🔍</span>
+            <span className="search-icon-pos">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
             <input
               type="text"
               className="search-input"
@@ -72,19 +82,19 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
               className={`chart-toggle-btn ${filterType === 'Bug Report' ? 'active' : ''}`}
               onClick={() => setFilterType('Bug Report')}
             >
-              Bugs 🐛
+              Bugs
             </button>
             <button
               className={`chart-toggle-btn ${filterType === 'Game Request' ? 'active' : ''}`}
               onClick={() => setFilterType('Game Request')}
             >
-              Requests 💡
+              Requests
             </button>
             <button
               className={`chart-toggle-btn ${filterType === 'Partnership' ? 'active' : ''}`}
               onClick={() => setFilterType('Partnership')}
             >
-              Partners 🤝
+              Partners
             </button>
           </div>
         </div>
@@ -119,9 +129,9 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                       style={{ 
                         cursor: 'pointer',
                         background: isSelected 
-                          ? 'rgba(0, 242, 254, 0.08)' 
+                          ? 'rgba(59, 130, 246, 0.12)' 
                           : !msg.read 
-                            ? 'rgba(0, 242, 254, 0.03)' 
+                            ? 'rgba(59, 130, 246, 0.04)' 
                             : 'transparent'
                       }}
                       onClick={() => {
@@ -131,8 +141,8 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                     >
                       <td>
                         <div>
-                          <div style={{ fontWeight: msg.read ? 600 : 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {!msg.read && <span style={{ color: 'var(--accent-cyan)', fontSize: '0.8rem' }}>●</span>}
+                          <div style={{ fontWeight: msg.read ? 600 : 800, color: 'var(--text-heading)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {!msg.read && <span style={{ color: 'var(--accent-brand)', fontSize: '0.8rem' }}>●</span>}
                             <span>{msg.name}</span>
                           </div>
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{msg.email}</div>
@@ -146,7 +156,7 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                       </td>
 
                       <td>
-                        <span style={{ fontWeight: msg.read ? 500 : 700, color: '#fff', fontSize: '0.84rem' }}>
+                        <span style={{ fontWeight: msg.read ? 500 : 700, color: 'var(--text-heading)', fontSize: '0.84rem' }}>
                           {msg.subject}
                         </span>
                       </td>
@@ -167,7 +177,10 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
                               onDeleteMessage(msgId);
                             }}
                           >
-                            🗑️
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
                           </button>
                         </div>
                       </td>
@@ -185,8 +198,11 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
         <div className="glass-panel" style={{ height: 'fit-content' }}>
           <div className="panel-header">
             <div>
-              <h2 className="panel-title">
-                <span>📖</span>
+              <h2 className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
                 <span>Inquiry Details</span>
               </h2>
               <span className="panel-subtitle">Received from {selectedMessage.email}</span>
@@ -204,12 +220,12 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
               </span>
             </div>
 
-            <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '14px' }}>
+            <div style={{ background: 'var(--bg-canvas)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', padding: '14px' }}>
               <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>SUBJECT</div>
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginTop: 2 }}>{selectedMessage.subject}</div>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-heading)', marginTop: 2 }}>{selectedMessage.subject}</div>
             </div>
 
-            <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '14px' }}>
+            <div style={{ background: 'var(--bg-canvas)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', padding: '14px' }}>
               <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>MESSAGE CONTENT</div>
               <div style={{ fontSize: '0.88rem', color: 'var(--text-body)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                 {selectedMessage.message}
@@ -220,9 +236,12 @@ export default function MessagesView({ messages = [], onRead, onMarkAllRead, onD
               <a
                 href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject)}`}
                 className="admin-btn primary"
-                style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
+                style={{ flex: 1, textDecoration: 'none', justifyContent: 'center', display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                <span>📧</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
                 <span>Reply via Email</span>
               </a>
             </div>

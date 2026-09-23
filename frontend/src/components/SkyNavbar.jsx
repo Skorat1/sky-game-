@@ -15,9 +15,7 @@ const SkyNavbar = memo(function SkyNavbar({
   user,
   onToggleSidebar,
   onOpenSidebar,
-  onOpenLeaderboard,
   onOpenMultiplayer,
-  onOpenQuests,
   level = 1
 }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -73,13 +71,13 @@ const SkyNavbar = memo(function SkyNavbar({
               title="ThopGame Arcade - Home"
             >
               <img
-                src="/sky-icon.png"
-                alt="ThopGame Icon"
+                src="/thopgame-logo.png"
+                alt="ThopGames Logo"
                 className="sky-logo-badge-icon-img"
               />
               <div className="sky-logo-text-box">
                 <span className="sky-text-sky">Thop</span>
-                <span className="sky-text-games">Game</span>
+                <span className="sky-text-games">Games</span>
               </div>
             </div>
           </div>

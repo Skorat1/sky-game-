@@ -9,18 +9,16 @@ const DashboardView = lazy(() => import('./views/DashboardView'));
 const GamesManagementView = lazy(() => import('./views/GamesManagementView'));
 const UsersView = lazy(() => import('./views/UsersView'));
 const CategoriesView = lazy(() => import('./views/CategoriesView'));
-const BannerView = lazy(() => import('./views/BannerView'));
 const SubmissionsView = lazy(() => import('./views/SubmissionsView'));
 const MessagesView = lazy(() => import('./views/MessagesView'));
 const GameModal = lazy(() => import('./components/GameModal'));
+const BlogView = lazy(() => import('./views/BlogView'));
 
 import {
   DEFAULT_GAMES,
   DEFAULT_CATEGORIES,
   DEFAULT_SUBMISSIONS,
   DEFAULT_MESSAGES,
-  DEFAULT_BANNER,
-  DEFAULT_SETTINGS,
   DEFAULT_USERS
 } from './data/defaultData';
 
@@ -30,10 +28,10 @@ import {
   gamesApi,
   usersApi,
   categoriesApi,
-  bannerApi,
   submissionsApi,
   messagesApi,
-  statsApi
+  statsApi,
+  blogApi
 } from './services/api';
 
 const { VALID_TABS, STORAGE_KEYS } = CONFIG;
@@ -62,6 +60,15 @@ function getInitialTab() {
   return 'dashboard';
 }
 
+// Robust ID matcher that prevents undefined === undefined bugs and ensures strict string matching
+function matchesId(item, targetId) {
+  if (!item || targetId == null) return false;
+  const t = String(targetId).trim();
+  if (!t) return false;
+  return (item.id != null && String(item.id).trim() === t) ||
+         (item._id != null && String(item._id).trim() === t);
+}
+
 export default function App() {
   const [adminUser, setAdminUser] = useState(getInitialAdminUser);
   const [activeTab, setActiveTab] = useState(getInitialTab);
@@ -77,8 +84,8 @@ export default function App() {
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [submissions, setSubmissions] = useState(DEFAULT_SUBMISSIONS);
   const [messages, setMessages] = useState(DEFAULT_MESSAGES);
-  const [banner, setBanner] = useState(DEFAULT_BANNER);
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [blogPosts, setBlogPosts] = useState([]);
+
 
   // Modal States
   const [editingGame, setEditingGame] = useState(null);
@@ -113,13 +120,13 @@ export default function App() {
   // Fetch all platform data from backend
   const fetchAllData = useCallback(async () => {
     try {
-      const [gamesData, usersData, bannerData, catData, subData, msgData] = await Promise.all([
+      const [gamesData, usersData, catData, subData, msgData, blogData] = await Promise.all([
         gamesApi.getAll().catch(() => null),
         usersApi.getAll().catch(() => null),
-        bannerApi.get().catch(() => null),
         categoriesApi.getAll().catch(() => null),
         submissionsApi.getAll().catch(() => null),
-        messagesApi.getAll().catch(() => null)
+        messagesApi.getAll().catch(() => null),
+        blogApi.getAll().catch(() => null)
       ]);
 
       if (Array.isArray(gamesData)) {
@@ -129,10 +136,6 @@ export default function App() {
 
       if (Array.isArray(usersData)) {
         setUsers(usersData);
-      }
-
-      if (bannerData) {
-        setBanner(bannerData);
       }
 
       if (Array.isArray(catData)) {
@@ -145,6 +148,10 @@ export default function App() {
 
       if (Array.isArray(msgData)) {
         setMessages(msgData);
+      }
+
+      if (Array.isArray(blogData)) {
+        setBlogPosts(blogData);
       }
     } catch (err) {
       console.warn('Backend API offline or initial sync fallback:', err.message);
@@ -167,24 +174,26 @@ export default function App() {
 
     const handleGamePlay = (data) => {
       if (!data?.id) return;
-      setGames(prev => prev.map(g => (g.id === data.id || (g._id && String(g._id) === data.id)) ? { ...g, plays: data.plays } : g));
+      setGames(prev => prev.map(g => matchesId(g, data.id) ? { ...g, plays: data.plays } : g));
     };
 
     const handleGameCreated = (newGame) => {
       if (!newGame) return;
-      setGames(prev => [newGame, ...prev.filter(g => (g.id || g._id) !== (newGame.id || newGame._id))]);
+      const targetId = newGame.id || newGame._id;
+      setGames(prev => [newGame, ...prev.filter(g => !matchesId(g, targetId))]);
     };
 
     const handleGameUpdated = (updatedGame) => {
       if (!updatedGame) return;
       const targetId = updatedGame.id || updatedGame._id;
-      setGames(prev => prev.map(g => ((g.id || g._id) === targetId || g.id === targetId || String(g._id) === targetId) ? { ...g, ...updatedGame } : g));
+      if (!targetId) return;
+      setGames(prev => prev.map(g => matchesId(g, targetId) ? { ...g, ...updatedGame } : g));
     };
 
     const handleGameDeleted = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setGames(prev => prev.filter(g => (g.id || g._id) !== id && g.id !== id && String(g._id) !== id));
+        setGames(prev => prev.filter(g => !matchesId(g, id)));
       }
     };
 
@@ -194,46 +203,50 @@ export default function App() {
 
     const handleNewSubmission = (sub) => {
       if (!sub) return;
-      setSubmissions(prev => [sub, ...prev.filter(s => (s.id || s._id) !== (sub.id || sub._id))]);
-      showToast(`🚀 New Game Submitted: "${sub.gameTitle || 'Indie Game'}"`);
+      const targetId = sub.id || sub._id;
+      setSubmissions(prev => [sub, ...prev.filter(s => !matchesId(s, targetId))]);
+      showToast(`New Game Submitted: "${sub.gameTitle || 'Indie Game'}"`);
     };
 
     const handleSubmissionUpdated = (updatedSub) => {
       if (!updatedSub) return;
       const targetId = updatedSub.id || updatedSub._id;
-      setSubmissions(prev => prev.map(s => ((s.id || s._id) === targetId || s.id === targetId || String(s._id) === targetId) ? { ...s, ...updatedSub } : s));
+      if (!targetId) return;
+      setSubmissions(prev => prev.map(s => matchesId(s, targetId) ? { ...s, ...updatedSub } : s));
     };
 
     const handleSubmissionDeleted = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setSubmissions(prev => prev.filter(s => (s.id || s._id) !== id && s.id !== id && String(s._id) !== id));
+        setSubmissions(prev => prev.filter(s => !matchesId(s, id)));
       }
     };
 
     const handleNewMessage = (msg) => {
       if (!msg) return;
-      setMessages(prev => [msg, ...prev.filter(m => (m.id || m._id) !== (msg.id || msg._id))]);
-      showToast(`📩 New Inquiry from "${msg.name || 'User'}"`);
+      const targetId = msg.id || msg._id;
+      setMessages(prev => [msg, ...prev.filter(m => !matchesId(m, targetId))]);
+      showToast(`New Inquiry from "${msg.name || 'User'}"`);
     };
 
     const handleMessageUpdated = (updatedMsg) => {
       if (!updatedMsg) return;
       const targetId = updatedMsg.id || updatedMsg._id;
-      setMessages(prev => prev.map(m => ((m.id || m._id) === targetId || m.id === targetId || String(m._id) === targetId) ? { ...m, ...updatedMsg } : m));
+      if (!targetId) return;
+      setMessages(prev => prev.map(m => matchesId(m, targetId) ? { ...m, ...updatedMsg } : m));
     };
 
     const handleMessageDeleted = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setMessages(prev => prev.filter(m => (m.id || m._id) !== id && m.id !== id && String(m._id) !== id));
+        setMessages(prev => prev.filter(m => !matchesId(m, id)));
       }
     };
 
     const handleMessageRead = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setMessages(prev => prev.map(m => ((m.id || m._id) === id || m.id === id || String(m._id) === id) ? { ...m, read: true } : m));
+        setMessages(prev => prev.map(m => matchesId(m, id) ? { ...m, read: true } : m));
       }
     };
 
@@ -243,51 +256,46 @@ export default function App() {
 
     const handleNewUser = (newUser) => {
       if (!newUser) return;
-      setUsers(prev => [newUser, ...prev.filter(u => (u.id || u._id) !== (newUser.id || newUser._id))]);
-      showToast(`👤 New Player Registered: "${newUser.username || newUser.name}"`);
+      const targetId = newUser.id || newUser._id;
+      setUsers(prev => [newUser, ...prev.filter(u => !matchesId(u, targetId))]);
+      showToast(`New Player Registered: "${newUser.username || newUser.name}"`);
     };
 
     const handleUserUpdated = (updatedUser) => {
       if (!updatedUser) return;
       const targetId = updatedUser.id || updatedUser._id;
-      setUsers(prev => prev.map(u => ((u.id || u._id) === targetId || u.id === targetId || String(u._id) === targetId) ? { ...u, ...updatedUser } : u));
+      if (!targetId) return;
+      setUsers(prev => prev.map(u => matchesId(u, targetId) ? { ...u, ...updatedUser } : u));
     };
 
     const handleUserDeleted = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setUsers(prev => prev.filter(u => (u.id || u._id) !== id && u.id !== id && String(u._id) !== id));
+        setUsers(prev => prev.filter(u => !matchesId(u, id)));
       }
     };
 
     const handleCategoryNew = (cat) => {
       if (!cat) return;
+      const targetId = cat.id || cat._id;
       setCategories(prev => {
-        const id = cat.id || cat._id;
-        if (prev.some(c => (c.id || c._id) === id)) return prev;
+        if (prev.some(c => matchesId(c, targetId))) return prev;
         return [...prev, cat];
       });
     };
 
     const handleCategoryUpdate = (updatedCat) => {
       if (!updatedCat) return;
-      const id = updatedCat.id || updatedCat._id;
-      setCategories(prev => prev.map(c => ((c.id || c._id) === id ? { ...c, ...updatedCat } : c)));
+      const targetId = updatedCat.id || updatedCat._id;
+      if (!targetId) return;
+      setCategories(prev => prev.map(c => matchesId(c, targetId) ? { ...c, ...updatedCat } : c));
     };
 
     const handleCategoryDelete = (data) => {
       const id = typeof data === 'object' ? (data.id || data._id) : data;
       if (id) {
-        setCategories(prev => prev.filter(c => (c.id || c._id) !== id));
+        setCategories(prev => prev.filter(c => !matchesId(c, id)));
       }
-    };
-
-    const handleBannerUpdate = (updatedBanner) => {
-      if (updatedBanner) setBanner(updatedBanner);
-    };
-
-    const handleSettingsUpdate = (updatedSettings) => {
-      if (updatedSettings) setSettings(updatedSettings);
     };
 
     const handleActiveGameCounts = (counts) => {
@@ -322,8 +330,7 @@ export default function App() {
     socket.on('category:update', handleCategoryUpdate);
     socket.on('category:delete', handleCategoryDelete);
 
-    socket.on('banner:update', handleBannerUpdate);
-    socket.on('settings:update', handleSettingsUpdate);
+
 
     if (socket.connected) {
       socket.emit('request:online:count');
@@ -357,8 +364,6 @@ export default function App() {
       socket.off('category:update', handleCategoryUpdate);
       socket.off('category:delete', handleCategoryDelete);
 
-      socket.off('banner:update', handleBannerUpdate);
-      socket.off('settings:update', handleSettingsUpdate);
     };
   }, [fetchAllData]);
 
@@ -369,26 +374,32 @@ export default function App() {
   };
 
   const handleSaveGame = async (savedGame) => {
-    const gameId = savedGame.id || savedGame._id;
-    const exists = games.some(g => (g.id || g._id) === gameId || g.id === gameId);
+    const gameId = savedGame?.id || savedGame?._id;
+    if (!gameId) {
+      showToast('Game ID is required to save', 'error');
+      return;
+    }
+    const exists = games.some(g => matchesId(g, gameId));
 
     try {
       let result;
       if (exists) {
         result = await gamesApi.update(gameId, savedGame);
-        setGames(prev => prev.map(g => (g.id === result.id || g._id === result._id) ? result : g));
-        showToast(`Game "${result.title}" updated successfully!`);
+        const targetId = result?.id || result?._id || gameId;
+        setGames(prev => prev.map(g => matchesId(g, targetId) ? { ...g, ...result } : g));
+        showToast(`Game "${result.title || savedGame.title}" updated successfully!`);
       } else {
         result = await gamesApi.create(savedGame);
-        setGames(prev => [result, ...prev]);
-        showToast(`Game "${result.title}" published & live onThopGames!`);
+        const targetId = result?.id || result?._id || gameId;
+        setGames(prev => [result, ...prev.filter(g => !matchesId(g, targetId))]);
+        showToast(`Game "${result.title || savedGame.title}" published & live on ThopGames!`);
       }
     } catch (err) {
       // Offline fallback
       if (exists) {
-        setGames(prev => prev.map(g => (g.id === gameId || g._id === gameId) ? savedGame : g));
+        setGames(prev => prev.map(g => matchesId(g, gameId) ? { ...g, ...savedGame } : g));
       } else {
-        setGames(prev => [savedGame, ...prev]);
+        setGames(prev => [savedGame, ...prev.filter(g => !matchesId(g, gameId))]);
       }
       showToast(`Game saved locally (${err.message || 'offline'})`);
     }
@@ -397,12 +408,12 @@ export default function App() {
   const handleDeleteGame = async (gameId) => {
     if (!gameId) return;
     try {
-      const game = games.find(g => (g.id || g._id) === gameId || g.id === gameId);
+      const game = games.find(g => matchesId(g, gameId));
       await gamesApi.delete(gameId);
-      setGames(prev => prev.filter(g => (g.id || g._id) !== gameId && g.id !== gameId && String(g._id) !== gameId));
+      setGames(prev => prev.filter(g => !matchesId(g, gameId)));
       showToast(`Game "${game?.title || gameId}" deleted from database!`, 'error');
     } catch (err) {
-      setGames(prev => prev.filter(g => (g.id || g._id) !== gameId && g.id !== gameId && String(g._id) !== gameId));
+      setGames(prev => prev.filter(g => !matchesId(g, gameId)));
       showToast(`Game removed locally.`, 'error');
     }
   };
@@ -411,10 +422,10 @@ export default function App() {
     if (!gameId) return;
     try {
       const updated = await gamesApi.toggleFeatured(gameId);
-      setGames(prev => prev.map(g => ((g.id || g._id) === gameId || g.id === gameId || String(g._id) === gameId) ? updated : g));
+      setGames(prev => prev.map(g => matchesId(g, gameId) ? { ...g, ...updated } : g));
       showToast(updated.featured ? `Marked "${updated.title}" as Featured Spotlight!` : `Removed from Featured Spotlight.`);
     } catch (err) {
-      setGames(prev => prev.map(g => ((g.id || g._id) === gameId || g.id === gameId || String(g._id) === gameId) ? { ...g, featured: !g.featured } : g));
+      setGames(prev => prev.map(g => matchesId(g, gameId) ? { ...g, featured: !g.featured } : g));
     }
   };
 
@@ -434,39 +445,30 @@ export default function App() {
     if (!catId) return;
     try {
       await categoriesApi.delete(catId);
-      setCategories(prev => prev.filter(c => (c.id || c._id) !== catId && c.id !== catId && String(c._id) !== catId));
+      setCategories(prev => prev.filter(c => !matchesId(c, catId)));
       showToast(`Category removed from database.`);
     } catch (err) {
-      setCategories(prev => prev.filter(c => (c.id || c._id) !== catId && c.id !== catId && String(c._id) !== catId));
-    }
-  };
-
-  // Banner Handlers
-  const handleUpdateBanner = async (updatedBanner) => {
-    try {
-      const saved = await bannerApi.update(updatedBanner);
-      setBanner(saved);
-      showToast('Announcement banner broadcast updated!');
-    } catch (err) {
-      setBanner(updatedBanner);
-      showToast('Banner updated locally.');
+      setCategories(prev => prev.filter(c => !matchesId(c, catId)));
     }
   };
 
   // Submission Handlers
   const handleApproveSubmission = async (sub) => {
     try {
+      const rawUrl = (sub.gameUrl || '').trim();
+      const iframeMatch = rawUrl.match(/src=["']([^"']+)["']/i);
+      const cleanUrl = iframeMatch ? iframeMatch[1] : rawUrl;
+
       const newGame = {
         id: (sub.gameTitle || 'game').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString().slice(-4),
         title: sub.gameTitle,
         category: sub.category || 'arcade',
         description: sub.description || '',
         thumbnail: sub.thumbnailUrl || '',
-        banner: sub.thumbnailUrl || '',
-        gameUrl: sub.gameUrl || '',
+        gameUrl: cleanUrl,
         tags: ['Developer', 'Community', sub.category || 'Arcade'],
         rating: 5.0,
-        plays: 10,
+        plays: 0,
         featured: false,
         status: 'active',
         createdAt: new Date().toISOString().split('T')[0]
@@ -482,8 +484,8 @@ export default function App() {
         await submissionsApi.updateStatus(subIdentifier, 'approved');
       } catch (e) { }
 
-      setGames(prev => [createdGame, ...prev.filter(g => g.id !== createdGame.id)]);
-      setSubmissions(prev => prev.map(s => ((s.id || s._id) === subIdentifier || s.id === subIdentifier || String(s._id) === subIdentifier) ? { ...s, status: 'approved' } : s));
+      setGames(prev => [createdGame, ...prev.filter(g => !matchesId(g, createdGame.id))]);
+      setSubmissions(prev => prev.map(s => matchesId(s, subIdentifier) ? { ...s, status: 'approved' } : s));
       showToast(`Submission "${sub.gameTitle}" approved & live onThopGames!`);
     } catch (err) {
       showToast(`Approved submission.`);
@@ -494,10 +496,10 @@ export default function App() {
     if (!subId) return;
     try {
       await submissionsApi.updateStatus(subId, 'rejected');
-      setSubmissions(prev => prev.map(s => ((s.id || s._id) === subId || s.id === subId || String(s._id) === subId) ? { ...s, status: 'rejected' } : s));
+      setSubmissions(prev => prev.map(s => matchesId(s, subId) ? { ...s, status: 'rejected' } : s));
       showToast('Submission marked as rejected.', 'info');
     } catch (err) {
-      setSubmissions(prev => prev.map(s => ((s.id || s._id) === subId || s.id === subId || String(s._id) === subId) ? { ...s, status: 'rejected' } : s));
+      setSubmissions(prev => prev.map(s => matchesId(s, subId) ? { ...s, status: 'rejected' } : s));
     }
   };
 
@@ -505,10 +507,10 @@ export default function App() {
     if (!subId) return;
     try {
       await submissionsApi.delete(subId);
-      setSubmissions(prev => prev.filter(s => (s.id || s._id) !== subId && s.id !== subId && String(s._id) !== subId));
+      setSubmissions(prev => prev.filter(s => !matchesId(s, subId)));
       showToast('Submission record deleted.');
     } catch (err) {
-      setSubmissions(prev => prev.filter(s => (s.id || s._id) !== subId && s.id !== subId && String(s._id) !== subId));
+      setSubmissions(prev => prev.filter(s => !matchesId(s, subId)));
     }
   };
 
@@ -517,9 +519,9 @@ export default function App() {
     if (!msgId) return;
     try {
       await messagesApi.markRead(msgId);
-      setMessages(prev => prev.map(m => ((m.id || m._id) === msgId || m.id === msgId || String(m._id) === msgId) ? { ...m, read: true } : m));
+      setMessages(prev => prev.map(m => matchesId(m, msgId) ? { ...m, read: true } : m));
     } catch (err) {
-      setMessages(prev => prev.map(m => ((m.id || m._id) === msgId || m.id === msgId || String(m._id) === msgId) ? { ...m, read: true } : m));
+      setMessages(prev => prev.map(m => matchesId(m, msgId) ? { ...m, read: true } : m));
     }
   };
 
@@ -537,10 +539,10 @@ export default function App() {
     if (!msgId) return;
     try {
       await messagesApi.delete(msgId);
-      setMessages(prev => prev.filter(m => (m.id || m._id) !== msgId && m.id !== msgId && String(m._id) !== msgId));
+      setMessages(prev => prev.filter(m => !matchesId(m, msgId)));
       showToast('Message deleted successfully.');
     } catch (err) {
-      setMessages(prev => prev.filter(m => (m.id || m._id) !== msgId && m.id !== msgId && String(m._id) !== msgId));
+      setMessages(prev => prev.filter(m => !matchesId(m, msgId)));
     }
   };
 
@@ -549,7 +551,7 @@ export default function App() {
     try {
       const result = await usersApi.create(userData);
       if (result.user) {
-        setUsers(prev => [result.user, ...prev.filter(u => (u.id || u._id) !== (result.user.id || result.user._id))]);
+        setUsers(prev => [result.user, ...prev.filter(u => !matchesId(u, result.user.id || result.user._id))]);
         showToast(`User "${result.user.username}" created successfully!`);
       }
       return result;
@@ -568,10 +570,10 @@ export default function App() {
 
   const handleUpdateUser = async (userId, updates) => {
     try {
-      setUsers(prev => prev.map(u => (u.id === userId || u._id === userId) ? { ...u, ...updates } : u));
+      setUsers(prev => prev.map(u => matchesId(u, userId) ? { ...u, ...updates } : u));
       const result = await usersApi.update(userId, updates);
       if (result.user) {
-        setUsers(prev => prev.map(u => (u.id === userId || u._id === userId) ? result.user : u));
+        setUsers(prev => prev.map(u => matchesId(u, userId) ? { ...u, ...result.user } : u));
       }
       showToast(`User account updated!`);
     } catch (err) {
@@ -583,49 +585,65 @@ export default function App() {
     if (!userId) return;
     try {
       await usersApi.delete(userId);
-      setUsers(prev => prev.filter(u => (u.id || u._id) !== userId && u.id !== userId && String(u._id) !== userId));
+      setUsers(prev => prev.filter(u => !matchesId(u, userId)));
       showToast('User deleted successfully.');
     } catch (err) {
-      setUsers(prev => prev.filter(u => (u.id || u._id) !== userId && u.id !== userId && String(u._id) !== userId));
+      setUsers(prev => prev.filter(u => !matchesId(u, userId)));
     }
   };
 
-  const handleExportData = () => {
-    const exportBundle = {
-      games,
-      users,
-      categories,
-      submissions,
-      messages,
-      banner,
-      exportedAt: new Date().toISOString()
-    };
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportBundle, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `skygames_mongodb_backup_${Date.now()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast('Platform database exported!');
+  // ── Blog CRUD Handlers ──────────────────────────────────────────────────────
+  const handleAddBlogPost = async (data) => {
+    try {
+      const post = await blogApi.create(data);
+      setBlogPosts(prev => [post, ...prev]);
+      showToast('Blog post published! 📝');
+    } catch (err) {
+      const local = { id: 'local-' + Date.now(), ...data, createdAt: new Date().toISOString(), views: 0 };
+      setBlogPosts(prev => [local, ...prev]);
+      showToast('Post saved locally (backend offline)');
+    }
   };
 
-  const handleImportData = async (data) => {
-    if (data.games) {
-      for (const g of data.games) {
-        try {
-          await gamesApi.create(g);
-        } catch (e) { }
-      }
-      setGames(data.games);
+  const handleUpdateBlogPost = async (id, data) => {
+    try {
+      setBlogPosts(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      const updated = await blogApi.update(id, data);
+      if (updated) setBlogPosts(prev => prev.map(p => p.id === id ? updated : p));
+      showToast('Blog post updated!');
+    } catch (err) {
+      showToast('Post updated locally.');
     }
-    if (data.banner) {
-      setBanner(data.banner);
-      try {
-        await bannerApi.update(data.banner);
-      } catch (e) { }
+  };
+
+  const handleDeleteBlogPost = async (id) => {
+    try {
+      await blogApi.delete(id);
+      setBlogPosts(prev => prev.filter(p => p.id !== id));
+      showToast('Blog post deleted.');
+    } catch (err) {
+      setBlogPosts(prev => prev.filter(p => p.id !== id));
     }
-    showToast('Backup restored successfully!');
+  };
+
+  const handleToggleBlogPublish = async (post) => {
+    try {
+      setBlogPosts(prev => prev.map(p => p.id === post.id ? { ...p, published: !p.published } : p));
+      await blogApi.togglePublish(post.id);
+      showToast(post.published ? 'Post unpublished.' : 'Post published! ✅');
+    } catch (err) {
+      setBlogPosts(prev => prev.map(p => p.id === post.id ? { ...p, published: !p.published } : p));
+    }
+  };
+
+  const handleToggleBlogFeatured = async (post) => {
+    try {
+      setBlogPosts(prev => prev.map(p => p.id === post.id ? { ...p, featured: !p.featured } : p));
+      await blogApi.toggleFeatured(post.id);
+      showToast(post.featured ? 'Removed from featured.' : 'Post featured! ⭐');
+    } catch (err) {
+      setBlogPosts(prev => prev.map(p => p.id === post.id ? { ...p, featured: !p.featured } : p));
+    }
   };
 
   // Auth Handlers
@@ -672,7 +690,6 @@ export default function App() {
         usersCount={users.length}
         submissionsCount={pendingSubmissionsCount}
         unreadMessagesCount={unreadMessagesCount}
-        bannerActive={Boolean(banner?.active)}
         adminUser={adminUser}
         onLogout={handleAdminLogout}
         isOpen={sidebarOpen}
@@ -741,19 +758,24 @@ export default function App() {
               />
             )}
 
-            {activeTab === 'banner' && (
-              <BannerView
-                banner={banner}
-                onUpdateBanner={handleUpdateBanner}
-              />
-            )}
-
             {activeTab === 'submissions' && (
               <SubmissionsView
                 submissions={submissions}
                 onApprove={handleApproveSubmission}
                 onReject={handleRejectSubmission}
                 onDeleteSubmission={handleDeleteSubmission}
+              />
+            )}
+
+            {activeTab === 'blog' && (
+              <BlogView
+                posts={blogPosts}
+                onAdd={handleAddBlogPost}
+                onUpdate={handleUpdateBlogPost}
+                onDelete={handleDeleteBlogPost}
+                onTogglePublish={handleToggleBlogPublish}
+                onToggleFeatured={handleToggleBlogFeatured}
+                onRefresh={fetchAllData}
               />
             )}
 

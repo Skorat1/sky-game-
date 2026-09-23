@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
-    open: false,
+    open: true,
     proxy: {
       '/game-proxy': {
         target: 'http://127.0.0.1:5000',

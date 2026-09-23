@@ -30,9 +30,9 @@ export const CONFIG = {
     'games',
     'users',
     'categories',
-    'banner',
     'submissions',
-    'messages'
+    'messages',
+    'blog'
   ]
 };
 

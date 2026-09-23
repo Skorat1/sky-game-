@@ -27,7 +27,7 @@ export const gamesApi = {
     return res.json();
   },
   getById: async (id) => {
-    const res = await authFetch(`/games/${id}`);
+    const res = await authFetch(`/games/${encodeURIComponent(id)}`);
     if (!res.ok) throw new Error('Game not found');
     return res.json();
   },
@@ -43,7 +43,7 @@ export const gamesApi = {
     return res.json();
   },
   update: async (id, gameData) => {
-    const res = await authFetch(`/games/${id}`, {
+    const res = await authFetch(`/games/${encodeURIComponent(id)}`, {
       method: 'PUT',
       body: JSON.stringify(gameData)
     });
@@ -54,14 +54,14 @@ export const gamesApi = {
     return res.json();
   },
   delete: async (id) => {
-    const res = await authFetch(`/games/${id}`, {
+    const res = await authFetch(`/games/${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
     if (!res.ok) throw new Error('Failed to delete game');
     return res.json();
   },
   toggleFeatured: async (id) => {
-    const res = await authFetch(`/games/${id}/featured`, {
+    const res = await authFetch(`/games/${encodeURIComponent(id)}/featured`, {
       method: 'PATCH'
     });
     if (!res.ok) throw new Error('Failed to toggle featured status');
@@ -150,32 +150,6 @@ export const categoriesApi = {
 };
 
 /**
- * Announcement Banner API Services
- */
-export const bannerApi = {
-  get: async () => {
-    const res = await authFetch('/banner');
-    if (!res.ok) throw new Error('Failed to fetch banner');
-    return res.json();
-  },
-  update: async (bannerData) => {
-    const res = await authFetch('/banner', {
-      method: 'PUT',
-      body: JSON.stringify(bannerData)
-    });
-    if (!res.ok) throw new Error('Failed to update banner');
-    return res.json();
-  },
-  delete: async () => {
-    const res = await authFetch('/banner', {
-      method: 'DELETE'
-    });
-    if (!res.ok) throw new Error('Failed to remove banner');
-    return res.json();
-  }
-};
-
-/**
  * Developer Submissions API Services
  */
 export const submissionsApi = {
@@ -247,5 +221,54 @@ export const statsApi = {
     const res = await fetch(`${API_BASE}/health`);
     if (!res.ok) return { status: 'offline' };
     return res.json();
+  },
+  getLiveAnalytics: async () => {
+    const res = await authFetch('/analytics/live');
+    if (!res.ok) throw new Error('Failed to fetch live analytics');
+    return res.json();
   }
 };
+
+/**
+ * Blog Posts API Services (Admin)
+ */
+export const blogApi = {
+  getAll: async () => {
+    const res = await authFetch('/blog/admin/all');
+    if (!res.ok) throw new Error('Failed to fetch blog posts');
+    return res.json();
+  },
+  getById: async (id) => {
+    const res = await authFetch(`/blog/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error('Post not found');
+    return res.json();
+  },
+  create: async (data) => {
+    const res = await authFetch('/blog', { method: 'POST', body: JSON.stringify(data) });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Failed to create post');
+    return result;
+  },
+  update: async (id, data) => {
+    const res = await authFetch(`/blog/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Failed to update post');
+    return result;
+  },
+  delete: async (id) => {
+    const res = await authFetch(`/blog/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete post');
+    return res.json();
+  },
+  togglePublish: async (id) => {
+    const res = await authFetch(`/blog/${encodeURIComponent(id)}/publish`, { method: 'PATCH' });
+    if (!res.ok) throw new Error('Failed to toggle publish');
+    return res.json();
+  },
+  toggleFeatured: async (id) => {
+    const res = await authFetch(`/blog/${encodeURIComponent(id)}/featured`, { method: 'PATCH' });
+    if (!res.ok) throw new Error('Failed to toggle featured');
+    return res.json();
+  }
+};
+

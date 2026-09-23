@@ -197,7 +197,6 @@ export default function GamePlayerView({
   allGames = [],
   onSelectRelatedGame,
   onSelectCategory,
-  onOpenLeaderboard,
   onOpenMultiplayer,
   user
 }) {

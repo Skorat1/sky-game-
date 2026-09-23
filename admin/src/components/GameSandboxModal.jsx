@@ -52,13 +52,19 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
     }
   };
 
+  const cleanGameUrl = (() => {
+    if (!gameUrl) return '';
+    const match = String(gameUrl).match(/src=["']([^"']+)["']/i);
+    return match ? match[1] : String(gameUrl).trim();
+  })();
+
   const handleOpenNewTab = () => {
-    if (gameUrl) {
-      window.open(gameUrl, '_blank', 'noopener,noreferrer');
+    if (cleanGameUrl) {
+      window.open(cleanGameUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
-  if (!gameUrl) return null;
+  if (!cleanGameUrl) return null;
 
   const modalNode = (
     <div className="modal-overlay sandbox-overlay" onClick={onClose}>
@@ -71,7 +77,15 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
         <div className="sandbox-header">
           <div className="sandbox-header-left">
             <div className="sandbox-icon-badge">
-              <span className="gamepad-icon">🕹️</span>
+              <span className="gamepad-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="6" y1="12" x2="10" y2="12" />
+                  <line x1="8" y1="10" x2="8" y2="14" />
+                  <line x1="15" y1="13" x2="15.01" y2="13" strokeWidth="3" />
+                  <line x1="18" y1="11" x2="18.01" y2="11" strokeWidth="3" />
+                  <rect x="2" y="6" width="20" height="12" rx="6" />
+                </svg>
+              </span>
               <span className="pulse-indicator" />
             </div>
             <div className="sandbox-title-group">
@@ -88,8 +102,14 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
               className="sandbox-action-btn" 
               onClick={handleReload}
               title="Restart Game"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
-              🔄 <span className="btn-text">Restart</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+              <span className="btn-text">Restart</span>
             </button>
             <button 
               className="sandbox-action-btn" 
@@ -120,7 +140,7 @@ export default function GameSandboxModal({ gameUrl, gameTitle = 'Game Live Sandb
         <div className="sandbox-viewport">
           <iframe
             key={iframeKey}
-            src={gameUrl}
+            src={cleanGameUrl}
             title={gameTitle}
             scrolling="no"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad; cross-origin-isolated"

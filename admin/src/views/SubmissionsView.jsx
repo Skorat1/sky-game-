@@ -30,29 +30,34 @@ export default function SubmissionsView({
   return (
     <div className="glass-panel">
       {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL SUBMISSIONS</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff' }}>{submissions.length}</div>
+      <div className="mini-stats-grid">
+        <div className="mini-stat-card">
+          <div className="mini-stat-label">TOTAL SUBMISSIONS</div>
+          <div className="mini-stat-value">{submissions.length}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#fbbf24', fontWeight: 600 }}>PENDING REVIEW</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fbbf24' }}>{pendingCount}</div>
+        <div className="mini-stat-card warning">
+          <div className="mini-stat-label">PENDING REVIEW</div>
+          <div className="mini-stat-value">{pendingCount}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>APPROVED & LIVE</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399' }}>{approvedCount}</div>
+        <div className="mini-stat-card success">
+          <div className="mini-stat-label">APPROVED & LIVE</div>
+          <div className="mini-stat-value">{approvedCount}</div>
         </div>
-        <div style={{ background: 'rgba(10, 16, 36, 0.7)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 'var(--radius)', padding: '10px 14px' }}>
-          <div style={{ fontSize: '0.72rem', color: '#f87171', fontWeight: 600 }}>REJECTED</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f87171' }}>{rejectedCount}</div>
+        <div className="mini-stat-card danger">
+          <div className="mini-stat-label">REJECTED</div>
+          <div className="mini-stat-value">{rejectedCount}</div>
         </div>
       </div>
 
       {/* Header & Filter Bar */}
       <div className="filter-bar">
         <div className="search-input-wrapper">
-          <span className="search-icon-pos">🔍</span>
+          <span className="search-icon-pos">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
           <input
             type="text"
             className="search-input"
@@ -131,7 +136,7 @@ export default function SubmissionsView({
                           }}
                         />
                         <div>
-                          <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>
+                          <div style={{ fontWeight: 700, color: 'var(--text-heading)', fontSize: '0.92rem' }}>
                             {sub.gameTitle}
                           </div>
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
@@ -168,11 +173,14 @@ export default function SubmissionsView({
                         {sub.gameUrl && (
                           <button
                             className="admin-btn secondary"
-                            style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                            style={{ padding: '6px 12px', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: 5 }}
                             onClick={() => setActivePreviewGame({ gameUrl: sub.gameUrl, title: sub.gameTitle })}
                             title="Test play inside sandbox iframe"
                           >
-                            🕹️ Test Play
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <polygon points="5 3 19 12 5 21 5 3" />
+                            </svg>
+                            <span>Test Play</span>
                           </button>
                         )}
                         {sub.status === 'pending' && (
@@ -204,7 +212,10 @@ export default function SubmissionsView({
                             }}
                             title="Delete submission record"
                           >
-                            🗑️
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
                           </button>
                         )}
                       </div>

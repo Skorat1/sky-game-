@@ -4,12 +4,8 @@ import Sidebar from './components/Sidebar';
 import GameGrid from './components/GameGrid';
 import GamePlayerView from './components/GamePlayerView';
 
-// Critical auth modal imported directly for instant 0ms response
 import AuthModal from './components/AuthModal';
-import LeaderboardModal from './components/LeaderboardModal';
-import QuestRewardsModal from './components/QuestRewardsModal';
 import MultiplayerLobbyModal from './components/MultiplayerLobbyModal';
-import PWAInstallBanner from './components/PWAInstallBanner';
 
 // Code-split other non-critical pages & drawers
 const FavoritesDrawer = lazy(() => import('./components/FavoritesDrawer'));
@@ -22,7 +18,7 @@ import { GAMES as DEFAULT_STATIC_GAMES, CATEGORIES as DEFAULT_STATIC_CATEGORIES 
 import { sounds } from './utils/audio';
 import { socket } from './utils/socket';
 import { CONFIG } from './config';
-import { gamesApi, categoriesApi, bannerApi, cloudSyncApi } from './services/api';
+import { gamesApi, categoriesApi, cloudSyncApi } from './services/api';
 
 const { STORAGE_KEYS } = CONFIG;
 
@@ -141,8 +137,6 @@ function App() {
     return DEFAULT_STATIC_CATEGORIES;
   });
 
-  const [banner, setBanner] = useState(null);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activePage, setActivePage] = useState(initialNav.page);
@@ -188,10 +182,6 @@ function App() {
   const [contactOpen, setContactOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
-  // Upgrade Modals State
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
-  const [leaderboardGame, setLeaderboardGame] = useState(null);
-  const [questsOpen, setQuestsOpen] = useState(false);
   const [multiplayerOpen, setMultiplayerOpen] = useState(false);
 
   // Gamification & XP State
@@ -280,9 +270,8 @@ function App() {
 
   const fetchLivePlatformData = useCallback(async () => {
     try {
-      const [liveGames, liveBanner, liveCats] = await Promise.all([
+      const [liveGames, liveCats] = await Promise.all([
         gamesApi.getLiveGames().catch(() => null),
-        bannerApi.getLiveBanner().catch(() => null),
         categoriesApi.getLiveCategories().catch(() => null)
       ]);
 
@@ -291,10 +280,6 @@ function App() {
         try {
           localStorage.setItem(STORAGE_KEYS.CACHED_GAMES, JSON.stringify(liveGames));
         } catch { }
-      }
-
-      if (liveBanner) {
-        setBanner(liveBanner);
       }
 
       if (Array.isArray(liveCats)) {
@@ -312,7 +297,6 @@ function App() {
     fetchLivePlatformData();
 
     // Instant real-time updates via WebSockets
-    const handleBannerUpdate = (newBanner) => setBanner(newBanner);
     const handleGameIncrement = (data) => {
       setGames(prev => prev.map(g => g.id === data.id ? { ...g, plays: data.plays } : g));
     };
@@ -413,7 +397,6 @@ function App() {
       }
     };
 
-    socket.on('banner:update', handleBannerUpdate);
     socket.on('game:play:increment', handleGameIncrement);
     socket.on('game:created', handleGameCreated);
     socket.on('game:updated', handleGameUpdated);
@@ -431,7 +414,6 @@ function App() {
     }
 
     return () => {
-      socket.off('banner:update', handleBannerUpdate);
       socket.off('game:play:increment', handleGameIncrement);
       socket.off('game:created', handleGameCreated);
       socket.off('game:updated', handleGameUpdated);
@@ -644,22 +626,6 @@ function App() {
 
   return (
     <div className="sky-app-root sky-theme-root gamepix-app-layout">
-      {/* 📱 PWA 1-Click Install Banner */}
-      <PWAInstallBanner />
-
-      {/* Sitewide Announcement Banner */}
-      {banner && banner.active === true && Boolean(banner.message?.trim()) && (
-        <div className="sky-sitewide-banner">
-          {banner.badge && <span className="sky-banner-badge">{banner.badge}</span>}
-          <span>{banner.message}</span>
-          {banner.ctaText && (
-            <a href={banner.ctaLink || '#'} className="sky-banner-cta">
-              {banner.ctaText}
-            </a>
-          )}
-        </div>
-      )}
-
       {/*ThopGames Modern Sticky Navbar */}
       <SkyNavbar
         searchQuery={searchQuery}
@@ -684,12 +650,7 @@ function App() {
         favoritesCount={favorites.length}
         onOpenFavorites={() => setFavoritesDrawerOpen(true)}
         onNavigate={handleNavigation}
-        onOpenLeaderboard={() => {
-          setLeaderboardGame(null);
-          setLeaderboardOpen(true);
-        }}
         onOpenMultiplayer={() => setMultiplayerOpen(true)}
-        onOpenQuests={() => setQuestsOpen(true)}
         level={level}
       />
 
@@ -709,12 +670,7 @@ function App() {
           user={user}
           onOpenAuth={() => setAuthModalOpen(true)}
           categories={categories}
-          onOpenLeaderboard={() => {
-            setLeaderboardGame(null);
-            setLeaderboardOpen(true);
-          }}
           onOpenMultiplayer={() => setMultiplayerOpen(true)}
-          onOpenQuests={() => setQuestsOpen(true)}
         />
 
         {/* Right Main Content Area */}
@@ -729,10 +685,6 @@ function App() {
                 allGames={games}
                 onSelectRelatedGame={handlePlayGame}
                 onSelectCategory={handleCategorySelect}
-                onOpenLeaderboard={(targetGame) => {
-                  setLeaderboardGame(targetGame || selectedGame);
-                  setLeaderboardOpen(true);
-                }}
                 onOpenMultiplayer={() => setMultiplayerOpen(true)}
                 user={user}
               />
@@ -806,27 +758,7 @@ function App() {
         }}
       />
 
-      {/* 🏆 Global & Game Leaderboards Modal */}
-      <LeaderboardModal
-        isOpen={leaderboardOpen}
-        onClose={() => setLeaderboardOpen(false)}
-        game={leaderboardGame}
-        user={user}
-        onScoreSubmitted={() => {
-          handleAwardXp(totalXp + 50, level);
-        }}
-      />
 
-      {/* ⚡ Daily Quests & XP Rewards Modal */}
-      <QuestRewardsModal
-        isOpen={questsOpen}
-        onClose={() => setQuestsOpen(false)}
-        totalXp={totalXp}
-        level={level}
-        completedQuests={completedQuests}
-        unlockedBadges={unlockedBadges}
-        onXpAwarded={handleAwardXp}
-      />
 
       {/* ⚔️ Real-Time 1v1 Multiplayer Lobby Modal */}
       <MultiplayerLobbyModal

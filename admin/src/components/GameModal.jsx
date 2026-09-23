@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { parseVideoSource, getGamePreviewVideo } from '../utils/videoHelper';
 import { gamesApi } from '../services/api';
+import CustomSelect from './CustomSelect';
 
 function sanitizeGameUrl(input) {
   if (!input) return '';
@@ -44,8 +45,8 @@ function getQuickClientMetadata(rawInput) {
 
   // 2. CrazyGames URL matching (game, embed, en_US, files, subdomains)
   const cgMatch = target.match(/crazygames\.com\/(?:game|embed|en_US)\/([a-zA-Z0-9-]+)/i) ||
-                  target.match(/https?:\/\/([a-zA-Z0-9-]+)\.game-files\.crazygames\.com/i) ||
-                  target.match(/https?:\/\/files\.crazygames\.com\/([a-zA-Z0-9-]+)/i);
+    target.match(/https?:\/\/([a-zA-Z0-9-]+)\.game-files\.crazygames\.com/i) ||
+    target.match(/https?:\/\/files\.crazygames\.com\/([a-zA-Z0-9-]+)/i);
   if (cgMatch) {
     const slug = cgMatch[1];
     const cleanTitle = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -128,12 +129,70 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectStatus, setDetectStatus] = useState(null);
   const [isModalHovered, setIsModalHovered] = useState(false);
+  const [imageRatioInfo, setImageRatioInfo] = useState(null);
   const modalVideoRef = useRef(null);
   const debounceTimerRef = useRef(null);
+
+  // Automatically detect image aspect ratio and convert card size
+  const detectAndApplyTileSize = (thumbUrl, force = false) => {
+    if (!thumbUrl || typeof thumbUrl !== 'string') return;
+    const clean = thumbUrl.trim();
+    if (!clean.startsWith('http') && !clean.startsWith('data:') && !clean.startsWith('/')) return;
+
+    const img = new Image();
+    img.onload = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      const ratio = img.naturalWidth / img.naturalHeight;
+      let calculatedSize = '1x1';
+      let desc = '1:1 Square';
+
+      if (ratio >= 2.1) {
+        calculatedSize = '4x2';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (~2:1 Ultra-wide Banner)`;
+      } else if (ratio >= 1.55) {
+        calculatedSize = '2x1';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (16:9 Landscape Banner)`;
+      } else if (ratio >= 1.25) {
+        calculatedSize = '3x2';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (3:2 Wide Hero)`;
+      } else if (ratio <= 0.65) {
+        calculatedSize = '1x2';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (9:16 Tall Poster)`;
+      } else if (ratio <= 0.82) {
+        calculatedSize = '2x3';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (3:4 Vertical Poster)`;
+      } else {
+        calculatedSize = formData.featured ? '2x2' : '1x1';
+        desc = `${img.naturalWidth}x${img.naturalHeight} (Square App Icon)`;
+      }
+
+      setImageRatioInfo({
+        ratio: ratio.toFixed(2),
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        bestSize: calculatedSize,
+        desc
+      });
+
+      if (force || !formData.tileSize || formData.tileSize === 'auto') {
+        setFormData(prev => ({
+          ...prev,
+          tileSize: calculatedSize
+        }));
+        setDetectStatus({
+          type: 'success',
+          text: `Auto-converted card size to ${calculatedSize.toUpperCase()} (${desc})`
+        });
+        setTimeout(() => setDetectStatus(null), 4000);
+      }
+    };
+    img.src = clean;
+  };
 
   useEffect(() => {
     setDetectStatus(null);
     setIsModalHovered(false);
+    setImageRatioInfo(null);
     if (game) {
       setFormData({
         title: game.title || '',
@@ -148,6 +207,9 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
         tileSize: game.tileSize || (game.featured ? '2x2' : 'auto'),
         status: game.status || 'active'
       });
+      if (game.thumbnail) {
+        detectAndApplyTileSize(game.thumbnail, false);
+      }
     } else {
       setFormData({
         title: '',
@@ -182,6 +244,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
         previewVideo: quick.previewVideo || prev.previewVideo,
         title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && quick.title ? quick.title : prev.title
       }));
+      if (quick.thumbnail) detectAndApplyTileSize(quick.thumbnail, true);
       setDetectStatus({ type: 'success', text: 'Details auto-detected!' });
     }
 
@@ -190,14 +253,16 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
       const json = await gamesApi.detectMetadata(raw);
       if (json?.success && json?.data) {
         const { thumbnail, banner, previewVideo, title, description } = json.data;
+        const targetThumb = thumbnail || quick.thumbnail || formData.thumbnail;
         setFormData(prev => ({
           ...prev,
-          thumbnail: thumbnail || quick.thumbnail || prev.thumbnail,
-          banner: banner || thumbnail || quick.banner || prev.banner,
+          thumbnail: targetThumb,
+          banner: banner || targetThumb || quick.banner || prev.banner,
           previewVideo: previewVideo || quick.previewVideo || prev.previewVideo || '',
           title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && title ? title : prev.title,
           description: (!prev.description || prev.description.trim() === '') && description ? description : prev.description
         }));
+        if (targetThumb) detectAndApplyTileSize(targetThumb, true);
         setDetectStatus({ type: 'success', text: 'Game details & video auto-detected!' });
       }
     } catch (err) {
@@ -209,7 +274,11 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
   };
 
   const handleGameUrlChange = (e) => {
-    const val = e.target.value;
+    let val = e.target.value;
+    const iframeMatch = val.match(/src=["']([^"']+)["']/i);
+    if (iframeMatch) {
+      val = iframeMatch[1];
+    }
     const quick = getQuickClientMetadata(val);
     setFormData(prev => ({
       ...prev,
@@ -219,6 +288,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
       previewVideo: quick.previewVideo || prev.previewVideo,
       title: (!prev.title || prev.title.trim() === '' || prev.title.startsWith('New Game')) && quick.title ? quick.title : prev.title
     }));
+    if (quick.thumbnail) detectAndApplyTileSize(quick.thumbnail, true);
 
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     if (val.trim().length > 10) {
@@ -266,15 +336,30 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
   return (
     <div className="modal-overlay">
-      <div 
-        className="modal-content" 
-        onClick={(e) => e.stopPropagation()} 
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: '720px', width: '95%', borderRadius: '18px' }}
       >
         {/* Clean Header */}
         <div className="modal-header" style={{ padding: '16px 22px' }}>
           <div className="modal-title-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '1.3rem' }}>{game ? '✏️' : '🎮'}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--accent-brand)' }}>
+              {game ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="6" y1="12" x2="10" y2="12" />
+                  <line x1="8" y1="10" x2="8" y2="14" />
+                  <line x1="15" y1="13" x2="15.01" y2="13" strokeWidth="3" />
+                  <line x1="18" y1="11" x2="18.01" y2="11" strokeWidth="3" />
+                  <rect x="2" y="6" width="20" height="12" rx="6" />
+                </svg>
+              )}
+            </span>
             <div>
               <h2 className="modal-title" style={{ fontSize: '1.1rem', fontWeight: 800 }}>
                 {game ? 'Edit Game' : 'Add New Game'}
@@ -290,7 +375,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
         {/* Clean Normal Form */}
         <form onSubmit={handleSubmit}>
           <div className="modal-body" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: 'calc(85vh - 120px)', overflowY: 'auto' }}>
-            
+
             {/* Row 1: Title & Category */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '14px' }}>
               <div className="form-group" style={{ margin: 0 }}>
@@ -308,18 +393,15 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>Category</label>
-                <select
-                  className="form-input"
+                <CustomSelect
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  style={{ cursor: 'pointer', background: '#0a1126', color: '#fff' }}
-                >
-                  {categories.filter(c => c.id !== 'all').map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.icon || '🎮'} {c.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setFormData({ ...formData, category: val })}
+                  options={categories.filter(c => c.id !== 'all').map((c) => ({
+                    value: c.id,
+                    label: c.name.charAt(0).toUpperCase() + c.name.slice(1)
+                  }))}
+                  minWidth="100%"
+                />
               </div>
             </div>
 
@@ -334,13 +416,13 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                   onClick={() => handleAutoDetectImage()}
                   disabled={isDetecting || !formData.gameUrl.trim()}
                   style={{
-                    background: 'rgba(0, 242, 254, 0.1)',
-                    border: '1px solid rgba(0, 242, 254, 0.35)',
-                    color: '#00f2fe',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    color: '#60a5fa',
                     padding: '3px 10px',
                     borderRadius: '6px',
                     fontSize: '0.74rem',
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: (isDetecting || !formData.gameUrl.trim()) ? 'not-allowed' : 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -348,7 +430,9 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                     opacity: (!formData.gameUrl.trim() && !isDetecting) ? 0.5 : 1
                   }}
                 >
-                  <span>✨</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
                   <span>{isDetecting ? 'Detecting...' : 'Auto-Detect Details'}</span>
                 </button>
               </div>
@@ -373,9 +457,9 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                   borderRadius: '6px',
                   fontSize: '0.74rem',
                   fontWeight: 600,
-                  background: detectStatus.type === 'success' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(0, 242, 254, 0.12)',
-                  color: detectStatus.type === 'success' ? '#22c55e' : '#00f2fe',
-                  border: `1px solid ${detectStatus.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(0, 242, 254, 0.3)'}`
+                  background: detectStatus.type === 'success' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(59, 130, 246, 0.12)',
+                  color: detectStatus.type === 'success' ? '#22c55e' : '#60a5fa',
+                  border: `1px solid ${detectStatus.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`
                 }}>
                   {detectStatus.text}
                 </div>
@@ -387,7 +471,7 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
-                    🖼️ Thumbnail Image URL *
+                    Thumbnail Image URL *
                   </label>
                   <input
                     type="url"
@@ -401,8 +485,8 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
 
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>🎥 Hover Video URL</span>
-                    <span style={{ fontSize: '0.68rem', color: '#00f2fe' }}>Optional (MP4, WebM, YouTube, Shorts, Vimeo)</span>
+                    <span>Hover Video URL</span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Optional (MP4, WebM, YouTube, Shorts, Vimeo)</span>
                   </label>
                   <input
                     type="url"
@@ -431,8 +515,8 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                 const modalVideoSrc = parseVideoSource(activeVideoUrl);
                 return (
                   <div style={{
-                    background: 'rgba(10, 16, 36, 0.7)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'var(--bg-canvas)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '14px',
                     padding: '12px',
                     display: 'flex',
@@ -441,97 +525,118 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                     gap: '8px'
                   }}>
                     <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>
-                      🕹️ Live Card Preview (Hover to Test)
+                      Live Card Preview (Hover to Test)
                     </div>
 
-                    <div
-                      onMouseEnter={() => {
-                        setIsModalHovered(true);
-                        if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
-                          try {
-                            modalVideoRef.current.currentTime = 0;
-                            const p = modalVideoRef.current.play();
-                            if (p !== undefined) p.catch(() => {});
-                          } catch {}
+                    {(() => {
+                      const getPreviewStyle = (ts) => {
+                        switch (ts) {
+                          case '2x1': return { width: '180px', height: '90px' };
+                          case '4x2': return { width: '210px', height: '95px' };
+                          case '1x2': return { width: '90px', height: '165px' };
+                          case '2x3': return { width: '100px', height: '150px' };
+                          case '3x2': return { width: '165px', height: '110px' };
+                          case '2x2': return { width: '140px', height: '140px' };
+                          case '3x3': return { width: '160px', height: '160px' };
+                          case '1x1':
+                          default:
+                            return { width: '120px', height: '120px' };
                         }
-                      }}
-                      onMouseLeave={() => {
-                        setIsModalHovered(false);
-                        if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
-                          modalVideoRef.current.pause();
-                          try { modalVideoRef.current.currentTime = 0; } catch {}
-                        }
-                      }}
-                      style={{
-                        position: 'relative',
-                        width: '120px',
-                        height: '120px',
-                        borderRadius: '20px',
-                        overflow: 'hidden',
-                        border: '2px solid rgba(0, 242, 254, 0.4)',
-                        background: '#000000',
-                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <img
-                        src={formData.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}
-                        alt="Preview"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                        onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'; }}
-                      />
+                      };
+                      const pStyle = getPreviewStyle(formData.tileSize);
 
-                      {modalVideoSrc?.type === 'direct' && (
-                        <video
-                          ref={modalVideoRef}
-                          src={modalVideoSrc.url}
-                          muted
-                          loop
-                          playsInline
-                          preload="auto"
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            opacity: isModalHovered ? 1 : 0,
-                            transition: 'opacity 0.2s ease',
-                            pointerEvents: 'none',
-                            zIndex: 2
+                      return (
+                        <div
+                          onMouseEnter={() => {
+                            setIsModalHovered(true);
+                            if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
+                              try {
+                                modalVideoRef.current.currentTime = 0;
+                                const p = modalVideoRef.current.play();
+                                if (p !== undefined) p.catch(() => { });
+                              } catch { }
+                            }
                           }}
-                        />
-                      )}
+                          onMouseLeave={() => {
+                            setIsModalHovered(false);
+                            if (modalVideoRef.current && modalVideoSrc?.type === 'direct') {
+                              modalVideoRef.current.pause();
+                              try { modalVideoRef.current.currentTime = 0; } catch { }
+                            }
+                          }}
+                          style={{
+                            position: 'relative',
+                            width: pStyle.width,
+                            height: pStyle.height,
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: '#0b0f19',
+                            boxShadow: '0 6px 18px rgba(0, 0, 0, 0.5)',
+                            cursor: 'pointer',
+                            transition: 'width 0.25s ease, height 0.25s ease'
+                          }}
+                        >
+                          <img
+                            src={formData.thumbnail || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}
+                            alt="Preview"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 'inherit' }}
+                            onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'; }}
+                          />
 
-                      {isModalHovered && (modalVideoSrc?.type === 'youtube' || modalVideoSrc?.type === 'vimeo') && (
-                        <iframe
-                          src={modalVideoSrc.embedUrl}
-                          title="Video preview"
-                          allow="autoplay; encrypted-media"
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            width: '100%',
-                            height: '100%',
-                            border: 0,
-                            pointerEvents: 'none',
-                            opacity: 1,
-                            zIndex: 2,
-                            transform: 'scale(1.25)',
-                            transformOrigin: 'center center'
-                          }}
-                        />
-                      )}
-                    </div>
+                          {modalVideoSrc?.type === 'direct' && (
+                            <video
+                              ref={modalVideoRef}
+                              src={modalVideoSrc.url}
+                              muted
+                              loop
+                              playsInline
+                              preload="auto"
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                opacity: isModalHovered ? 1 : 0,
+                                transition: 'opacity 0.2s ease',
+                                pointerEvents: 'none',
+                                zIndex: 2
+                              }}
+                            />
+                          )}
+
+                          {isModalHovered && (modalVideoSrc?.type === 'youtube' || modalVideoSrc?.type === 'vimeo') && (
+                            <iframe
+                              src={modalVideoSrc.embedUrl}
+                              title="Video preview"
+                              allow="autoplay; encrypted-media"
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                border: 0,
+                                pointerEvents: 'none',
+                                opacity: 1,
+                                zIndex: 2,
+                                transform: 'scale(1.25)',
+                                transformOrigin: 'center center'
+                              }}
+                            />
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     <span style={{ fontSize: '0.68rem', color: activeVideoUrl ? '#22c55e' : '#94a3b8' }}>
                       {activeVideoUrl
                         ? (modalVideoSrc?.type === 'youtube'
-                            ? '● YouTube video on hover'
-                            : modalVideoSrc?.type === 'vimeo'
+                          ? '● YouTube video on hover'
+                          : modalVideoSrc?.type === 'vimeo'
                             ? '● Vimeo video on hover'
                             : '● Video active on hover (CrazyGames style)')
-                        : '○ Static thumbnail'}
+                        : '○ Pure image card (hover to test)'}
                     </span>
                   </div>
                 );
@@ -539,18 +644,64 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
             </div>
 
             {/* Row 4: Card Size & Publication Status */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px', alignItems: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px', alignItems: 'flex-start' }}>
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>📐 Website Card Size </span>
-                  <span style={{ fontSize: '0.72rem', color: '#00f2fe', fontWeight: 600 }}>{formData.tileSize || 'auto'}</span>
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem', margin: 0 }}>
+                    Website Card Size
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => detectAndApplyTileSize(formData.thumbnail, true)}
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid var(--accent-brand)',
+                      color: 'var(--accent-brand)',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 1px 3px rgba(59, 130, 246, 0.15)'
+                    }}
+                    title="Auto-detect aspect ratio from thumbnail image and set optimal card size"
+                  >
+                    <span>Auto from Image</span>
+                  </button>
+                </div>
+
+                {imageRatioInfo && (
+                  <div style={{
+                    marginBottom: '6px',
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    background: 'rgba(59, 130, 246, 0.08)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    fontSize: '0.74rem',
+                    color: 'var(--accent-brand)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 600
+                  }}>
+                    <span>{imageRatioInfo.width}×{imageRatioInfo.height}</span>
+                    <span>•</span>
+                    <span>Ratio {imageRatioInfo.ratio}</span>
+                    <span>•</span>
+                    <span style={{ fontWeight: 800 }}>Best: {imageRatioInfo.bestSize.toUpperCase()}</span>
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px', marginBottom: '8px' }}>
                   {[
-                    { id: '1x1', label: '1x1 Normal', desc: 'Square' },
-                    { id: '2x2', label: '2x2 Hero', desc: 'Big Square' },
-                    { id: '2x1', label: '2x1 Wide', desc: 'Banner' },
-                    { id: '1x2', label: '1x2 Tall', desc: 'Poster' }
+                    { id: '1x1', label: '1x1', desc: 'Square' },
+                    { id: '2x1', label: '2x1', desc: 'Wide Banner' },
+                    { id: '1x2', label: '1x2', desc: 'Poster' },
+                    { id: '2x2', label: '2x2', desc: 'Hero' },
+                    { id: '3x2', label: '3x2', desc: 'Giant' }
                   ].map(ts => {
                     const isSel = (formData.tileSize || 'auto') === ts.id;
                     return (
@@ -559,41 +710,40 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                         type="button"
                         onClick={() => setFormData({ ...formData, tileSize: ts.id })}
                         style={{
-                          padding: '6px 4px',
+                          padding: '6px 2px',
                           borderRadius: '8px',
-                          border: isSel ? '1.5px solid #00f2fe' : '1px solid rgba(255, 255, 255, 0.12)',
-                          background: isSel ? 'rgba(0, 242, 254, 0.18)' : 'rgba(255, 255, 255, 0.04)',
-                          color: isSel ? '#00f2fe' : '#ffffff',
+                          border: isSel ? '1.5px solid var(--accent-brand)' : '1px solid var(--border-color)',
+                          background: isSel ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-canvas)',
+                          color: isSel ? 'var(--accent-brand)' : 'var(--text-main)',
                           cursor: 'pointer',
                           textAlign: 'center',
                           transition: 'all 0.15s ease'
                         }}
                       >
-                        <div style={{ fontSize: '0.76rem', fontWeight: 800 }}>{ts.label}</div>
-                        <div style={{ fontSize: '0.62rem', color: isSel ? '#67e8f9' : '#94a3b8' }}>{ts.desc}</div>
+                        <div style={{ fontSize: '0.76rem', fontWeight: 700 }}>{ts.label}</div>
+                        <div style={{ fontSize: '0.62rem', color: isSel ? 'var(--accent-brand)' : 'var(--text-muted)' }}>{ts.desc}</div>
                       </button>
                     );
                   })}
                 </div>
-                <select
-                  className="form-input"
+                <CustomSelect
                   value={formData.tileSize}
-                  onChange={(e) => setFormData({ ...formData, tileSize: e.target.value })}
-                  style={{ cursor: 'pointer', background: '#0a1126', color: '#fff' }}
-                >
-                  {TILE_SIZES.map(opt => (
-                    <option key={opt.id} value={opt.id}>{opt.label}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setFormData({ ...formData, tileSize: val })}
+                  options={TILE_SIZES.map(opt => ({
+                    value: opt.id,
+                    label: opt.label
+                  }))}
+                  minWidth="100%"
+                />
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>Status</label>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {[
-                    { id: 'active', label: 'Active', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.15)' },
-                    { id: 'maintenance', label: 'Maint.', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-                    { id: 'draft', label: 'Draft', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' }
+                    { id: 'active', label: 'Active', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.12)' },
+                    { id: 'maintenance', label: 'Maint.', color: '#d97706', bg: 'rgba(217, 119, 6, 0.12)' },
+                    { id: 'draft', label: 'Draft', color: '#64748b', bg: 'rgba(100, 116, 139, 0.12)' }
                   ].map(st => {
                     const isSelected = formData.status === st.id;
                     return (
@@ -605,9 +755,9 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                           flex: 1,
                           padding: '8px 4px',
                           borderRadius: '8px',
-                          border: isSelected ? `1.5px solid ${st.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                          background: isSelected ? st.bg : 'rgba(255, 255, 255, 0.03)',
-                          color: isSelected ? st.color : '#94a3b8',
+                          border: isSelected ? `1.5px solid ${st.color}` : '1px solid var(--border-color)',
+                          background: isSelected ? st.bg : 'var(--bg-canvas)',
+                          color: isSelected ? st.color : 'var(--text-muted)',
                           fontWeight: 700,
                           fontSize: '0.78rem',
                           cursor: 'pointer',
@@ -639,8 +789,8 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
               alignItems: 'center',
               gap: '10px',
               padding: '10px 14px',
-              background: 'rgba(251, 191, 36, 0.06)',
-              border: '1px solid rgba(251, 191, 36, 0.2)',
+              background: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
               borderRadius: '10px'
             }}>
               <input
@@ -648,17 +798,17 @@ export default function GameModal({ game, isOpen, onClose, onSave, categories = 
                 id="featCheckbox"
                 checked={formData.featured}
                 onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                style={{ width: '16px', height: '16px', accentColor: '#fbbf24', cursor: 'pointer' }}
+                style={{ width: '16px', height: '16px', accentColor: '#f59e0b', cursor: 'pointer' }}
               />
-              <label htmlFor="featCheckbox" style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.84rem', color: formData.featured ? '#fbbf24' : '#e2e8f0' }}>
-                ⭐ Mark as Spotlight / Featured Game
+              <label htmlFor="featCheckbox" style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.84rem', color: formData.featured ? '#b45309' : 'var(--text-heading)' }}>
+                Mark as Spotlight / Featured Game
               </label>
             </div>
 
           </div>
 
           {/* Clean Footer */}
-          <div className="modal-footer" style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: '10px', borderTop: '1px solid var(--border-glass)' }}>
+          <div className="modal-footer" style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button type="button" className="admin-btn secondary" onClick={onClose} style={{ padding: '8px 18px' }}>
               Cancel
             </button>
